@@ -26,19 +26,19 @@
       </a>
 
       <nav class="nav" aria-label="Primary">
-        <a href="#why" data-i18n="nav.why"></a>
-        <a href="#what" data-i18n="nav.what"></a>
-        <a href="#cases" data-i18n="nav.cases"></a>
-        <a href="#how" data-i18n="nav.how"></a>
+        <a href="#why" data-i18n="nav.why">Why</a>
+        <a href="#what" data-i18n="nav.what">What we do</a>
+        <a href="#cases" data-i18n="nav.cases">Use cases</a>
+        <a href="#how" data-i18n="nav.how">How it works</a>
       </nav>
 
       <div class="header-right">
         <div class="lang-switch">
-          <button type="button" class="lang-btn" data-lang="en">EN</button>
+          <button type="button" class="lang-btn is-active" data-lang="en">EN</button>
           <span class="dot">·</span>
           <button type="button" class="lang-btn" data-lang="es">ES</button>
         </div>
-        <a href="#contact" class="btn-contact"><span data-i18n="nav.contact"></span><span class="sq"></span></a>
+        <a href="#contact" class="btn-contact"><span data-i18n="nav.contact">Contact</span><span class="sq"></span></a>
       </div>
     </div>
   </header>
@@ -47,21 +47,19 @@
   <section id="top" class="hero">
     <div class="wrap">
       <div class="hero-meta" data-reveal>
-        <span class="left"><span class="idx">001</span><span class="slash">/</span><span data-i18n="hero.eyebrow"></span></span>
+        <span class="left"><span class="idx">001</span><span class="slash">/</span><span data-i18n="hero.eyebrow">AI workflow infrastructure</span></span>
         <span>Austin, TX — Est. 2026</span>
       </div>
 
-      <h1 class="hero-title" data-reveal>
-        <span data-i18n="hero.titlePre"></span><span class="em" data-i18n="hero.titleEm"></span><span data-i18n="hero.titlePost"></span>
-      </h1>
+      <h1 class="hero-title" data-reveal><span data-i18n="hero.titlePre">You know AI matters. The real question is </span><span class="em" data-i18n="hero.titleEm">where it works</span><span data-i18n="hero.titlePost"> inside your company.</span></h1>
 
       <div class="hero-cols">
         <div data-reveal>
-          <p class="hero-sub" data-i18n="hero.subtitle"></p>
+          <p class="hero-sub" data-i18n="hero.subtitle">We map how your business runs today, find where AI agents create real value, and deploy them inside your workflows — without breaking the processes that already work.</p>
         </div>
         <div class="hero-ctas" data-reveal>
-          <a href="#contact" class="btn-primary"><span data-i18n="hero.cta1"></span><span class="arr">→</span></a>
-          <a href="#cases" class="link-mono">[ <span data-i18n="hero.cta2"></span> ]</a>
+          <a href="#contact" class="btn-primary"><span data-i18n="hero.cta1">Start with your workflow</span><span class="arr">→</span></a>
+          <a href="#cases" class="link-mono">[ <span data-i18n="hero.cta2">See use cases</span> ]</a>
         </div>
       </div>
 
@@ -69,14 +67,14 @@
       <figure class="figure hero-figure" data-reveal>
         <span class="crop tl"></span><span class="crop tr"></span><span class="crop bl"></span><span class="crop br"></span>
         <figcaption class="figcap">
-          <span class="label">FIG.01 / <span data-i18n="fig1"></span></span>
-          <span class="note"><span class="live"></span><span data-i18n="fig1note"></span></span>
+          <span class="label">FIG.01 / <span data-i18n="fig1">THE_AGENTIC_WORKFLOW</span></span>
+          <span class="note"><span class="live"></span><span data-i18n="fig1note">Live</span></span>
         </figcaption>
         <canvas class="viz-canvas" id="viz"></canvas>
         <div class="legend">
-          <span><span class="sw agents"></span><span data-i18n="legend.agents"></span></span>
-          <span><span class="sw gate"></span><span data-i18n="legend.gate"></span></span>
-          <span><span class="sw exec"></span><span data-i18n="legend.exec"></span></span>
+          <span><span class="sw agents"></span><span data-i18n="legend.agents">Agents</span></span>
+          <span><span class="sw gate"></span><span data-i18n="legend.gate">Human gate</span></span>
+          <span><span class="sw exec"></span><span data-i18n="legend.exec">Execution</span></span>
         </div>
       </figure>
     </div>
@@ -86,10 +84,26 @@
   <section id="why" class="why">
     <div class="wrap">
       <div class="section-head kick-grid" data-reveal>
-        <div class="kicker"><span class="idx">001</span> / <span data-i18n="kick.why"></span></div>
-        <h2 class="section-h2" data-i18n="why.heading"></h2>
+        <div class="kicker"><span class="idx">001</span> / <span data-i18n="kick.why">The problem</span></div>
+        <h2 class="section-h2" data-i18n="why.heading">AI isn't the hard part. Knowing where to put it is.</h2>
       </div>
-      <div class="why-grid" id="why-grid"></div>
+      <div class="why-grid" id="why-grid">
+        <div class="why-card" data-reveal>
+          <div class="n">01</div>
+          <h3>You know AI is important</h3>
+          <p>The problem isn't awareness. It's knowing where AI creates real value instead of noise.</p>
+        </div>
+        <div class="why-card" data-reveal>
+          <div class="n">02</div>
+          <h3>Your workflows are complex</h3>
+          <p>Every company has rules, approvals, exceptions and systems. AI has to respect all of them.</p>
+        </div>
+        <div class="why-card" data-reveal>
+          <div class="n">03</div>
+          <h3>Agents need control</h3>
+          <p>Agents act inside your tools. That power needs permissions, limits, approvals and traceability.</p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -97,10 +111,31 @@
   <section id="what" class="what">
     <div class="wrap">
       <div class="section-head kick-grid" data-reveal>
-        <div class="kicker"><span class="idx">002</span> / <span data-i18n="kick.what"></span></div>
-        <h2 class="section-h2" data-i18n="what.heading"></h2>
+        <div class="kicker"><span class="idx">002</span> / <span data-i18n="kick.what">The method</span></div>
+        <h2 class="section-h2" data-i18n="what.heading">From a process you already run to agents you can trust.</h2>
       </div>
-      <div class="what-list" id="what-list" data-reveal></div>
+      <div class="what-list" id="what-list" data-reveal>
+        <div class="what-row">
+          <div class="num">01</div>
+          <h3>Workflow discovery</h3>
+          <p>We map how the work actually happens today — people, steps, systems and handoffs.</p>
+        </div>
+        <div class="what-row">
+          <div class="num">02</div>
+          <h3>AI opportunity mapping</h3>
+          <p>We pinpoint where agents add speed and where humans must stay in control.</p>
+        </div>
+        <div class="what-row">
+          <div class="num">03</div>
+          <h3>Agentic workflow design</h3>
+          <p>We design dynamic workflows that adapt to context but follow your business rules.</p>
+        </div>
+        <div class="what-row">
+          <div class="num">04</div>
+          <h3>Implementation &amp; governance</h3>
+          <p>We deploy with permissions, approvals and audit trails built in from day one.</p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -108,23 +143,29 @@
   <section class="dyn">
     <div class="wrap">
       <div class="section-head kick-grid" data-reveal>
-        <div class="kicker"><span class="idx">003</span> / <span data-i18n="kick.dyn"></span></div>
+        <div class="kicker"><span class="idx">003</span> / <span data-i18n="kick.dyn">The principle</span></div>
         <div>
-          <h2 class="dyn-h2" data-i18n="dyn.heading"></h2>
-          <p class="dyn-body" data-i18n="dyn.body"></p>
+          <h2 class="dyn-h2" data-i18n="dyn.heading">Dynamic workflows, not chaotic ones.</h2>
+          <p class="dyn-body" data-i18n="dyn.body">Agents adapt to context — but always respect business rules, permissions and human approval points. Power with guardrails, not autonomy without limits.</p>
         </div>
       </div>
 
       <figure class="figure dyn-figure" data-reveal>
         <span class="crop tl"></span><span class="crop tr"></span><span class="crop bl"></span><span class="crop br"></span>
         <figcaption class="figcap">
-          <span class="label">FIG.02 / <span data-i18n="fig2"></span></span>
-          <span class="note"><span data-i18n="fig2note"></span></span>
+          <span class="label">FIG.02 / <span data-i18n="fig2">CONTROLLED_AUTOMATION</span></span>
+          <span class="note"><span data-i18n="fig2note">Constraints → outcome</span></span>
         </figcaption>
         <div class="dyn-exhibit">
           <div>
-            <div class="dyn-inputs-label"><span data-i18n="dyn.inputsLabel"></span> [05]</div>
-            <div id="dyn-inputs"></div>
+            <div class="dyn-inputs-label"><span data-i18n="dyn.inputsLabel">Inputs</span> [05]</div>
+            <div id="dyn-inputs">
+              <div class="dyn-input"><span class="ix" style="color:rgba(255,255,255,0.82);">01</span><span class="lbl" style="color:rgba(255,255,255,0.82);">Business rules</span></div>
+              <div class="dyn-input"><span class="ix" style="color:rgba(255,255,255,0.82);">02</span><span class="lbl" style="color:rgba(255,255,255,0.82);">Company systems</span></div>
+              <div class="dyn-input"><span class="ix" style="color:rgba(255,255,255,0.82);">03</span><span class="lbl" style="color:rgba(255,255,255,0.82);">AI agents</span></div>
+              <div class="dyn-input human"><span class="ix" style="color:#FF4D00;">04</span><span class="lbl" style="color:#FF4D00;">Human approval</span></div>
+              <div class="dyn-input"><span class="ix" style="color:rgba(255,255,255,0.82);">05</span><span class="lbl" style="color:rgba(255,255,255,0.82);">Audit trail</span></div>
+            </div>
           </div>
           <div class="dyn-conn">
             <div class="v-line"></div>
@@ -133,12 +174,12 @@
             <div class="pkt"></div>
           </div>
           <div class="dyn-out">
-            <div class="out-label"><span data-i18n="dyn.outLabel"></span> →</div>
-            <div class="out-full" data-i18n="dyn.outFull"></div>
+            <div class="out-label"><span data-i18n="dyn.outLabel">Output</span> →</div>
+            <div class="out-full" data-i18n="dyn.outFull">Controlled agentic workflow</div>
           </div>
         </div>
         <div class="dyn-caption-wrap">
-          <p class="dyn-caption" data-i18n="dyn.caption"></p>
+          <p class="dyn-caption" data-i18n="dyn.caption">Every input constrains the system. The result is automation you can hand to an auditor.</p>
         </div>
       </figure>
     </div>
@@ -148,10 +189,38 @@
   <section id="cases" class="cases">
     <div class="wrap">
       <div class="section-head kick-grid" data-reveal>
-        <div class="kicker"><span class="idx">004</span> / <span data-i18n="kick.cases"></span></div>
-        <h2 class="section-h2" data-i18n="cases.heading"></h2>
+        <div class="kicker"><span class="idx">004</span> / <span data-i18n="kick.cases">The applications</span></div>
+        <h2 class="section-h2" data-i18n="cases.heading">Where teams start — and where they grow.</h2>
       </div>
-      <div class="cases-grid" id="cases-grid"></div>
+      <div class="cases-grid" id="cases-grid">
+        <div class="tier" data-reveal>
+          <div class="tier-head"><h3>Small business</h3><span class="tier-tag">Start here</span></div>
+          <div class="tier-rule"></div>
+          <div class="tier-item"><span class="i">01</span><span class="lbl">Lead intake</span></div>
+          <div class="tier-item"><span class="i">02</span><span class="lbl">Follow-up emails</span></div>
+          <div class="tier-item"><span class="i">03</span><span class="lbl">Scheduling</span></div>
+          <div class="tier-item"><span class="i">04</span><span class="lbl">Document extraction</span></div>
+          <div class="tier-item"><span class="i">05</span><span class="lbl">Weekly reports</span></div>
+        </div>
+        <div class="tier hot" data-reveal>
+          <div class="tier-head"><h3>Growing company</h3><span class="tier-tag">Most common</span></div>
+          <div class="tier-rule"></div>
+          <div class="tier-item"><span class="i">01</span><span class="lbl">CRM updates</span></div>
+          <div class="tier-item"><span class="i">02</span><span class="lbl">Ticket triage</span></div>
+          <div class="tier-item"><span class="i">03</span><span class="lbl">Proposal drafts</span></div>
+          <div class="tier-item"><span class="i">04</span><span class="lbl">Knowledge assistants</span></div>
+          <div class="tier-item"><span class="i">05</span><span class="lbl">Ops dashboards</span></div>
+        </div>
+        <div class="tier" data-reveal>
+          <div class="tier-head"><h3>Enterprise</h3><span class="tier-tag">At scale</span></div>
+          <div class="tier-rule"></div>
+          <div class="tier-item"><span class="i">01</span><span class="lbl">Human-in-the-loop approvals</span></div>
+          <div class="tier-item"><span class="i">02</span><span class="lbl">Audit trails</span></div>
+          <div class="tier-item"><span class="i">03</span><span class="lbl">Policy-based automation</span></div>
+          <div class="tier-item"><span class="i">04</span><span class="lbl">Multi-system orchestration</span></div>
+          <div class="tier-item"><span class="i">05</span><span class="lbl">AI governance</span></div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -159,10 +228,31 @@
   <section id="how" class="how">
     <div class="wrap">
       <div class="section-head kick-grid" data-reveal>
-        <div class="kicker"><span class="idx">005</span> / <span data-i18n="kick.how"></span></div>
-        <h2 class="section-h2" data-i18n="how.heading"></h2>
+        <div class="kicker"><span class="idx">005</span> / <span data-i18n="kick.how">The engagement</span></div>
+        <h2 class="section-h2" data-i18n="how.heading">Four steps from idea to measured result.</h2>
       </div>
-      <div class="how-grid" id="how-grid"></div>
+      <div class="how-grid" id="how-grid">
+        <div class="how-step" data-reveal>
+          <div class="top"><span class="num">1</span><span class="rule"></span></div>
+          <h3>Map the current workflow</h3>
+          <p>We document how it runs today, with no changes yet.</p>
+        </div>
+        <div class="how-step" data-reveal>
+          <div class="top"><span class="num">2</span><span class="rule"></span></div>
+          <h3>Pick the first use case</h3>
+          <p>We choose one workflow where AI pays off fast and safely.</p>
+        </div>
+        <div class="how-step" data-reveal>
+          <div class="top"><span class="num">3</span><span class="rule"></span></div>
+          <h3>Design the agentic workflow</h3>
+          <p>We build the agents, rules and approval points around it.</p>
+        </div>
+        <div class="how-step" data-reveal>
+          <div class="top"><span class="num">4</span><span class="rule"></span></div>
+          <h3>Deploy and measure</h3>
+          <p>We ship it, track results and expand from proof, not hype.</p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -170,12 +260,48 @@
   <section class="faq">
     <div class="wrap">
       <div class="section-head kick-grid" data-reveal>
-        <div class="kicker"><span class="idx">006</span> / <span data-i18n="kick.faq"></span></div>
-        <h2 class="section-h2" data-i18n="faq.heading"></h2>
+        <div class="kicker"><span class="idx">006</span> / <span data-i18n="kick.faq">Questions</span></div>
+        <h2 class="section-h2" data-i18n="faq.heading">Straight answers.</h2>
       </div>
       <div class="faq-body" data-reveal>
         <div></div>
-        <div class="faq-list" id="faq-list"></div>
+        <div class="faq-list" id="faq-list">
+          <div class="faq-item open" data-faq="0">
+            <button class="faq-q" type="button" aria-expanded="true">
+              <span class="q-left"><span class="q-idx">06.1</span><span class="q-text">Why not just buy an AI tool?</span></span>
+              <span class="q-icon">–</span>
+            </button>
+            <div class="faq-answer"><p>Tools are generic. Your workflows aren't. We make AI fit your process, systems and rules — not the other way around.</p></div>
+          </div>
+          <div class="faq-item" data-faq="1">
+            <button class="faq-q" type="button" aria-expanded="false">
+              <span class="q-left"><span class="q-idx">06.2</span><span class="q-text">Do you replace our current processes?</span></span>
+              <span class="q-icon">+</span>
+            </button>
+            <div class="faq-answer"><p>No. We map what already works, then add agents only where they create value. The process stays yours.</p></div>
+          </div>
+          <div class="faq-item" data-faq="2">
+            <button class="faq-q" type="button" aria-expanded="false">
+              <span class="q-left"><span class="q-idx">06.3</span><span class="q-text">Can this work for small companies?</span></span>
+              <span class="q-icon">+</span>
+            </button>
+            <div class="faq-answer"><p>Yes. Small teams often see the fastest wins — lead intake, follow-ups, scheduling and reports.</p></div>
+          </div>
+          <div class="faq-item" data-faq="3">
+            <button class="faq-q" type="button" aria-expanded="false">
+              <span class="q-left"><span class="q-idx">06.4</span><span class="q-text">Can this work for enterprise teams?</span></span>
+              <span class="q-icon">+</span>
+            </button>
+            <div class="faq-answer"><p>Yes. We design for permissions, audit trails, policy-based automation and multi-system orchestration.</p></div>
+          </div>
+          <div class="faq-item" data-faq="4">
+            <button class="faq-q" type="button" aria-expanded="false">
+              <span class="q-left"><span class="q-idx">06.5</span><span class="q-text">What is an agentic workflow?</span></span>
+              <span class="q-icon">+</span>
+            </button>
+            <div class="faq-answer"><p>A workflow where AI agents take actions across your tools — within business rules, permissions and human approval points.</p></div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -184,41 +310,41 @@
   <section id="contact" class="contact">
     <div class="wrap">
       <div class="contact-head" data-reveal>
-        <div class="contact-eyebrow"><span class="idx">007</span> / <span data-i18n="contact.eyebrow"></span></div>
-        <h2 class="contact-h2" data-i18n="contact.heading"></h2>
+        <div class="contact-eyebrow"><span class="idx">007</span> / <span data-i18n="contact.eyebrow">Contact</span></div>
+        <h2 class="contact-h2" data-i18n="contact.heading">Show us one workflow that wastes time.</h2>
       </div>
       <div class="contact-cols" data-reveal>
         <div>
-          <p class="contact-sub" data-i18n="contact.sub"></p>
-          <div class="contact-meta" data-i18n="contact.meta"></div>
+          <p class="contact-sub" data-i18n="contact.sub">We'll show you where AI can help. No deck required — bring one real process and we'll map where agents fit.</p>
+          <div class="contact-meta" data-i18n="contact.meta">Hundred Agents · Austin, Texas</div>
         </div>
         <div>
           <form class="contact-form" id="contact-form" novalidate>
             <div class="field-row">
               <label class="field">
-                <span class="flabel" data-i18n="contact.form.name"></span>
-                <input type="text" name="name" id="f-name" autocomplete="name">
+                <span class="flabel" data-i18n="contact.form.name">Name</span>
+                <input type="text" name="name" id="f-name" autocomplete="name" placeholder="Jane Doe">
               </label>
               <label class="field">
-                <span class="flabel" data-i18n="contact.form.email"></span>
-                <input type="email" name="email" id="f-email" autocomplete="email">
+                <span class="flabel" data-i18n="contact.form.email">Work email</span>
+                <input type="email" name="email" id="f-email" autocomplete="email" placeholder="jane@company.com">
               </label>
             </div>
             <label class="field">
-              <span class="flabel" data-i18n="contact.form.problem"></span>
-              <textarea name="problem" id="f-problem" rows="4"></textarea>
+              <span class="flabel" data-i18n="contact.form.problem">The workflow that wastes time</span>
+              <textarea name="problem" id="f-problem" rows="4" placeholder="Describe one process — what happens today, who is involved, and where it slows down."></textarea>
             </label>
             <div class="form-err" id="form-err" hidden><span class="sq"></span><span class="msg"></span></div>
             <div class="form-actions">
-              <button type="submit" class="btn-submit"><span data-i18n="contact.form.submit"></span><span class="arr">→</span></button>
-              <span class="form-privacy" data-i18n="contact.form.privacy"></span>
+              <button type="submit" class="btn-submit"><span data-i18n="contact.form.submit">Request a workflow review</span><span class="arr">→</span></button>
+              <span class="form-privacy" data-i18n="contact.form.privacy">No spam · reply in 1 business day</span>
             </div>
           </form>
           <div class="form-success" id="form-success" hidden>
             <span class="crop tl"></span><span class="crop br"></span>
-            <div class="status">STATUS — <span data-i18n="contact.form.status"></span></div>
-            <div class="title" data-i18n="contact.form.success"></div>
-            <p data-i18n="contact.form.successSub"></p>
+            <div class="status">STATUS — <span data-i18n="contact.form.status">Received</span></div>
+            <div class="title" data-i18n="contact.form.success">Request received.</div>
+            <p data-i18n="contact.form.successSub">We'll reply within one business day to schedule your workflow review. Nothing else lands in your inbox.</p>
           </div>
         </div>
       </div>
@@ -236,7 +362,7 @@
         </svg>
         <span class="name">Hundred Agents</span>
       </div>
-      <span class="footer-text" data-i18n="footer.text"></span>
+      <span class="footer-text" data-i18n="footer.text">© 2026 Hundred Agents AI LLC · Austin, Texas · info@thehagentic.com</span>
     </div>
   </footer>
 

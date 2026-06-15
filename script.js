@@ -286,12 +286,39 @@ function renderFaq(t) {
       </div>`;
   }).join('');
 
-  $$('#faq-list .faq-q').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const i = Number(btn.parentElement.getAttribute('data-faq'));
-      state.openFaq = state.openFaq === i ? -1 : i;
-      renderFaq(t);
+}
+
+/**
+ * FAQ accordion via event delegation on the container, so it works on the
+ * server-rendered EN markup without a rebuild (and survives re-renders on
+ * language switch — the container element persists).
+ */
+function setupFaq() {
+  const list = $('#faq-list');
+  if (!list) return;
+  list.addEventListener('click', (e) => {
+    const btn = e.target.closest('.faq-q');
+    if (!btn || !list.contains(btn)) return;
+    const item = btn.parentElement;
+    const wasOpen = item.classList.contains('open');
+
+    list.querySelectorAll('.faq-item').forEach((it) => {
+      it.classList.remove('open');
+      const q = it.querySelector('.faq-q');
+      if (q) q.setAttribute('aria-expanded', 'false');
+      const ic = it.querySelector('.q-icon');
+      if (ic) ic.textContent = '+';
     });
+
+    if (!wasOpen) {
+      item.classList.add('open');
+      btn.setAttribute('aria-expanded', 'true');
+      const ic = item.querySelector('.q-icon');
+      if (ic) ic.textContent = '–';
+      state.openFaq = Array.prototype.indexOf.call(list.children, item);
+    } else {
+      state.openFaq = -1;
+    }
   });
 }
 
@@ -518,9 +545,15 @@ function startViz() {
    8. Init
 --------------------------------------------------------------- */
 function init() {
-  setLang('en');
-  $$('.lang-btn').forEach((b) => b.addEventListener('click', () => setLang(b.dataset.lang)));
+  // EN content is server-rendered in the HTML — do NOT rebuild it at load.
+  // JS only swaps copy when the user switches language (or back to EN).
+  state.lang = document.documentElement.lang === 'es' ? 'es' : 'en';
+  $$('.lang-btn').forEach((b) => {
+    b.classList.toggle('is-active', b.dataset.lang === state.lang);
+    b.addEventListener('click', () => setLang(b.dataset.lang));
+  });
   setupForm();
+  setupFaq();
   observeReveals();
   startViz();
   window.addEventListener('scroll', observeReveals, { passive: true });
