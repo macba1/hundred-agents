@@ -1,0 +1,146 @@
+/* ============================================================
+   Chat widget — dark theme, matches the site tokens.
+   ============================================================ */
+.ha-chat-launcher {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--accent, #FF4D00);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: Geist, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 14px 18px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+  transition: transform .15s ease, opacity .2s ease;
+}
+.ha-chat-launcher:hover { transform: translateY(-2px); }
+.ha-chat-launcher .dot {
+  width: 7px; height: 7px; background: #fff; display: inline-block;
+}
+.ha-chat-launcher[hidden] { display: none; }
+
+.ha-chat-panel {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 61;
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  height: 560px;
+  max-height: calc(100vh - 48px);
+  display: none;
+  flex-direction: column;
+  background: #0E0F12;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+  font-family: Geist, Helvetica, Arial, sans-serif;
+  color: #fff;
+}
+.ha-chat-panel.open { display: flex; }
+
+.ha-chat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+}
+.ha-chat-head .title {
+  display: flex; align-items: center; gap: 9px;
+  font-size: 14px; font-weight: 600; letter-spacing: -0.2px;
+}
+.ha-chat-head .title .sq { width: 8px; height: 8px; background: var(--accent, #FF4D00); display: inline-block; }
+.ha-chat-head .sub {
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: #8A8F98; margin-top: 2px;
+}
+.ha-chat-close {
+  background: none; border: none; color: #8A8F98; cursor: pointer;
+  font-size: 22px; line-height: 1; padding: 4px 6px;
+}
+.ha-chat-close:hover { color: #fff; }
+
+.ha-chat-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ha-msg {
+  max-width: 84%;
+  font-size: 14.5px;
+  line-height: 1.5;
+  padding: 10px 13px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.ha-msg.user {
+  align-self: flex-end;
+  background: var(--accent, #FF4D00);
+  color: #fff;
+}
+.ha-msg.bot {
+  align-self: flex-start;
+  background: #1A1C20;
+  color: #E8E9EB;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.ha-msg.bot a { color: var(--accent, #FF4D00); }
+
+.ha-typing { align-self: flex-start; display: inline-flex; gap: 4px; padding: 12px 13px; background: #1A1C20; border: 1px solid rgba(255, 255, 255, 0.08); }
+.ha-typing span { width: 6px; height: 6px; background: #8A8F98; display: inline-block; animation: haType 1s infinite ease-in-out; }
+.ha-typing span:nth-child(2) { animation-delay: .15s; }
+.ha-typing span:nth-child(3) { animation-delay: .3s; }
+@keyframes haType { 0%, 60%, 100% { opacity: .25; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+
+.ha-chat-form {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+}
+.ha-chat-input {
+  flex: 1;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-family: inherit;
+  font-size: 14.5px;
+  padding: 11px 12px;
+  outline: none;
+  resize: none;
+  max-height: 110px;
+}
+.ha-chat-input:focus { border-color: var(--accent, #FF4D00); }
+.ha-chat-send {
+  background: #fff;
+  color: #08090A;
+  border: none;
+  cursor: pointer;
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 16px;
+  padding: 0 16px;
+}
+.ha-chat-send:disabled { opacity: .4; cursor: default; }
+
+/* visible keyboard focus */
+.ha-chat-launcher:focus-visible,
+.ha-chat-close:focus-visible,
+.ha-chat-send:focus-visible,
+.ha-chat-input:focus-visible { outline: 2px solid var(--accent, #FF4D00); outline-offset: 2px; }
+
+@media (max-width: 480px) {
+  .ha-chat-panel { right: 0; bottom: 0; width: 100vw; height: 100dvh; max-height: none; border: none; }
+  .ha-chat-launcher { right: 16px; bottom: 16px; }
+}

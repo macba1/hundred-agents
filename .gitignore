@@ -3,3 +3,8 @@
 
 # node
 node_modules/
+
+# secrets — never commit env vars
+.env
+.env.*
+.vercel
