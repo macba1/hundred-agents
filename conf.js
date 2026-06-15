@@ -15,6 +15,11 @@ const STRINGS = {
       subtitle: 'Visión y aplicación práctica para tu negocio.',
     },
     kick: { context: 'El contexto', speakers: 'Los ponentes', topics: 'Qué abordamos', goal: 'El objetivo' },
+    cta: {
+      title: 'Regístrate con nuestro asistente',
+      text: 'Reserva tu lugar en la conferencia y, de paso, deja tu pregunta a nuestros ponentes. Ellos la prepararán para responderla en la sesión.',
+      button: 'Registrarme y dejar mi pregunta',
+    },
     intro: {
       p1: 'La inteligencia artificial dejó de ser una tecnología reservada para las grandes corporaciones. Hoy, cualquier empresa, organización o negocio local puede usar AI para mejorar procesos, automatizar tareas, atender mejor a sus clientes y tomar mejores decisiones.',
       p2: 'En esta conferencia, Ruth Anaya (CEO & Founder) y Antonio Jiménez (Co-Founder & Strategic Advisor) comparten una visión práctica sobre cómo aplicar la inteligencia artificial de forma efectiva en empresas reales — respetando sus procesos, sus prioridades y su forma de trabajar.',
@@ -50,6 +55,11 @@ const STRINGS = {
       subtitle: 'Vision and practical application for your business.',
     },
     kick: { context: 'The context', speakers: 'The speakers', topics: 'What we cover', goal: 'The goal' },
+    cta: {
+      title: 'Register with our assistant',
+      text: 'Reserve your spot at the conference and, while you\'re at it, leave a question for our speakers. They\'ll prepare it to answer during the session.',
+      button: 'Register and leave my question',
+    },
     intro: {
       p1: 'Artificial intelligence is no longer a technology reserved for large corporations. Today, any company, organization or local business can use AI to improve processes, automate tasks, serve customers better and make better decisions.',
       p2: 'In this conference, Ruth Anaya (CEO & Founder) and Antonio Jiménez (Co-Founder & Strategic Advisor) share a practical vision on how to apply artificial intelligence effectively in real companies — respecting their processes, their priorities and their way of working.',

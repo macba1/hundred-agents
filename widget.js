@@ -16,7 +16,7 @@
       sub: MODE === 'mexico' ? 'Conference · Mexico 2026' : 'AI workflow assistant',
       placeholder: 'Type your message…',
       greet: MODE === 'mexico'
-        ? "Hi — I'm the assistant for the AI en Acción · México 2026 conference. I can answer questions and register you so the speakers prepare your question. What would you like to ask?"
+        ? "Hi — I help you with two things: registering for the AI en Acción · México 2026 conference and, if you want, leaving a question for our speakers Ruth and Antonio. Shall we start your registration?"
         : "Hi — I'm the Hundred Agents assistant. Ask me anything about applying AI in your business, and I can connect you with the team.",
       error: 'Something went wrong on our side. Please email info@thehagentic.com and we\'ll help you directly.',
       close: 'Close chat',
@@ -27,7 +27,7 @@
       sub: MODE === 'mexico' ? 'Conferencia · México 2026' : 'Asistente de workflows AI',
       placeholder: 'Escribe tu mensaje…',
       greet: MODE === 'mexico'
-        ? 'Hola — soy el asistente de la conferencia AI en Acción · México 2026. Puedo responder dudas y registrarte para que los ponentes preparen tu pregunta. ¿Qué te gustaría preguntar?'
+        ? 'Hola — te ayudo con dos cosas: registrarte para la conferencia AI en Acción · México 2026 y, si quieres, dejar una pregunta para nuestros ponentes Ruth y Antonio. ¿Empezamos con tu registro?'
         : 'Hola — soy el asistente de Hundred Agents. Pregúntame lo que quieras sobre aplicar AI en tu negocio y puedo ponerte en contacto con el equipo.',
       error: 'Algo falló de nuestro lado. Escríbenos a info@thehagentic.com y te ayudamos directamente.',
       close: 'Cerrar chat',
@@ -122,6 +122,13 @@
 
   launcher.addEventListener('click', openPanel);
   closeBtn.addEventListener('click', closePanel);
+
+  // Let any in-page CTA open the existing chat (no new flow).
+  document.querySelectorAll('[data-ha-chat-open]').forEach((el) => {
+    el.addEventListener('click', (e) => { e.preventDefault(); openPanel(); });
+  });
+  // Public hook for buttons added later.
+  window.HAChat = { open: openPanel, close: closePanel };
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && panel.classList.contains('open')) closePanel(); });
 
   input.addEventListener('keydown', (e) => {
