@@ -820,4 +820,94 @@ section { position: relative; }
   .faq-body { grid-template-columns: 1fr; gap: 16px; }
   .contact-cols { grid-template-columns: 1fr; gap: 36px; }
   .field-row { grid-template-columns: 1fr; }
+  .spk-grid { grid-template-columns: 1fr; }
+  .spk { padding: 28px 0 8px; border-left: none; border-top: 1px solid var(--line); }
+  .spk:first-child { border-top: none; padding-top: 0; }
 }
+
+/* ============================================================
+   CONFERENCE PAGE (/conferencia-mexico-2026)
+   Reuses the site tokens + section patterns.
+   ============================================================ */
+.conf-section { scroll-margin-top: 64px; padding: 24px 0 72px; }
+.conf-section .section-head { margin-bottom: 36px; }
+
+.conf-prose p {
+  font-size: 18px;
+  line-height: 1.62;
+  color: var(--soft);
+  margin: 0 0 22px;
+  max-width: 68ch;
+  text-wrap: pretty;
+}
+.conf-prose p:last-child { margin-bottom: 0; }
+
+/* speakers */
+.spk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.spk { padding: 0 36px 8px 36px; border-left: 1px solid var(--line); }
+.spk:first-child { padding-left: 0; border-left: none; }
+.spk .role {
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+.spk h3 {
+  font-weight: 600;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin: 0 0 14px;
+  line-height: 1.15;
+}
+.spk p {
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--soft);
+  margin: 0;
+  text-wrap: pretty;
+}
+
+/* goal — bordered closing block */
+.conf-goal {
+  border: 1.5px solid var(--accent);
+  padding: 32px 30px;
+  position: relative;
+  max-width: 760px;
+}
+.conf-goal .crop { position: absolute; width: 9px; height: 9px; }
+.conf-goal .crop.tl { top: -1px; left: -1px; border-top: 2px solid var(--accent); border-left: 2px solid var(--accent); }
+.conf-goal .crop.br { bottom: -1px; right: -1px; border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+.conf-goal .glabel {
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+.conf-goal p {
+  font-size: 19px;
+  line-height: 1.5;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0;
+  text-wrap: pretty;
+}
+
+/* discreet contact line */
+.conf-contact {
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--soft);
+  margin-top: 40px;
+}
+.conf-contact a { color: var(--accent); }
+.conf-contact a:hover { text-decoration: underline; }
+
+/* back-to-home link in hero meta */
+.conf-back { color: var(--soft); transition: color .15s ease; }
+.conf-back:hover { color: var(--ink); }
