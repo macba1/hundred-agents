@@ -1,9 +1,3 @@
 {
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "has": [{ "type": "host", "value": "sanmi.thehagentic.com" }],
-      "destination": "/clientes/sanmi/index.html"
-    }
-  ]
+  "rewrites": []
 }
