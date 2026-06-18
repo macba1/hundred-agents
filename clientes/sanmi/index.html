@@ -117,6 +117,18 @@ footer{background:#1f1a15;color:rgba(239,230,216,.7);padding:40px 0}
   .quick{grid-template-columns:1fr 1fr}
   section{padding:58px 0}.hero{min-height:84vh}.mbar{display:flex}footer{padding-bottom:84px}
 }
+
+/* BANNER DINAMICO */
+.live-banner{position:relative;z-index:3;background:var(--gold);color:var(--espresso)}
+.live-banner .wrap{display:flex;align-items:center;gap:16px;padding:12px 0;flex-wrap:wrap}
+.live-banner .pulse{flex:none;width:9px;height:9px;border-radius:50%;background:var(--leaf-deep);box-shadow:0 0 0 0 rgba(79,94,60,.6);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(79,94,60,.55)}70%{box-shadow:0 0 0 9px rgba(79,94,60,0)}100%{box-shadow:0 0 0 0 rgba(79,94,60,0)}}
+.live-banner b{font-weight:800}
+.live-banner .lb-text{font-size:15px;font-weight:600;flex:1;min-width:200px}
+.live-banner .lb-text .ahora{font-family:Fraunces,serif;font-weight:800}
+.live-banner a{flex:none;background:var(--espresso);color:#fff;border-radius:999px;padding:9px 16px;font-size:13.5px;font-weight:700}
+@media(max-width:560px){.live-banner .lb-text{font-size:14px}}
+
 </style>
 </head>
 <body>
@@ -127,6 +139,13 @@ footer{background:#1f1a15;color:rgba(239,230,216,.7);padding:40px 0}
   <div class="links"><a href="#favoritos">Favoritos</a><a href="#pedir">Pedir</a><a href="#opiniones">Opiniones</a><a href="#visita">Visítanos</a></div>
   <a class="btn" href="https://wa.me/16502231870?text=Hola%20SanMi%20Caf%C3%A9%2C%20quiero%20hacer%20un%20pedido" target="_blank" rel="noopener">Pedir por WhatsApp</a>
 </nav></div></header>
+<div class="live-banner" id="liveBanner" style="display:none">
+  <div class="wrap">
+    <span class="pulse"></span>
+    <span class="lb-text"><b>Ahora en SanMi:</b> <span class="ahora" id="lbAhora">—</span> · <span id="lbCopy">—</span></span>
+    <a href="#pedir">Pedir esto</a>
+  </div>
+</div>
 
 <main id="top">
   <section class="hero">
@@ -282,6 +301,35 @@ function enviar(){
   msg+="\n\n¿Me confirman disponibilidad y total? Gracias.";
   window.open("https://wa.me/"+WA+"?text="+encodeURIComponent(msg),"_blank");
 }
+</script>
+<script>
+(function(){
+  function horaMexico(){
+    var f=new Intl.DateTimeFormat('en-US',{timeZone:'America/Mexico_City',hour:'numeric',minute:'numeric',hour12:false,weekday:'short'});
+    var p=f.formatToParts(new Date());
+    var h=+p.find(function(x){return x.type==='hour'}).value;
+    var m=+p.find(function(x){return x.type==='minute'}).value;
+    var wd=p.find(function(x){return x.type==='weekday'}).value;
+    return {mins:h*60+m, wd:wd};
+  }
+  function plato(){
+    var t=horaMexico(), mins=t.mins, jueves=(t.wd==='Thu');
+    var mIni=510,mFin=750,nIni=1020,nFin=1350;
+    if(mins>=mIni&&mins<mFin) return {a:'Desayunos',c:'Chilaquiles recién hechos y café de especialidad para empezar el día.'};
+    if(!jueves&&mins>=nIni&&mins<nFin) return {a:'Cena y antojo',c:'Panini crujiente, ensalada fresca y un buen café para la tarde-noche.'};
+    if(mins<mIni||(jueves&&mins>=mFin)) return {a:'Pronto abrimos',c:(jueves&&mins>=mFin)?'Hoy jueves cerramos por la tarde. ¡Mañana te esperamos!':'Abrimos a las 8:30 am. Programa tu desayuno.'};
+    return {a:'Volvemos a las 5 pm',c:'Cerramos un rato. Volvemos con paninis, café y postres.'};
+  }
+  function render(){
+    var p=plato();
+    var el=document.getElementById('liveBanner');
+    document.getElementById('lbAhora').textContent=p.a;
+    document.getElementById('lbCopy').textContent=p.c;
+    el.style.display='block';
+  }
+  render();
+  setInterval(render,60000); // refresca cada minuto
+})();
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"CafeOrCoffeeShop","name":"SanMi Café","address":{"@type":"PostalAddress","streetAddress":"C. Santuario 8, Centro","addressLocality":"San Miguel el Alto","addressRegion":"Jalisco","postalCode":"47140","addressCountry":"MX"},"telephone":"+52 347 788 2003","servesCuisine":["Café","Desayunos","Paninis","Chilaquiles","Ensaladas"],"priceRange":"$$","aggregateRating":{"@type":"AggregateRating","ratingValue":"4.4","reviewCount":"274"},"openingHours":["Mo-We 08:30-12:30,17:00-22:30","Th 08:30-12:30","Fr-Su 08:30-12:30,17:00-22:30"],"sameAs":["https://www.facebook.com/SanMiCafe/","https://www.instagram.com/sanmicafe/"],"url":"https://sanmi.thehagentic.com"}
