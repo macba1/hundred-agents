@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex, nofollow" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
     --cream: #FBF6EE;
@@ -23,174 +23,163 @@
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
-    margin: 0;
-    background: var(--cream);
-    color: var(--ink);
-    font-family: 'Jost', system-ui, sans-serif;
-    font-weight: 300;
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    margin: 0; background: var(--cream); color: var(--ink);
+    font-family: 'Jost', system-ui, sans-serif; font-weight: 300;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
   }
   a { color: inherit; text-decoration: none; }
   .serif { font-family: 'Cormorant', Georgia, serif; }
-
-  .wrap { width: 100%; max-width: 720px; margin: 0 auto; padding: 0 24px; }
+  .wrap { width: 100%; max-width: 760px; margin: 0 auto; padding: 0 24px; }
 
   /* ---------- top bar ---------- */
-  .topbar {
-    position: sticky; top: 0; z-index: 20;
-    background: rgba(251, 246, 238, 0.82);
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--line);
-  }
-  .topbar-in {
-    height: 60px; display: flex; align-items: center; justify-content: space-between;
-  }
-  .brand { display: flex; align-items: baseline; gap: 8px; }
-  .brand .mark {
-    font-family: 'Cormorant', serif; font-weight: 600; font-size: 22px;
-    letter-spacing: 0.5px; color: var(--ink);
-  }
-  .brand .loc {
-    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--soft);
-  }
-  .topbar .book {
-    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
-    border: 1px solid var(--terra); color: var(--terra);
-    padding: 8px 14px; transition: background .2s ease, color .2s ease;
-  }
-  .topbar .book:hover { background: var(--terra); color: #fff; }
+  .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 30; transition: background .4s ease, border-color .4s ease; border-bottom: 1px solid transparent; }
+  .topbar.scrolled { background: rgba(251,246,238,0.82); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .topbar-in { height: 64px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: baseline; gap: 9px; color: #fff; transition: color .4s ease; }
+  .topbar.scrolled .brand { color: var(--ink); }
+  .brand .mark { font-family: 'Cormorant', serif; font-weight: 600; font-size: 23px; letter-spacing: 0.5px; }
+  .brand .loc { font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; opacity: .85; }
+  .topbar .book { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.6); color: #fff; padding: 9px 16px; transition: all .25s ease; }
+  .topbar.scrolled .book { border-color: var(--terra); color: var(--terra); }
+  .topbar .book:hover { background: var(--terra); border-color: var(--terra); color: #fff; }
 
-  /* ---------- HERO ---------- */
-  .hero {
-    position: relative; min-height: 92vh;
-    display: flex; flex-direction: column; justify-content: flex-end;
-    padding: 0 0 8vh; overflow: hidden;
-    transition: background 1.2s ease;
-  }
-  /* time-of-day backgrounds (placeholders: gradients only, no copyrighted imagery) */
-  .hero[data-franja="manana"] { background:
-      radial-gradient(120% 80% at 75% 18%, #FBE9C8 0%, rgba(251,233,200,0) 55%),
-      linear-gradient(160deg, #FDF6E8 0%, #F6E4C9 42%, #E9C9A0 100%); }
-  .hero[data-franja="tarde"] { background:
-      radial-gradient(120% 80% at 70% 22%, #F6D9A8 0%, rgba(246,217,168,0) 55%),
-      linear-gradient(160deg, #F7E7CE 0%, #E7B98C 48%, #C2683E 100%); }
-  .hero[data-franja="noche"] { background:
-      radial-gradient(120% 75% at 72% 20%, #6E5A86 0%, rgba(110,90,134,0) 55%),
-      linear-gradient(160deg, #3A2E42 0%, #2A2536 45%, #1C1822 100%); }
-  .hero[data-franja="noche"] .hero-eyebrow,
-  .hero[data-franja="noche"] .hero-greet,
-  .hero[data-franja="noche"] .hero-msg { color: #FBF6EE; }
-  .hero[data-franja="noche"] .hero-eyebrow { color: #E8C97A; }
+  /* ============================================================
+     HERO — cinematic, time-of-day aware (CSS + tiny canvas).
+     ============================================================ */
+  .hero { position: relative; height: 100svh; min-height: 600px; overflow: hidden; display: flex; align-items: flex-end; }
 
-  /* soft texture grain */
-  .hero::after {
-    content: ""; position: absolute; inset: 0; pointer-events: none;
-    background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
-    background-size: 4px 4px; mix-blend-mode: overlay; opacity: .5;
-  }
+  /* sky: two stacked layers cross-fade between time slots */
+  .sky { position: absolute; inset: 0; z-index: 0; transition: opacity 1.4s ease; }
+  .sky.manana { background:
+      radial-gradient(120% 90% at 22% 95%, #FCEBC7 0%, rgba(252,235,199,0) 60%),
+      linear-gradient(180deg, #BFD3E6 0%, #F4D9B0 58%, #F7E6CB 100%); }
+  .sky.tarde { background:
+      radial-gradient(130% 95% at 82% 92%, #F6C778 0%, rgba(246,199,120,0) 58%),
+      linear-gradient(180deg, #E8A765 0%, #D77E45 52%, #B5552F 100%); }
+  .sky.noche { background:
+      radial-gradient(120% 90% at 75% 18%, #4A3E66 0%, rgba(74,62,102,0) 55%),
+      linear-gradient(180deg, #1A1726 0%, #2A2440 55%, #3A3152 100%); }
 
-  .hero-inner { position: relative; z-index: 2; }
-  .hero-eyebrow {
-    font-size: 12px; letter-spacing: 0.28em; text-transform: uppercase;
-    color: var(--terra); margin: 0 0 14px;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .hero-eyebrow .clock {
-    font-variant-numeric: tabular-nums; letter-spacing: 0.1em;
-  }
-  .hero-greet {
-    font-family: 'Cormorant', serif; font-weight: 500;
-    font-size: clamp(48px, 13vw, 96px); line-height: 0.98;
-    letter-spacing: -0.01em; margin: 0; color: var(--ink);
-  }
-  .hero-greet em { font-style: italic; color: var(--terra-2); }
-  .hero-msg {
-    font-size: clamp(17px, 4.2vw, 21px); line-height: 1.5; font-weight: 300;
-    color: var(--soft); margin: 18px 0 0; max-width: 30ch;
-  }
-  .hero-cta {
-    display: inline-flex; align-items: center; gap: 12px; margin-top: 30px;
-    background: var(--terra); color: #fff;
-    font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase;
-    padding: 16px 26px; transition: background .2s ease, transform .15s ease;
-  }
-  .hero-cta:hover { background: #9E4827; transform: translateY(-1px); }
-  .hero-cta .arr { font-family: 'Cormorant', serif; font-size: 18px; }
+  /* celestial body (sun / moon) positioned by the real hour */
+  .celestial { position: absolute; z-index: 1; width: 92px; height: 92px; border-radius: 50%; transition: left 1.4s ease, top 1.4s ease, background 1.4s ease, box-shadow 1.4s ease; transform: translate(-50%,-50%); }
+  .celestial.sun { background: radial-gradient(circle at 50% 50%, #FFF6E0 0%, #FFE49E 45%, #FBC55E 100%); box-shadow: 0 0 60px 20px rgba(255,213,120,0.55), 0 0 160px 60px rgba(255,200,110,0.35); }
+  .celestial.moon { width: 70px; height: 70px; background: radial-gradient(circle at 38% 38%, #FFFDF5 0%, #E7E2D2 60%, #CFC8B4 100%); box-shadow: 0 0 50px 12px rgba(231,226,210,0.4), inset -10px -8px 0 -2px rgba(60,52,80,0.18); }
 
-  /* placeholder note chip */
-  .ph-chip {
-    position: absolute; top: 16px; right: 16px; z-index: 3;
-    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--soft); background: rgba(251,246,238,0.7);
-    border: 1px solid var(--line); padding: 5px 9px;
-  }
-  .hero[data-franja="noche"] .ph-chip { color: #E9DFcf; background: rgba(28,24,34,0.5); border-color: rgba(255,255,255,0.2); }
+  /* layered horizon silhouettes for depth (parallax on pointer) */
+  .horizon { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; pointer-events: none; }
+  .layer { position: absolute; left: -4%; right: -4%; bottom: 0; will-change: transform; }
+  .layer svg { display: block; width: 100%; height: auto; }
+  .l1 { opacity: .55; } .l2 { opacity: .8; } .l3 { opacity: 1; }
 
-  /* ---------- intro strip ---------- */
-  .strip { padding: 56px 0; border-bottom: 1px solid var(--line); }
-  .strip h2 {
-    font-family: 'Cormorant', serif; font-weight: 500;
-    font-size: clamp(26px, 6vw, 38px); line-height: 1.12; margin: 0 0 16px;
-  }
-  .strip p { font-size: 16px; line-height: 1.65; color: var(--soft); margin: 0; max-width: 52ch; }
+  /* drifting particles */
+  #fx { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
 
-  /* placeholder image block */
-  .ph-img {
-    width: 100%; aspect-ratio: 4 / 3; margin: 28px 0 0;
-    background: linear-gradient(135deg, var(--cream-2), #E4D2B6);
-    border: 1px solid var(--line);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--soft);
-  }
+  /* gradient scrim so text is always legible */
+  .scrim { position: absolute; inset: 0; z-index: 4; pointer-events: none; transition: background 1.4s ease; }
+  .scrim.day { background: linear-gradient(0deg, rgba(40,28,16,0.45) 0%, rgba(40,28,16,0) 42%); }
+  .scrim.night { background: linear-gradient(0deg, rgba(10,8,18,0.6) 0%, rgba(10,8,18,0) 48%); }
 
-  footer { padding: 40px 0 56px; text-align: center; }
-  footer .mark { font-family: 'Cormorant', serif; font-size: 20px; font-weight: 600; }
-  footer .meta { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--soft); margin-top: 8px; }
+  .hero-inner { position: relative; z-index: 5; width: 100%; padding-bottom: 9vh; }
+  .hero-eyebrow { font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: #FCEBC7; margin: 0 0 16px; display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateY(14px); animation: rise .9s .15s ease forwards; }
+  .hero-eyebrow .clock { font-variant-numeric: tabular-nums; letter-spacing: .12em; }
+  .hero-greet { font-family: 'Cormorant', serif; font-weight: 600; font-size: clamp(56px, 16vw, 132px); line-height: 0.92; letter-spacing: -0.015em; margin: 0; color: #fff; text-shadow: 0 2px 40px rgba(0,0,0,0.25); opacity: 0; transform: translateY(22px); animation: rise 1s .28s cubic-bezier(.2,.7,.2,1) forwards; }
+  .hero-greet em { font-style: italic; font-weight: 500; color: #FFD98A; }
+  .hero-msg { font-size: clamp(17px, 4.4vw, 22px); line-height: 1.5; font-weight: 300; color: rgba(255,255,255,0.92); margin: 20px 0 0; max-width: 30ch; opacity: 0; transform: translateY(18px); animation: rise 1s .42s ease forwards; }
+  .hero-cta { display: inline-flex; align-items: center; gap: 12px; margin-top: 32px; background: var(--terra); color: #fff; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; padding: 17px 30px; box-shadow: 0 14px 40px rgba(120,50,20,0.4); transition: background .2s ease, transform .15s ease; opacity: 0; transform: translateY(16px); animation: rise 1s .56s ease forwards; }
+  .hero-cta:hover { background: #9E4827; transform: translateY(-2px); }
+  .hero-cta .arr { font-family: 'Cormorant', serif; font-size: 19px; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+
+  .scroll-hint { position: absolute; left: 50%; bottom: 22px; z-index: 5; transform: translateX(-50%); color: rgba(255,255,255,0.7); font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .scroll-hint .bar { width: 1px; height: 34px; background: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0)); animation: drip 1.8s ease-in-out infinite; }
+  @keyframes drip { 0%,100% { opacity: .3; transform: scaleY(.6); } 50% { opacity: 1; transform: scaleY(1); } }
+
+  .ph-chip { position: absolute; top: 78px; right: 16px; z-index: 6; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.85); background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.25); padding: 5px 9px; }
+
+  /* ---------- editorial sections (reveal on scroll) ---------- */
+  .strip { padding: 90px 0; border-bottom: 1px solid var(--line); }
+  .overline { font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--terra); margin: 0 0 18px; }
+  .strip h2 { font-family: 'Cormorant', serif; font-weight: 500; font-size: clamp(30px, 7vw, 50px); line-height: 1.08; margin: 0 0 18px; max-width: 18ch; }
+  .strip h2 em { font-style: italic; color: var(--terra-2); }
+  .strip p { font-size: 16.5px; line-height: 1.7; color: var(--soft); margin: 0; max-width: 50ch; }
+  .ph-img { width: 100%; aspect-ratio: 4 / 3; margin: 34px 0 0; position: relative; border: 1px solid var(--line); background: linear-gradient(135deg, var(--cream-2), #E4D2B6 70%, #D9BE97); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .ph-img::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(255,255,255,0.18) 0 2px, transparent 2px 22px); }
+  .ph-img span { position: relative; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--soft); }
+  .ph-img.tall { aspect-ratio: 3 / 4; }
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 34px; }
+  @media (max-width: 560px) { .duo { grid-template-columns: 1fr; } }
+
+  [data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity 1s cubic-bezier(.2,.7,.2,1), transform 1s cubic-bezier(.2,.7,.2,1); }
+  [data-reveal].in { opacity: 1; transform: none; }
+
+  footer { padding: 64px 0 72px; text-align: center; }
+  footer .mark { font-family: 'Cormorant', serif; font-size: 24px; font-weight: 600; }
+  footer .meta { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--soft); margin-top: 10px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-eyebrow,.hero-greet,.hero-msg,.hero-cta { animation: none; opacity: 1; transform: none; }
+    .scroll-hint .bar { animation: none; }
+  }
 </style>
 </head>
 <body>
 
   <!-- ===================== TOP BAR ===================== -->
-  <header class="topbar">
+  <header class="topbar" id="topbar">
     <div class="wrap topbar-in">
-      <div class="brand">
-        <span class="mark">Casa Galeana</span>
-        <span class="loc">Aguascalientes</span>
-      </div>
+      <div class="brand"><span class="mark serif">Casa Galeana</span><span class="loc">Aguascalientes</span></div>
       <a class="book" href="https://book.securebookings.net/roomrate?id=b03ef193-4676-1780328203-4eee-b4e3-46dc6df6af60&rateplan_id=e11c0f28-1a79-1780336967-49f2-9d3c-536ad800befd&lang=es&currency=MXN" target="_blank" rel="noopener">Reservar</a>
     </div>
   </header>
 
-  <!-- ===================== HERO (dynamic by Aguascalientes hour) ===================== -->
-  <section class="hero" id="hero" data-franja="manana">
-    <span class="ph-chip" id="ph-chip">Placeholder · imagen real pendiente</span>
+  <!-- ===================== HERO ===================== -->
+  <section class="hero" id="hero">
+    <div class="sky manana" id="sky"></div>
+    <div class="celestial sun" id="celestial"></div>
+    <canvas id="fx"></canvas>
+
+    <!-- layered horizon (cantera-toned silhouettes) for depth -->
+    <div class="horizon" id="horizon">
+      <div class="layer l1" data-depth="8"><svg viewBox="0 0 1200 200" preserveAspectRatio="none"><path d="M0,200 L0,120 C200,90 380,150 600,110 C840,66 1000,140 1200,100 L1200,200 Z" fill="#8a5a3a"/></svg></div>
+      <div class="layer l2" data-depth="16"><svg viewBox="0 0 1200 160" preserveAspectRatio="none"><path d="M0,160 L0,90 C220,120 420,60 640,96 C880,134 1020,70 1200,104 L1200,160 Z" fill="#6e442a"/></svg></div>
+      <div class="layer l3" data-depth="26"><svg viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M0,120 L0,70 C260,96 480,48 720,78 C940,104 1060,58 1200,84 L1200,120 Z" fill="#3a2317"/></svg></div>
+    </div>
+
+    <div class="scrim day" id="scrim"></div>
+    <span class="ph-chip">Placeholder · imagen real pendiente</span>
+
     <div class="wrap hero-inner">
-      <p class="hero-eyebrow"><span id="hero-eyebrow-text">El día comienza</span> · <span class="clock" id="hero-clock">--:--</span> <span id="hero-tz">Aguascalientes</span></p>
+      <p class="hero-eyebrow"><span id="hero-eyebrow-text">El día comienza</span> · <span class="clock" id="hero-clock">--:--</span> · Aguascalientes</p>
       <h1 class="hero-greet" id="hero-greet">Buenos días</h1>
       <p class="hero-msg" id="hero-msg"></p>
       <a class="hero-cta" href="https://book.securebookings.net/roomrate?id=b03ef193-4676-1780328203-4eee-b4e3-46dc6df6af60&rateplan_id=e11c0f28-1a79-1780336967-49f2-9d3c-536ad800befd&lang=es&currency=MXN" target="_blank" rel="noopener">Reservar tu estancia <span class="arr">→</span></a>
     </div>
+
+    <div class="scroll-hint"><span>Descubre</span><span class="bar"></span></div>
   </section>
 
   <!-- ===================== INTRO ===================== -->
   <section class="strip">
     <div class="wrap">
-      <h2 class="serif">Una casa con el alma de Aguascalientes.</h2>
-      <p>Casa Galeana es un hotel boutique en el centro de la ciudad. Pocas habitaciones, mucho cuidado: patios de cantera, luz cálida y el ritmo tranquilo de una casa que recibe.</p>
-      <div class="ph-img">Placeholder · patio / fachada</div>
+      <p class="overline" data-reveal>La casa</p>
+      <h2 class="serif" data-reveal>Una casa con el <em>alma</em> de Aguascalientes.</h2>
+      <p data-reveal>Casa Galeana es un hotel boutique en el centro de la ciudad. Pocas habitaciones, mucho cuidado: patios de cantera, luz cálida y el ritmo tranquilo de una casa que recibe.</p>
+      <div class="ph-img" data-reveal><span>Placeholder · patio de cantera</span></div>
     </div>
   </section>
 
   <section class="strip">
     <div class="wrap">
-      <h2 class="serif">Bien ubicada, bien acompañada.</h2>
-      <p>A pasos del centro histórico, el Jardín de San Marcos y la vida cultural de la ciudad. Te contamos qué hacer cada día — como lo haría un buen anfitrión.</p>
-      <div class="ph-img">Placeholder · habitación</div>
+      <p class="overline" data-reveal>La ciudad</p>
+      <h2 class="serif" data-reveal>Bien ubicada, <em>bien acompañada</em>.</h2>
+      <p data-reveal>A pasos del centro histórico, el Jardín de San Marcos y la vida cultural de la ciudad. Te contamos qué hacer cada día — como lo haría un buen anfitrión.</p>
+      <div class="duo">
+        <div class="ph-img tall" data-reveal><span>Placeholder · habitación</span></div>
+        <div class="ph-img tall" data-reveal><span>Placeholder · fachada</span></div>
+      </div>
     </div>
   </section>
 
-  <!-- ===================== FOOTER ===================== -->
   <footer>
     <div class="wrap">
       <div class="mark serif">Casa Galeana</div>
@@ -200,80 +189,114 @@
 
 <script>
 /* ============================================================
-   Hero dinámico por la hora REAL de Aguascalientes.
-   Usa Intl.DateTimeFormat con timeZone America/Mexico_City, así
-   NO depende del reloj del visitante.
-   Franjas (según brief): mañana 6–12, tarde 12–19, noche 19–6.
-   Override de prueba: ?hora=8 (0–23) fuerza la franja para QA.
+   Hero cinemático y consciente de la hora REAL de Aguascalientes.
+   Intl.DateTimeFormat con timeZone America/Mexico_City (no el reloj
+   del visitante). Franjas: mañana 6–12, tarde 12–19, noche 19–6.
+   El sol/luna se posicionan según la hora -> refuerza que "sabe"
+   qué momento es. Override QA: ?hora=0..23.
    ============================================================ */
 (function () {
   var COPY = {
-    manana: {
-      franja: 'manana',
-      eyebrow: 'El día comienza',
-      greet: 'Buenos días',
-      msg: 'El café está listo y la ciudad despierta. Empieza el día con calma desde el patio.',
-    },
-    tarde: {
-      franja: 'tarde',
-      eyebrow: 'La tarde en la ciudad',
-      greet: 'Buenas tardes',
-      msg: 'Hora de pasear el centro o volver a descansar. Aguascalientes se siente mejor sin prisa.',
-    },
-    noche: {
-      franja: 'noche',
-      eyebrow: 'Cae la noche',
-      greet: 'Buenas noches',
-      msg: 'La ciudad se enciende despacio. Una copa, una cena cerca, y a descansar.',
-    },
+    manana: { eyebrow: 'El día comienza', greet: 'Buenos días', msg: 'El café está listo y la ciudad despierta. Empieza el día con calma desde el patio.' },
+    tarde:  { eyebrow: 'La tarde en la ciudad', greet: 'Buenas tardes', msg: 'Hora de pasear el centro o volver a descansar. Aguascalientes se siente mejor sin prisa.' },
+    noche:  { eyebrow: 'Cae la noche', greet: 'Buenas noches', msg: 'La ciudad se enciende despacio. Una copa, una cena cerca, y a descansar.' },
   };
 
-  function aguasHour() {
-    // override para QA
+  function overrideHour() {
     var p = new URLSearchParams(location.search);
-    if (p.has('hora')) {
-      var h = parseInt(p.get('hora'), 10);
-      if (!isNaN(h)) return ((h % 24) + 24) % 24;
-    }
-    // hora real de Aguascalientes (America/Mexico_City)
-    var parts = new Intl.DateTimeFormat('es-MX', {
-      timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
-    }).formatToParts(new Date());
-    var hh = 0, mm = 0;
-    parts.forEach(function (x) { if (x.type === 'hour') hh = parseInt(x.value, 10); if (x.type === 'minute') mm = parseInt(x.value, 10); });
+    if (p.has('hora')) { var h = parseInt(p.get('hora'), 10); if (!isNaN(h)) return ((h % 24) + 24) % 24; }
+    return null;
+  }
+  function aguasParts() {
+    return new Intl.DateTimeFormat('es-MX', { timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date());
+  }
+  function nowHour() {
+    var o = overrideHour(); if (o !== null) return o;
+    var hh = 0, mm = 0; aguasParts().forEach(function (x) { if (x.type === 'hour') hh = +x.value; if (x.type === 'minute') mm = +x.value; });
     return hh + mm / 60;
   }
-
-  function franjaFor(h) {
-    if (h >= 6 && h < 12) return 'manana';
-    if (h >= 12 && h < 19) return 'tarde';
-    return 'noche';
-  }
-
   function clockStr() {
-    return new Intl.DateTimeFormat('es-MX', {
-      timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
-    }).format(new Date());
+    var o = overrideHour();
+    if (o !== null) return String(Math.floor(o)).padStart(2, '0') + ':00';
+    return new Intl.DateTimeFormat('es-MX', { timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date());
+  }
+  function franjaFor(h) { if (h >= 6 && h < 12) return 'manana'; if (h >= 12 && h < 19) return 'tarde'; return 'noche'; }
+
+  var sky = document.getElementById('sky');
+  var cel = document.getElementById('celestial');
+  var scrim = document.getElementById('scrim');
+
+  function placeCelestial(h) {
+    var isDay = h >= 6 && h < 19;
+    cel.className = 'celestial ' + (isDay ? 'sun' : 'moon');
+    if (isDay) {
+      var f = (h - 6) / 13;                 // 0 at 06:00 -> 1 at 19:00
+      cel.style.left = (10 + f * 80) + '%';
+      cel.style.top = (78 - Math.sin(f * Math.PI) * 62) + '%';
+    } else {
+      // night: moon high, drifting slowly across upper sky
+      var nf = ((h + 5) % 24) / 24;
+      cel.style.left = (20 + nf * 60) + '%';
+      cel.style.top = '24%';
+    }
   }
 
+  var currentFranja = null, particleMode = null;
   function render() {
-    var h = aguasHour();
-    var c = COPY[franjaFor(h)];
-    var hero = document.getElementById('hero');
-    hero.setAttribute('data-franja', c.franja);
+    var h = nowHour(), fr = franjaFor(h), c = COPY[fr];
+    if (fr !== currentFranja) { sky.className = 'sky ' + fr; currentFranja = fr; }
+    scrim.className = 'scrim ' + (fr === 'noche' ? 'night' : 'day');
+    placeCelestial(h);
     document.getElementById('hero-eyebrow-text').textContent = c.eyebrow;
     document.getElementById('hero-greet').textContent = c.greet;
     document.getElementById('hero-msg').textContent = c.msg;
-    // si hay override mostramos esa hora; si no, el reloj real
-    var p = new URLSearchParams(location.search);
-    document.getElementById('hero-clock').textContent = p.has('hora')
-      ? (String(Math.floor(h)).padStart(2, '0') + ':00')
-      : clockStr();
+    document.getElementById('hero-clock').textContent = clockStr();
+    particleMode = (fr === 'noche') ? 'stars' : 'dust';
   }
-
   render();
-  // se refresca solo cada minuto para que la franja cambie sin recargar
   setInterval(render, 60 * 1000);
+
+  /* ---- particles: warm dust by day, stars by night (tiny canvas) ---- */
+  var cv = document.getElementById('fx'), ctx = cv.getContext('2d'), W = 0, Hh = 0, dpr = 1, parts = [];
+  function resize() {
+    var r = cv.getBoundingClientRect(); dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = r.width * dpr; cv.height = r.height * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    W = r.width; Hh = r.height;
+    var n = Math.max(26, Math.min(54, Math.round(W / 22)));
+    parts = []; for (var i = 0; i < n; i++) parts.push({ x: Math.random() * W, y: Math.random() * Hh, r: Math.random() * 1.6 + 0.4, s: Math.random() * 0.4 + 0.1, ph: Math.random() * 6.28, tw: Math.random() * 0.5 + 0.3 });
+  }
+  resize(); window.addEventListener('resize', resize);
+  var t0 = 0;
+  function loop(t) {
+    var dt = Math.min((t - t0) / 1000, 0.05); t0 = t;
+    ctx.clearRect(0, 0, W, Hh);
+    var night = particleMode === 'stars';
+    for (var i = 0; i < parts.length; i++) {
+      var p = parts[i];
+      if (night) { p.ph += dt * p.tw; var a = 0.25 + 0.55 * (Math.sin(p.ph) * 0.5 + 0.5); ctx.fillStyle = 'rgba(255,253,245,' + a + ')'; }
+      else { p.y -= p.s * dt * 24; p.x += Math.sin((p.y + p.ph) / 40) * 0.2; if (p.y < -4) { p.y = Hh + 4; p.x = Math.random() * W; } ctx.fillStyle = 'rgba(255,240,205,' + (0.18 + 0.22 * Math.sin(p.ph + t / 1200)) + ')'; }
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill();
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  /* ---- subtle pointer parallax on horizon + celestial ---- */
+  var layers = Array.prototype.slice.call(document.querySelectorAll('.layer'));
+  window.addEventListener('pointermove', function (e) {
+    var cxr = (e.clientX / window.innerWidth - 0.5);
+    var cyr = (e.clientY / window.innerHeight - 0.5);
+    layers.forEach(function (l) { var d = +l.getAttribute('data-depth'); l.style.transform = 'translate(' + (-cxr * d) + 'px,' + (-cyr * d * 0.4) + 'px)'; });
+    cel.style.marginLeft = (-cxr * 14) + 'px'; cel.style.marginTop = (-cyr * 10) + 'px';
+  }, { passive: true });
+
+  /* ---- topbar on scroll + section reveals ---- */
+  var topbar = document.getElementById('topbar');
+  window.addEventListener('scroll', function () { topbar.classList.toggle('scrolled', window.scrollY > 40); }, { passive: true });
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    document.querySelectorAll('[data-reveal]').forEach(function (el) { io.observe(el); });
+  } else { document.querySelectorAll('[data-reveal]').forEach(function (el) { el.classList.add('in'); }); }
 })();
 </script>
 </body>
