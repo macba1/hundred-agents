@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hotel Casa Galeana · Aguascalientes</title>
+<meta name="description" content="Hotel boutique en el corazón de Aguascalientes. Una estancia cálida, con el alma de la ciudad." />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FBF6EE;
+    --cream-2: #F3E9D9;
+    --ink: #2A211A;
+    --soft: #6E6253;
+    --terra: #B5552F;
+    --terra-2: #C2683E;
+    --gold: #C9A227;
+    --line: rgba(42, 33, 26, 0.12);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Jost', system-ui, sans-serif;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  .serif { font-family: 'Cormorant', Georgia, serif; }
+
+  .wrap { width: 100%; max-width: 720px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- top bar ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(251, 246, 238, 0.82);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar-in {
+    height: 60px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand { display: flex; align-items: baseline; gap: 8px; }
+  .brand .mark {
+    font-family: 'Cormorant', serif; font-weight: 600; font-size: 22px;
+    letter-spacing: 0.5px; color: var(--ink);
+  }
+  .brand .loc {
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--soft);
+  }
+  .topbar .book {
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    border: 1px solid var(--terra); color: var(--terra);
+    padding: 8px 14px; transition: background .2s ease, color .2s ease;
+  }
+  .topbar .book:hover { background: var(--terra); color: #fff; }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    position: relative; min-height: 92vh;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 0 0 8vh; overflow: hidden;
+    transition: background 1.2s ease;
+  }
+  /* time-of-day backgrounds (placeholders: gradients only, no copyrighted imagery) */
+  .hero[data-franja="manana"] { background:
+      radial-gradient(120% 80% at 75% 18%, #FBE9C8 0%, rgba(251,233,200,0) 55%),
+      linear-gradient(160deg, #FDF6E8 0%, #F6E4C9 42%, #E9C9A0 100%); }
+  .hero[data-franja="tarde"] { background:
+      radial-gradient(120% 80% at 70% 22%, #F6D9A8 0%, rgba(246,217,168,0) 55%),
+      linear-gradient(160deg, #F7E7CE 0%, #E7B98C 48%, #C2683E 100%); }
+  .hero[data-franja="noche"] { background:
+      radial-gradient(120% 75% at 72% 20%, #6E5A86 0%, rgba(110,90,134,0) 55%),
+      linear-gradient(160deg, #3A2E42 0%, #2A2536 45%, #1C1822 100%); }
+  .hero[data-franja="noche"] .hero-eyebrow,
+  .hero[data-franja="noche"] .hero-greet,
+  .hero[data-franja="noche"] .hero-msg { color: #FBF6EE; }
+  .hero[data-franja="noche"] .hero-eyebrow { color: #E8C97A; }
+
+  /* soft texture grain */
+  .hero::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 4px 4px; mix-blend-mode: overlay; opacity: .5;
+  }
+
+  .hero-inner { position: relative; z-index: 2; }
+  .hero-eyebrow {
+    font-size: 12px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--terra); margin: 0 0 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-eyebrow .clock {
+    font-variant-numeric: tabular-nums; letter-spacing: 0.1em;
+  }
+  .hero-greet {
+    font-family: 'Cormorant', serif; font-weight: 500;
+    font-size: clamp(48px, 13vw, 96px); line-height: 0.98;
+    letter-spacing: -0.01em; margin: 0; color: var(--ink);
+  }
+  .hero-greet em { font-style: italic; color: var(--terra-2); }
+  .hero-msg {
+    font-size: clamp(17px, 4.2vw, 21px); line-height: 1.5; font-weight: 300;
+    color: var(--soft); margin: 18px 0 0; max-width: 30ch;
+  }
+  .hero-cta {
+    display: inline-flex; align-items: center; gap: 12px; margin-top: 30px;
+    background: var(--terra); color: #fff;
+    font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase;
+    padding: 16px 26px; transition: background .2s ease, transform .15s ease;
+  }
+  .hero-cta:hover { background: #9E4827; transform: translateY(-1px); }
+  .hero-cta .arr { font-family: 'Cormorant', serif; font-size: 18px; }
+
+  /* placeholder note chip */
+  .ph-chip {
+    position: absolute; top: 16px; right: 16px; z-index: 3;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--soft); background: rgba(251,246,238,0.7);
+    border: 1px solid var(--line); padding: 5px 9px;
+  }
+  .hero[data-franja="noche"] .ph-chip { color: #E9DFcf; background: rgba(28,24,34,0.5); border-color: rgba(255,255,255,0.2); }
+
+  /* ---------- intro strip ---------- */
+  .strip { padding: 56px 0; border-bottom: 1px solid var(--line); }
+  .strip h2 {
+    font-family: 'Cormorant', serif; font-weight: 500;
+    font-size: clamp(26px, 6vw, 38px); line-height: 1.12; margin: 0 0 16px;
+  }
+  .strip p { font-size: 16px; line-height: 1.65; color: var(--soft); margin: 0; max-width: 52ch; }
+
+  /* placeholder image block */
+  .ph-img {
+    width: 100%; aspect-ratio: 4 / 3; margin: 28px 0 0;
+    background: linear-gradient(135deg, var(--cream-2), #E4D2B6);
+    border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--soft);
+  }
+
+  footer { padding: 40px 0 56px; text-align: center; }
+  footer .mark { font-family: 'Cormorant', serif; font-size: 20px; font-weight: 600; }
+  footer .meta { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--soft); margin-top: 8px; }
+</style>
+</head>
+<body>
+
+  <!-- ===================== TOP BAR ===================== -->
+  <header class="topbar">
+    <div class="wrap topbar-in">
+      <div class="brand">
+        <span class="mark">Casa Galeana</span>
+        <span class="loc">Aguascalientes</span>
+      </div>
+      <a class="book" href="https://book.securebookings.net/roomrate?id=b03ef193-4676-1780328203-4eee-b4e3-46dc6df6af60&rateplan_id=e11c0f28-1a79-1780336967-49f2-9d3c-536ad800befd&lang=es&currency=MXN" target="_blank" rel="noopener">Reservar</a>
+    </div>
+  </header>
+
+  <!-- ===================== HERO (dynamic by Aguascalientes hour) ===================== -->
+  <section class="hero" id="hero" data-franja="manana">
+    <span class="ph-chip" id="ph-chip">Placeholder · imagen real pendiente</span>
+    <div class="wrap hero-inner">
+      <p class="hero-eyebrow"><span id="hero-eyebrow-text">El día comienza</span> · <span class="clock" id="hero-clock">--:--</span> <span id="hero-tz">Aguascalientes</span></p>
+      <h1 class="hero-greet" id="hero-greet">Buenos días</h1>
+      <p class="hero-msg" id="hero-msg"></p>
+      <a class="hero-cta" href="https://book.securebookings.net/roomrate?id=b03ef193-4676-1780328203-4eee-b4e3-46dc6df6af60&rateplan_id=e11c0f28-1a79-1780336967-49f2-9d3c-536ad800befd&lang=es&currency=MXN" target="_blank" rel="noopener">Reservar tu estancia <span class="arr">→</span></a>
+    </div>
+  </section>
+
+  <!-- ===================== INTRO ===================== -->
+  <section class="strip">
+    <div class="wrap">
+      <h2 class="serif">Una casa con el alma de Aguascalientes.</h2>
+      <p>Casa Galeana es un hotel boutique en el centro de la ciudad. Pocas habitaciones, mucho cuidado: patios de cantera, luz cálida y el ritmo tranquilo de una casa que recibe.</p>
+      <div class="ph-img">Placeholder · patio / fachada</div>
+    </div>
+  </section>
+
+  <section class="strip">
+    <div class="wrap">
+      <h2 class="serif">Bien ubicada, bien acompañada.</h2>
+      <p>A pasos del centro histórico, el Jardín de San Marcos y la vida cultural de la ciudad. Te contamos qué hacer cada día — como lo haría un buen anfitrión.</p>
+      <div class="ph-img">Placeholder · habitación</div>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer>
+    <div class="wrap">
+      <div class="mark serif">Casa Galeana</div>
+      <div class="meta">Aguascalientes, México · Demo conceptual</div>
+    </div>
+  </footer>
+
+<script>
+/* ============================================================
+   Hero dinámico por la hora REAL de Aguascalientes.
+   Usa Intl.DateTimeFormat con timeZone America/Mexico_City, así
+   NO depende del reloj del visitante.
+   Franjas (según brief): mañana 6–12, tarde 12–19, noche 19–6.
+   Override de prueba: ?hora=8 (0–23) fuerza la franja para QA.
+   ============================================================ */
+(function () {
+  var COPY = {
+    manana: {
+      franja: 'manana',
+      eyebrow: 'El día comienza',
+      greet: 'Buenos días',
+      msg: 'El café está listo y la ciudad despierta. Empieza el día con calma desde el patio.',
+    },
+    tarde: {
+      franja: 'tarde',
+      eyebrow: 'La tarde en la ciudad',
+      greet: 'Buenas tardes',
+      msg: 'Hora de pasear el centro o volver a descansar. Aguascalientes se siente mejor sin prisa.',
+    },
+    noche: {
+      franja: 'noche',
+      eyebrow: 'Cae la noche',
+      greet: 'Buenas noches',
+      msg: 'La ciudad se enciende despacio. Una copa, una cena cerca, y a descansar.',
+    },
+  };
+
+  function aguasHour() {
+    // override para QA
+    var p = new URLSearchParams(location.search);
+    if (p.has('hora')) {
+      var h = parseInt(p.get('hora'), 10);
+      if (!isNaN(h)) return ((h % 24) + 24) % 24;
+    }
+    // hora real de Aguascalientes (America/Mexico_City)
+    var parts = new Intl.DateTimeFormat('es-MX', {
+      timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+    }).formatToParts(new Date());
+    var hh = 0, mm = 0;
+    parts.forEach(function (x) { if (x.type === 'hour') hh = parseInt(x.value, 10); if (x.type === 'minute') mm = parseInt(x.value, 10); });
+    return hh + mm / 60;
+  }
+
+  function franjaFor(h) {
+    if (h >= 6 && h < 12) return 'manana';
+    if (h >= 12 && h < 19) return 'tarde';
+    return 'noche';
+  }
+
+  function clockStr() {
+    return new Intl.DateTimeFormat('es-MX', {
+      timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+    }).format(new Date());
+  }
+
+  function render() {
+    var h = aguasHour();
+    var c = COPY[franjaFor(h)];
+    var hero = document.getElementById('hero');
+    hero.setAttribute('data-franja', c.franja);
+    document.getElementById('hero-eyebrow-text').textContent = c.eyebrow;
+    document.getElementById('hero-greet').textContent = c.greet;
+    document.getElementById('hero-msg').textContent = c.msg;
+    // si hay override mostramos esa hora; si no, el reloj real
+    var p = new URLSearchParams(location.search);
+    document.getElementById('hero-clock').textContent = p.has('hora')
+      ? (String(Math.floor(h)).padStart(2, '0') + ':00')
+      : clockStr();
+  }
+
+  render();
+  // se refresca solo cada minuto para que la franja cambie sin recargar
+  setInterval(render, 60 * 1000);
+})();
+</script>
+</body>
+</html>
