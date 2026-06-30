@@ -3,6 +3,7 @@
   "name": "hundred-agents",
   "description": "Static site + serverless functions. Dependency only for the Edge Middleware (client subdomain routing).",
   "dependencies": {
-    "@vercel/edge": "^1.2.1"
+    "@vercel/edge": "^1.2.1",
+    "redis": "^4.7.0"
   }
 }

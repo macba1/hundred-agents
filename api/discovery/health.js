@@ -48,9 +48,9 @@ module.exports = async function handler(req, res) {
     steps.delete = gone === null;
 
     const ok = steps.write && steps.read && steps.update && steps.persist_artifacts && steps.admin_read && steps.delete;
-    return res.status(ok ? 200 : 500).json({ ok, steps });
+    return res.status(ok ? 200 : 500).json({ ok, mode: rd.mode, steps });
   } catch (err) {
     if (tok) { try { await store.del(tok); } catch {} }
-    return res.status(503).json({ ok: false, error: (err && err.code) || 'store_error', message: err && err.message, steps });
+    return res.status(503).json({ ok: false, mode: rd.mode, error: (err && err.code) || 'store_error', message: err && err.message, steps });
   }
 };

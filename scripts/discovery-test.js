@@ -166,17 +166,23 @@ check('client-facing copy shows no final price ($/amount)', () => {
     const snap = {}; Object.keys(env).forEach((k) => { snap[k] = process.env[k]; if (env[k] === undefined) delete process.env[k]; else process.env[k] = env[k]; });
     try { return await fn(); } finally { Object.keys(snap).forEach((k) => { if (snap[k] === undefined) delete process.env[k]; else process.env[k] = snap[k]; }); }
   }
-  check('mode = file locally (no VERCEL_ENV, no KV)', () => withEnv({ VERCEL_ENV: undefined, KV_REST_API_URL: undefined, KV_REST_API_TOKEN: undefined, DISCOVERY_FORCE_FILE: undefined }, () => {
+  check('mode = file locally (no VERCEL_ENV, no durable env)', () => withEnv({ VERCEL_ENV: undefined, REDIS_URL: undefined, KV_REST_API_URL: undefined, KV_REST_API_TOKEN: undefined, DISCOVERY_FORCE_FILE: undefined }, () => {
     const r = store.ready(); assert.strictEqual(r.mode, 'file'); assert.strictEqual(r.ok, true);
   }));
-  check('preview/prod WITHOUT KV fails safely (unconfigured + clear message)', () => withEnv({ VERCEL_ENV: 'preview', KV_REST_API_URL: undefined, KV_REST_API_TOKEN: undefined, DISCOVERY_FORCE_FILE: undefined }, () => {
+  check('preview/prod WITHOUT durable backend fails safely (unconfigured + clear message)', () => withEnv({ VERCEL_ENV: 'preview', REDIS_URL: undefined, KV_REST_API_URL: undefined, KV_REST_API_TOKEN: undefined, DISCOVERY_FORCE_FILE: undefined }, () => {
     const r = store.ready();
     assert.strictEqual(r.ok, false); assert.strictEqual(r.mode, 'unconfigured');
-    assert.ok(/KV_REST_API_URL and KV_REST_API_TOKEN/.test(r.error));
+    assert.ok(/REDIS_URL/.test(r.error) && /KV_REST_API_URL/.test(r.error));
     assert.throws(() => store.assertReady(), (e) => e.code === 'durable_storage_unconfigured');
   }));
-  check('production WITH KV present selects kv mode', () => withEnv({ VERCEL_ENV: 'production', KV_REST_API_URL: 'https://kv.example', KV_REST_API_TOKEN: 'tok' }, () => {
+  check('REDIS_URL detected in preview/prod selects durable redis mode', () => withEnv({ VERCEL_ENV: 'production', REDIS_URL: 'redis://example:6379', KV_REST_API_URL: undefined, KV_REST_API_TOKEN: undefined }, () => {
+    const r = store.ready(); assert.strictEqual(r.mode, 'redis'); assert.strictEqual(r.ok, true);
+  }));
+  check('production WITH KV (no REDIS_URL) still selects kv mode', () => withEnv({ VERCEL_ENV: 'production', REDIS_URL: undefined, KV_REST_API_URL: 'https://kv.example', KV_REST_API_TOKEN: 'tok' }, () => {
     assert.strictEqual(store.ready().mode, 'kv');
+  }));
+  check('REDIS_URL takes priority over KV when both present', () => withEnv({ VERCEL_ENV: 'production', REDIS_URL: 'redis://example:6379', KV_REST_API_URL: 'https://kv.example', KV_REST_API_TOKEN: 'tok' }, () => {
+    assert.strictEqual(store.ready().mode, 'redis');
   }));
 
   // ---------- durable persistence roundtrip (file backend stands in for KV) ----------
