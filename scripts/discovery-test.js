@@ -9,6 +9,7 @@ const fs = require('fs');
 const path = require('path');
 const finalizeHandler = require('../api/discovery/finalize');
 const { buildArtifacts } = finalizeHandler;
+const healthHandler = require('../api/discovery/health');
 const store = require('../lib/discovery/store');
 const { containsFinalPrice } = require('../lib/discovery/proposal');
 const { GREETING, FINAL_MESSAGE } = require('../lib/discovery/prompts');
@@ -154,6 +155,62 @@ check('client-facing copy shows no final price ($/amount)', () => {
     assert.strictEqual(r2.body.ok, true);
     assert.strictEqual(r2.body.humanReviewRequired, true);
     assert.strictEqual(r2.body.priceGatePassed, true);
+  });
+
+  // ---------- storage mode selection (env-aware, durable enforcement) ----------
+  function withEnv(env, fn) {
+    const snap = {}; Object.keys(env).forEach((k) => { snap[k] = process.env[k]; if (env[k] === undefined) delete process.env[k]; else process.env[k] = env[k]; });
+    try { return fn(); } finally { Object.keys(snap).forEach((k) => { if (snap[k] === undefined) delete process.env[k]; else process.env[k] = snap[k]; }); }
+  }
+  async function withEnvAsync(env, fn) {
+    const snap = {}; Object.keys(env).forEach((k) => { snap[k] = process.env[k]; if (env[k] === undefined) delete process.env[k]; else process.env[k] = env[k]; });
+    try { return await fn(); } finally { Object.keys(snap).forEach((k) => { if (snap[k] === undefined) delete process.env[k]; else process.env[k] = snap[k]; }); }
+  }
+  check('mode = file locally (no VERCEL_ENV, no KV)', () => withEnv({ VERCEL_ENV: undefined, KV_REST_API_URL: undefined, KV_REST_API_TOKEN: undefined, DISCOVERY_FORCE_FILE: undefined }, () => {
+    const r = store.ready(); assert.strictEqual(r.mode, 'file'); assert.strictEqual(r.ok, true);
+  }));
+  check('preview/prod WITHOUT KV fails safely (unconfigured + clear message)', () => withEnv({ VERCEL_ENV: 'preview', KV_REST_API_URL: undefined, KV_REST_API_TOKEN: undefined, DISCOVERY_FORCE_FILE: undefined }, () => {
+    const r = store.ready();
+    assert.strictEqual(r.ok, false); assert.strictEqual(r.mode, 'unconfigured');
+    assert.ok(/KV_REST_API_URL and KV_REST_API_TOKEN/.test(r.error));
+    assert.throws(() => store.assertReady(), (e) => e.code === 'durable_storage_unconfigured');
+  }));
+  check('production WITH KV present selects kv mode', () => withEnv({ VERCEL_ENV: 'production', KV_REST_API_URL: 'https://kv.example', KV_REST_API_TOKEN: 'tok' }, () => {
+    assert.strictEqual(store.ready().mode, 'kv');
+  }));
+
+  // ---------- durable persistence roundtrip (file backend stands in for KV) ----------
+  const dsess = store.newSession('gabi');
+  dsess.transcript.push({ role: 'assistant', content: 'hola', ts: '2026-06-30T00:00:00.000Z' });
+  dsess.brainPartial = { client_name: 'Gabi', client_contact: { email: 'gabi@negocios.com' }, business_lines: [{ name: 'Glamping', status: 'active' }] };
+  await store.save(dsess);
+
+  const resumed = await store.get(dsess.sessionToken);
+  check('resume token returns the saved session + transcript', () => { assert.ok(resumed); assert.strictEqual(resumed.transcript.length, 1); });
+
+  resumed.artifacts = buildArtifacts(resumed.brainPartial, '2026-06-30T00:00:00.000Z');
+  resumed.status = 'finalized';
+  await store.save(resumed);
+  const done = await store.get(dsess.sessionToken);
+  check('finalized Business Brain persists', () => assert.ok(done.artifacts.brain && done.artifacts.brain.client_name === 'Gabi'));
+  check('Proposal Draft persists (human_review_required)', () => assert.strictEqual(done.artifacts.proposal.human_review_required, true));
+  check('client_contact.email persists', () => assert.strictEqual(done.artifacts.brain.client_contact.email, 'gabi@negocios.com'));
+
+  // admin retrieval of the completed discovery
+  function mockRes2() { const r = { code: 0, body: null }; r.setHeader = () => {}; r.status = (c) => { r.code = c; return r; }; r.json = (b) => { r.body = b; return r; }; return r; }
+  await withEnvAsync({ DISCOVERY_ADMIN_TOKEN: 'secret' }, async () => {
+    const adminHandler = require('../api/discovery/admin');
+    let ra = mockRes2(); await adminHandler({ method: 'GET', headers: { authorization: 'Bearer secret' }, query: { s: dsess.sessionToken } }, ra);
+    check('admin endpoint retrieves completed discovery', () => { assert.strictEqual(ra.code, 200); assert.strictEqual(ra.body.sessionToken, dsess.sessionToken); assert.ok(ra.body.artifacts.brain.client_contact.email === 'gabi@negocios.com'); });
+    let ru = mockRes2(); await adminHandler({ method: 'GET', headers: {}, query: {} }, ru);
+    check('admin endpoint rejects without token (401)', () => assert.strictEqual(ru.code, 401));
+
+    // storage health check (file backend here; same code path KV uses in prod)
+    let rh = mockRes2(); await healthHandler({ method: 'GET', headers: { authorization: 'Bearer secret' }, query: {} }, rh);
+    check('storage health check passes (write/read/update/persist/admin/delete)', () => {
+      assert.strictEqual(rh.code, 200); assert.strictEqual(rh.body.ok, true);
+      ['write', 'read', 'update', 'persist_artifacts', 'admin_read', 'delete'].forEach((k) => assert.strictEqual(rh.body.steps[k], true, k));
+    });
   });
 
   console.log('\n' + pass + ' passed, ' + fail + ' failed');

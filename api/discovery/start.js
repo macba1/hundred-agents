@@ -6,6 +6,8 @@ const ALLOWED = (process.env.DISCOVERY_CLIENT_KEYS || 'gabi').split(',').map((s)
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); return res.status(405).json({ error: 'method_not_allowed' }); }
+  const rd = store.ready();
+  if (!rd.ok) return res.status(503).json({ error: 'durable_storage_unconfigured', message: rd.error });
   let body = req.body; if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } } body = body || {};
 
   const clientKey = (body.clientKey || 'gabi').trim();

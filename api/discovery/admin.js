@@ -13,6 +13,8 @@ function authed(req) {
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') { res.setHeader('Allow', 'GET'); return res.status(405).json({ error: 'method_not_allowed' }); }
   if (!authed(req)) return res.status(401).json({ error: 'unauthorized' });
+  const rd = store.ready();
+  if (!rd.ok) return res.status(503).json({ error: 'durable_storage_unconfigured', message: rd.error });
 
   try {
     const token = req.query && req.query.s;
