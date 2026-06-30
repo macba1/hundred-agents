@@ -3,7 +3,7 @@
    structured facts into the partial brain, persists, returns reply. */
 const store = require('../../lib/discovery/store');
 const brainLib = require('../../lib/discovery/brain');
-const { SYSTEM, UPDATE_BRAIN_TOOL, SECTIONS } = require('../../lib/discovery/prompts');
+const { SYSTEM, UPDATE_BRAIN_TOOL, SECTIONS, FINAL_MESSAGE } = require('../../lib/discovery/prompts');
 
 const MODEL = 'gpt-4o-mini';
 const MAX_TURNS = 40;
@@ -37,7 +37,7 @@ module.exports = async function handler(req, res) {
   const userTurns = s.transcript.filter((m) => m.role === 'user').length;
 
   if (userTurns > MAX_TURNS) {
-    const reply = 'Creo que ya tengo lo necesario por ahora. Hundred Agents revisará todo y dará seguimiento. ¡Gracias!';
+    const reply = FINAL_MESSAGE;
     s.transcript.push({ role: 'assistant', content: reply, ts: new Date().toISOString() });
     s.status = 'ready_to_finalize';
     await store.save(s);

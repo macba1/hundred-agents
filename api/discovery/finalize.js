@@ -58,6 +58,17 @@ module.exports = async function handler(req, res) {
     }
   }
 
+  // Email is required before finalization. Persist progress, then ask for it.
+  if (!brainLib.hasEmail(partial)) {
+    s.brainPartial = partial;
+    try { await store.save(s); } catch {}
+    return res.status(400).json({
+      ok: false,
+      error: 'email_required',
+      message: '¿Cuál es el mejor email para enviarte la propuesta de implantación y comercial con precios?',
+    });
+  }
+
   const nowISO = new Date().toISOString();
   const artifacts = buildArtifacts(partial, nowISO);
   const valid = brainLib.validate(artifacts.brain);

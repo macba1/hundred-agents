@@ -61,7 +61,7 @@
 
   <section id="intro">
     <h1>Diseñemos la AI correcta para tus negocios.</h1>
-    <p>Te haré algunas preguntas guiadas sobre tus negocios, canales y procesos. Toma ~15 minutos y puedes pausar y volver con este mismo enlace. Al terminar, Hundred Agents preparará una propuesta — sin precios automáticos.</p>
+    <p>Te haré algunas preguntas guiadas sobre tus negocios, canales y procesos. Toma ~15 minutos y puedes pausar y volver con este mismo enlace. Después de recoger tus respuestas, el equipo de Hundred Agents estudiará la mejor manera de aplicar AI a tus negocios y te enviaremos por email una propuesta de implantación y comercial con precios.</p>
     <button class="start" id="startBtn">Iniciar descubrimiento con AI <span class="mono">→</span></button>
     <div class="err" id="introErr"></div>
   </section>
@@ -71,8 +71,8 @@
     <div class="log" id="log" role="log" aria-live="polite"></div>
     <div class="err" id="chatErr"></div>
     <div class="bar">
-      <button class="finish" id="finishBtn">Terminar y enviar a revisión</button>
-      <span class="note">Hundred Agents revisará · no se envían precios</span>
+      <button class="finish" id="finishBtn">Terminar</button>
+      <span class="note">Te enviaremos la propuesta por email</span>
     </div>
     <form class="composer" id="composer">
       <textarea id="input" rows="1" placeholder="Escribe tu respuesta…" aria-label="Mensaje"></textarea>
@@ -82,7 +82,7 @@
 
   <section id="done">
     <div class="big">¡Gracias! 🎯</div>
-    <p>Tengo lo necesario. El equipo de Hundred Agents revisará tus respuestas y dará seguimiento con una propuesta. No se ha enviado ningún precio automáticamente.</p>
+    <p>Con esto tengo lo necesario. El equipo de Hundred Agents estudiará la mejor manera de aplicar AI a tus negocios y te enviaremos por email una propuesta de implantación y comercial con precios.</p>
   </section>
 </div>
 
@@ -141,7 +141,11 @@
     if(busy) return; busy=true; el('finishBtn').disabled=true; el('chatErr').textContent='';
     typing(true);
     try{ await api('/api/discovery/finalize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionToken:token})}); typing(false); finishUI(); }
-    catch(e){ typing(false); el('finishBtn').disabled=false; el('chatErr').textContent='No se pudo cerrar ahora. Intenta de nuevo.'; }
+    catch(e){
+      typing(false); el('finishBtn').disabled=false;
+      if(e==='email_required'){ el('chatErr').textContent=''; addMsg('bot','¿Cuál es el mejor email para enviarte la propuesta de implantación y comercial con precios?'); el('input').focus(); }
+      else { el('chatErr').textContent='No se pudo cerrar ahora. Intenta de nuevo.'; }
+    }
     finally{ busy=false; }
   }
 
