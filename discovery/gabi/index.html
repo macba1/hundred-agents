@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Descubrimiento · Hundred Agents</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#08090A; --panel:#0E0F12; --ink:#fff; --soft:#8A8F98; --faint:#565B63; --line:rgba(255,255,255,.12); --accent:#FF4D00; }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Geist,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .mono{font-family:'Geist Mono',ui-monospace,monospace}
+  .app{max-width:680px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;padding:0 16px}
+  header{display:flex;align-items:center;gap:9px;padding:18px 2px;border-bottom:1px solid var(--line)}
+  header .sq{width:9px;height:9px;background:var(--accent);display:inline-block}
+  header .t{font-weight:600;letter-spacing:-.2px}
+  header .sub{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);margin-left:auto}
+
+  /* intro */
+  #intro{flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px;padding:30px 4px}
+  #intro h1{font-size:clamp(28px,7vw,40px);line-height:1.06;letter-spacing:-.02em;margin:0;font-weight:600}
+  #intro p{color:var(--soft);font-size:16px;line-height:1.6;margin:0;max-width:46ch}
+  .start{align-self:flex-start;background:var(--accent);color:#fff;border:none;cursor:pointer;font:inherit;font-weight:600;font-size:15px;padding:16px 26px;display:inline-flex;gap:10px;align-items:center}
+  .start[disabled]{opacity:.5;cursor:default}
+
+  /* chat */
+  #chat{flex:1;display:none;flex-direction:column;min-height:0}
+  #chat.on{display:flex}
+  .prog{height:3px;background:var(--line);margin:8px 0 4px}
+  .prog > i{display:block;height:100%;width:0;background:var(--accent);transition:width .5s ease}
+  .log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:16px 2px}
+  .msg{max-width:88%;font-size:15px;line-height:1.5;padding:11px 14px;white-space:pre-wrap;word-wrap:break-word}
+  .msg.user{align-self:flex-end;background:var(--accent)}
+  .msg.bot{align-self:flex-start;background:#1A1C20;border:1px solid var(--line)}
+  .typing{align-self:flex-start;display:inline-flex;gap:4px;padding:12px 14px;background:#1A1C20;border:1px solid var(--line)}
+  .typing i{width:6px;height:6px;background:var(--soft);display:inline-block;animation:b 1s infinite}
+  .typing i:nth-child(2){animation-delay:.15s} .typing i:nth-child(3){animation-delay:.3s}
+  @keyframes b{0%,60%,100%{opacity:.25}30%{opacity:1}}
+  .composer{display:flex;gap:8px;padding:10px 0 16px;border-top:1px solid var(--line)}
+  textarea{flex:1;background:transparent;border:1px solid var(--line);color:#fff;font:inherit;font-size:15px;padding:11px 12px;outline:none;resize:none;max-height:120px}
+  textarea:focus{border-color:var(--accent)}
+  .send{background:#fff;color:#08090A;border:none;cursor:pointer;font-family:'Geist Mono',monospace;font-size:16px;padding:0 16px}
+  .send:disabled{opacity:.4}
+  .bar{display:flex;gap:10px;align-items:center;padding:8px 0}
+  .finish{background:none;border:1px solid var(--line);color:var(--soft);cursor:pointer;font:inherit;font-size:12px;padding:8px 12px}
+  .finish:hover{color:#fff;border-color:var(--accent)}
+  .note{font-family:'Geist Mono',monospace;font-size:11px;color:var(--faint)}
+  .err{color:var(--accent);font-family:'Geist Mono',monospace;font-size:12px;padding:6px 0}
+  #done{display:none;flex:1;flex-direction:column;justify-content:center;gap:14px;text-align:center;padding:30px}
+  #done.on{display:flex}
+  #done .big{font-size:26px;font-weight:600;letter-spacing:-.02em}
+  #done p{color:var(--soft);line-height:1.6;margin:0}
+</style>
+</head>
+<body>
+<div class="app">
+  <header><span class="sq"></span><span class="t">Hundred Agents</span><span class="sub">Discovery · Privado</span></header>
+
+  <section id="intro">
+    <h1>Diseñemos la AI correcta para tus negocios.</h1>
+    <p>Te haré algunas preguntas guiadas sobre tus negocios, canales y procesos. Toma ~15 minutos y puedes pausar y volver con este mismo enlace. Al terminar, Hundred Agents preparará una propuesta — sin precios automáticos.</p>
+    <button class="start" id="startBtn">Iniciar descubrimiento con AI <span class="mono">→</span></button>
+    <div class="err" id="introErr"></div>
+  </section>
+
+  <section id="chat">
+    <div class="prog"><i id="progBar"></i></div>
+    <div class="log" id="log" role="log" aria-live="polite"></div>
+    <div class="err" id="chatErr"></div>
+    <div class="bar">
+      <button class="finish" id="finishBtn">Terminar y enviar a revisión</button>
+      <span class="note">Hundred Agents revisará · no se envían precios</span>
+    </div>
+    <form class="composer" id="composer">
+      <textarea id="input" rows="1" placeholder="Escribe tu respuesta…" aria-label="Mensaje"></textarea>
+      <button class="send" type="submit" aria-label="Enviar">→</button>
+    </form>
+  </section>
+
+  <section id="done">
+    <div class="big">¡Gracias! 🎯</div>
+    <p>Tengo lo necesario. El equipo de Hundred Agents revisará tus respuestas y dará seguimiento con una propuesta. No se ha enviado ningún precio automáticamente.</p>
+  </section>
+</div>
+
+<script>
+(function(){
+  var token = new URLSearchParams(location.search).get('s') || null;
+  var busy = false;
+  var el = function(id){return document.getElementById(id)};
+  var log = el('log');
+
+  function addMsg(role, text){
+    var d=document.createElement('div'); d.className='msg '+(role==='user'?'user':'bot'); d.textContent=text;
+    log.appendChild(d); log.scrollTop=log.scrollHeight; return d;
+  }
+  var typingEl=null;
+  function typing(on){ if(on){ typingEl=document.createElement('div'); typingEl.className='typing'; typingEl.innerHTML='<i></i><i></i><i></i>'; log.appendChild(typingEl); log.scrollTop=log.scrollHeight; } else if(typingEl){ typingEl.remove(); typingEl=null; } }
+  function showChat(){ el('intro').style.display='none'; el('chat').classList.add('on'); setTimeout(function(){el('input').focus();},50); }
+  function setProg(p){ el('progBar').style.width=Math.round((p||0)*100)+'%'; }
+
+  async function api(path, opts){ var r=await fetch(path,opts); var j=await r.json().catch(function(){return{}}); if(!r.ok) throw (j.error||('http '+r.status)); return j; }
+
+  async function start(){
+    el('startBtn').disabled=true; el('introErr').textContent='';
+    try{
+      var j=await api('/api/discovery/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clientKey:'gabi'})});
+      token=j.sessionToken;
+      var u=new URL(location.href); u.searchParams.set('s',token); history.replaceState(null,'',u.toString());
+      showChat();
+      if(j.greeting) addMsg('bot', j.greeting);
+    }catch(e){ el('startBtn').disabled=false; el('introErr').textContent='No se pudo iniciar. Intenta de nuevo.'; }
+  }
+
+  async function resume(){
+    try{
+      var j=await api('/api/discovery/state?s='+encodeURIComponent(token));
+      showChat();
+      (j.transcript||[]).forEach(function(m){ addMsg(m.role==='user'?'user':'bot', m.content); });
+      if(j.status==='finalized'){ el('chat').classList.remove('on'); el('done').classList.add('on'); }
+    }catch(e){ token=null; /* fall back to intro */ }
+  }
+
+  async function send(text){
+    if(busy||!text.trim()) return; busy=true; el('chatErr').textContent='';
+    addMsg('user',text); typing(true);
+    try{
+      var j=await api('/api/discovery/message',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionToken:token,message:text})});
+      typing(false); addMsg('bot', j.reply||''); if(typeof j.progress==='number') setProg(j.progress);
+      if(j.done){ finishUI(); }
+    }catch(e){ typing(false); el('chatErr').textContent = (e==='session_not_found') ? 'Sesión no encontrada. Recarga la página.' : 'Hubo un problema. Tus respuestas están guardadas — intenta otra vez.'; }
+    finally{ busy=false; el('input').focus(); }
+  }
+
+  function finishUI(){ el('chat').classList.remove('on'); el('done').classList.add('on'); }
+
+  async function finish(){
+    if(busy) return; busy=true; el('finishBtn').disabled=true; el('chatErr').textContent='';
+    typing(true);
+    try{ await api('/api/discovery/finalize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionToken:token})}); typing(false); finishUI(); }
+    catch(e){ typing(false); el('finishBtn').disabled=false; el('chatErr').textContent='No se pudo cerrar ahora. Intenta de nuevo.'; }
+    finally{ busy=false; }
+  }
+
+  el('startBtn').addEventListener('click', start);
+  el('finishBtn').addEventListener('click', finish);
+  el('composer').addEventListener('submit', function(e){ e.preventDefault(); var v=el('input').value; el('input').value=''; el('input').style.height='auto'; send(v); });
+  el('input').addEventListener('keydown', function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); el('composer').requestSubmit(); } });
+  el('input').addEventListener('input', function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,120)+'px'; });
+
+  if(token) resume();
+})();
+</script>
+</body>
+</html>

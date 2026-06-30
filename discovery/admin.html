@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Discovery Review · Hundred Agents</title>
+<meta name="robots" content="noindex, nofollow" />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#08090A;color:#fff;font-family:Geist,system-ui,sans-serif;padding:20px;max-width:1000px;margin:0 auto}
+  h1{font-size:20px} .mono{font-family:'Geist Mono',monospace}
+  input,button{font:inherit} input{background:transparent;border:1px solid rgba(255,255,255,.2);color:#fff;padding:9px 11px}
+  button{background:#FF4D00;color:#fff;border:none;padding:9px 14px;cursor:pointer}
+  .row{display:flex;gap:8px;margin:14px 0}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:14px}
+  th,td{text-align:left;padding:8px;border-bottom:1px solid rgba(255,255,255,.1)}
+  td a{color:#FF4D00;cursor:pointer}
+  .flag{color:#FF4D00;font-family:'Geist Mono',monospace;font-size:11px}
+  pre{background:#0E0F12;border:1px solid rgba(255,255,255,.12);padding:14px;overflow:auto;font-size:12px;line-height:1.5;max-height:60vh}
+  .banner{background:rgba(255,77,0,.12);border:1px solid #FF4D00;padding:10px 12px;margin:14px 0;font-family:'Geist Mono',monospace;font-size:12px}
+</style>
+</head>
+<body>
+  <h1>Discovery Review <span class="mono" style="color:#8A8F98;font-size:12px">· internal</span></h1>
+  <div class="row">
+    <input id="key" type="password" placeholder="Admin token" style="flex:1;max-width:340px" />
+    <button id="load">Load sessions</button>
+  </div>
+  <div id="err" class="flag"></div>
+  <div id="list"></div>
+  <div id="detail"></div>
+
+<script>
+(function(){
+  var el=function(id){return document.getElementById(id)};
+  function key(){return el('key').value.trim();}
+  async function get(qs){ var r=await fetch('/api/discovery/admin'+qs,{headers:{Authorization:'Bearer '+key()}}); if(!r.ok) throw (await r.json().catch(function(){return{error:'http '+r.status}})).error; return r.json(); }
+
+  async function loadList(){
+    el('err').textContent=''; el('detail').innerHTML='';
+    try{
+      var j=await get('');
+      var rows=(j.sessions||[]).map(function(s){
+        return '<tr><td class="mono"><a data-t="'+s.sessionToken+'">'+s.sessionToken.slice(0,10)+'…</a></td><td>'+(s.status||'')+'</td><td>'+(s.scopeClass||'—')+'</td><td>'+(s.completeness!=null?Math.round(s.completeness*100)+'%':'—')+'</td><td>'+(s.humanReviewRequired?'<span class="flag">REVIEW REQUIRED</span>':'')+'</td></tr>';
+      }).join('');
+      el('list').innerHTML='<table><tr><th>Token</th><th>Status</th><th>Scope</th><th>Complete</th><th></th></tr>'+rows+'</table>';
+      Array.prototype.forEach.call(document.querySelectorAll('[data-t]'),function(a){a.addEventListener('click',function(){detail(a.getAttribute('data-t'));});});
+    }catch(e){ el('err').textContent='Error: '+e; }
+  }
+  async function detail(t){
+    try{
+      var s=await get('?s='+encodeURIComponent(t));
+      var a=s.artifacts||{};
+      var html='<div class="banner">HUMAN REVIEW REQUIRED — no price has been sent to the client. price_gate_passed: '+(a.proposal?a.proposal.price_gate_passed:'n/a')+'</div>';
+      html+='<h3>Proposal Draft</h3><pre>'+esc(JSON.stringify(a.proposal||{},null,2))+'</pre>';
+      html+='<h3>Scope Score</h3><pre>'+esc(JSON.stringify(a.score||{},null,2))+'</pre>';
+      html+='<h3>Agent Blueprint</h3><pre>'+esc(JSON.stringify(a.blueprint||{},null,2))+'</pre>';
+      html+='<h3>Business Brain</h3><pre>'+esc(JSON.stringify(a.brain||{},null,2))+'</pre>';
+      el('detail').innerHTML=html;
+    }catch(e){ el('err').textContent='Error: '+e; }
+  }
+  function esc(s){return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+  el('load').addEventListener('click', loadList);
+})();
+</script>
+</body>
+</html>
