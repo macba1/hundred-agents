@@ -4,6 +4,7 @@
 const store = require('../../lib/discovery/store');
 const brainLib = require('../../lib/discovery/brain');
 const { SYSTEM, UPDATE_BRAIN_TOOL, SECTIONS, FINAL_MESSAGE } = require('../../lib/discovery/prompts');
+const rl = require('../../lib/discovery/ratelimit');
 
 const MODEL = 'gpt-4o-mini';
 const MAX_TURNS = 40;
@@ -28,6 +29,10 @@ module.exports = async function handler(req, res) {
   let body = req.body; if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } } body = body || {};
   const message = (body.message || '').toString().slice(0, 4000).trim();
   if (!message) return res.status(400).json({ error: 'empty_message' });
+
+  // rate-limit messages per IP per hour (per-session cap handled by MAX_TURNS below)
+  const lim = await rl.check('msg', rl.clientIp(req), rl.LIMITS.msg_per_ip_hour);
+  if (!lim.ok) return res.status(429).json({ error: 'rate_limited', message: rl.FRIENDLY });
 
   let s;
   try { s = await store.get(body.sessionToken); }

@@ -102,7 +102,7 @@
   function showChat(){ el('intro').style.display='none'; el('chat').classList.add('on'); setTimeout(function(){el('input').focus();},50); }
   function setProg(p){ el('progBar').style.width=Math.round((p||0)*100)+'%'; }
 
-  async function api(path, opts){ var r=await fetch(path,opts); var j=await r.json().catch(function(){return{}}); if(!r.ok) throw (j.error||('http '+r.status)); return j; }
+  async function api(path, opts){ var r=await fetch(path,opts); var j=await r.json().catch(function(){return{}}); if(!r.ok) throw {code:(j.error||('http '+r.status)), message:j.message}; return j; }
 
   async function start(){
     el('startBtn').disabled=true; el('introErr').textContent='';
@@ -112,7 +112,7 @@
       var u=new URL(location.href); u.searchParams.set('s',token); history.replaceState(null,'',u.toString());
       showChat();
       if(j.greeting) addMsg('bot', j.greeting);
-    }catch(e){ el('startBtn').disabled=false; el('introErr').textContent='No se pudo iniciar. Intenta de nuevo.'; }
+    }catch(e){ el('startBtn').disabled=false; el('introErr').textContent = (e&&e.code==='rate_limited'&&e.message) ? e.message : 'No se pudo iniciar. Intenta de nuevo.'; }
   }
 
   async function resume(){
@@ -131,7 +131,11 @@
       var j=await api('/api/discovery/message',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionToken:token,message:text})});
       typing(false); addMsg('bot', j.reply||''); if(typeof j.progress==='number') setProg(j.progress);
       if(j.done){ finishUI(); }
-    }catch(e){ typing(false); el('chatErr').textContent = (e==='session_not_found') ? 'Sesión no encontrada. Recarga la página.' : 'Hubo un problema. Tus respuestas están guardadas — intenta otra vez.'; }
+    }catch(e){ typing(false);
+      var code=e&&e.code;
+      if(code==='rate_limited'&&e.message){ addMsg('bot', e.message); }
+      else { el('chatErr').textContent = (code==='session_not_found') ? 'Sesión no encontrada. Recarga la página.' : 'Hubo un problema. Tus respuestas están guardadas — intenta otra vez.'; }
+    }
     finally{ busy=false; el('input').focus(); }
   }
 
@@ -143,7 +147,9 @@
     try{ await api('/api/discovery/finalize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionToken:token})}); typing(false); finishUI(); }
     catch(e){
       typing(false); el('finishBtn').disabled=false;
-      if(e==='email_required'){ el('chatErr').textContent=''; addMsg('bot','¿Cuál es el mejor email para enviarte la propuesta de implantación y comercial con precios?'); el('input').focus(); }
+      var code=e&&e.code;
+      if(code==='email_required'){ el('chatErr').textContent=''; addMsg('bot','¿Cuál es el mejor email para enviarte la propuesta de implantación y comercial con precios?'); el('input').focus(); }
+      else if(code==='rate_limited'&&e.message){ addMsg('bot', e.message); }
       else { el('chatErr').textContent='No se pudo cerrar ahora. Intenta de nuevo.'; }
     }
     finally{ busy=false; }

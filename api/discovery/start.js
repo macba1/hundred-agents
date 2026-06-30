@@ -1,6 +1,7 @@
 /* POST /api/discovery/start — create or resume a discovery session. */
 const store = require('../../lib/discovery/store');
 const { GREETING } = require('../../lib/discovery/prompts');
+const rl = require('../../lib/discovery/ratelimit');
 
 const ALLOWED = (process.env.DISCOVERY_CLIENT_KEYS || 'gabi').split(',').map((s) => s.trim());
 
@@ -19,6 +20,10 @@ module.exports = async function handler(req, res) {
       const existing = await store.get(body.sessionToken);
       if (existing) return res.status(200).json({ sessionToken: existing.sessionToken, resumed: true, transcript: existing.transcript, status: existing.status });
     }
+    // rate-limit NEW session creation per IP (resume above is exempt)
+    const lim = await rl.check('start', rl.clientIp(req), rl.LIMITS.start_per_ip_hour);
+    if (!lim.ok) return res.status(429).json({ error: 'rate_limited', message: rl.FRIENDLY });
+
     const s = store.newSession(clientKey);
     s.transcript.push({ role: 'assistant', content: GREETING, ts: new Date().toISOString() });
     await store.save(s);

@@ -219,6 +219,37 @@ check('client-facing copy shows no final price ($/amount)', () => {
     });
   });
 
+  // ---------- rate limiting ----------
+  const rl = require('../lib/discovery/ratelimit');
+  const startHandler = require('../api/discovery/start');
+  // direct helper: ok up to limit, then not ok
+  let rlOk = 0;
+  for (let i = 0; i < 5; i++) { const r = await rl.check('unit', 'ip-' + Date.now(), 3); if (r.ok) rlOk++; }
+  check('rate helper blocks after limit (3)', () => assert.strictEqual(rlOk, 3));
+  // start handler 429 after start_per_ip_hour for one IP
+  const ip = 'ip-start-' + Date.now();
+  let codes = [];
+  for (let i = 0; i < rl.LIMITS.start_per_ip_hour + 1; i++) {
+    const r = mockRes2();
+    await startHandler({ method: 'POST', headers: { 'x-forwarded-for': ip }, body: { clientKey: 'gabi' } }, r);
+    codes.push(r.code);
+  }
+  check('start handler 200 within limit then 429', () => {
+    assert.ok(codes.slice(0, rl.LIMITS.start_per_ip_hour).every((c) => c === 200), 'should allow up to limit');
+    assert.strictEqual(codes[codes.length - 1], 429, 'should 429 over limit');
+  });
+  const rlResp = mockRes2();
+  await startHandler({ method: 'POST', headers: { 'x-forwarded-for': ip }, body: { clientKey: 'gabi' } }, rlResp);
+  check('rate-limit failure is graceful (rate_limited + friendly message)', () => {
+    assert.strictEqual(rlResp.body.error, 'rate_limited'); assert.ok(/info@thehagentic\.com/.test(rlResp.body.message));
+  });
+  // resume (sessionToken) should bypass the start rate limit even when blocked
+  const liveSess = store.newSession('gabi'); await store.save(liveSess);
+  const resumeResp = mockRes2();
+  await startHandler({ method: 'POST', headers: { 'x-forwarded-for': ip }, body: { clientKey: 'gabi', sessionToken: liveSess.sessionToken } }, resumeResp);
+  check('resume bypasses start rate limit', () => { assert.strictEqual(resumeResp.code, 200); assert.strictEqual(resumeResp.body.resumed, true); });
+  await store.del(liveSess.sessionToken);
+
   console.log('\n' + pass + ' passed, ' + fail + ' failed');
   console.log('scope class: ' + A.score.classification + ' | completeness: ' + A.brain.completeness);
   console.log('blueprint phases: ' + A.blueprint.components.map(c => c.component + '=P' + c.phase).join(', '));
