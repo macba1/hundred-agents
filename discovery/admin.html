@@ -16,6 +16,8 @@
   th,td{text-align:left;padding:8px;border-bottom:1px solid rgba(255,255,255,.1)}
   td a{color:#FF4D00;cursor:pointer}
   .flag{color:#FF4D00;font-family:'Geist Mono',monospace;font-size:11px}
+  .testbadge{color:#08090A;background:#8A8F98;font-family:'Geist Mono',monospace;font-size:10px;padding:2px 6px;border-radius:2px}
+  .testrow{opacity:.7}
   pre{background:#0E0F12;border:1px solid rgba(255,255,255,.12);padding:14px;overflow:auto;font-size:12px;line-height:1.5;max-height:60vh}
   .banner{background:rgba(255,77,0,.12);border:1px solid #FF4D00;padding:10px 12px;margin:14px 0;font-family:'Geist Mono',monospace;font-size:12px}
 </style>
@@ -36,14 +38,21 @@
   function key(){return el('key').value.trim();}
   async function get(qs){ var r=await fetch('/api/discovery/admin'+qs,{headers:{Authorization:'Bearer '+key()}}); if(!r.ok) throw (await r.json().catch(function(){return{error:'http '+r.status}})).error; return r.json(); }
 
+  function table(title, arr, isTestGroup){
+    if(!arr.length) return '<h3>'+title+' (0)</h3>';
+    var rows=arr.map(function(s){
+      var badge = s.isTest ? '<span class="testbadge">Internal test'+(s.testReason?' — '+esc(s.testReason):'')+'</span>' : (s.humanReviewRequired?'<span class="flag">REVIEW REQUIRED</span>':'');
+      return '<tr'+(s.isTest?' class="testrow"':'')+'><td class="mono"><a data-t="'+s.sessionToken+'">'+s.sessionToken.slice(0,10)+'…</a></td><td>'+(s.email||'—')+'</td><td>'+(s.status||'')+'</td><td>'+(s.scopeClass||'—')+'</td><td>'+badge+'</td></tr>';
+    }).join('');
+    return '<h3>'+title+' ('+arr.length+')</h3><table><tr><th>Token</th><th>Email</th><th>Status</th><th>Scope</th><th></th></tr>'+rows+'</table>';
+  }
   async function loadList(){
     el('err').textContent=''; el('detail').innerHTML='';
     try{
       var j=await get('');
-      var rows=(j.sessions||[]).map(function(s){
-        return '<tr><td class="mono"><a data-t="'+s.sessionToken+'">'+s.sessionToken.slice(0,10)+'…</a></td><td>'+(s.status||'')+'</td><td>'+(s.scopeClass||'—')+'</td><td>'+(s.completeness!=null?Math.round(s.completeness*100)+'%':'—')+'</td><td>'+(s.humanReviewRequired?'<span class="flag">REVIEW REQUIRED</span>':'')+'</td></tr>';
-      }).join('');
-      el('list').innerHTML='<table><tr><th>Token</th><th>Status</th><th>Scope</th><th>Complete</th><th></th></tr>'+rows+'</table>';
+      // Real sessions are the default client-review set; test sessions kept separate.
+      el('list').innerHTML = table('Real sessions', j.sessions||[], false)
+        + '<div style="margin-top:18px;opacity:.75">'+ table('Test / internal sessions (excluded from client review)', j.testSessions||[], true) +'</div>';
       Array.prototype.forEach.call(document.querySelectorAll('[data-t]'),function(a){a.addEventListener('click',function(){detail(a.getAttribute('data-t'));});});
     }catch(e){ el('err').textContent='Error: '+e; }
   }
@@ -51,7 +60,9 @@
     try{
       var s=await get('?s='+encodeURIComponent(t));
       var a=s.artifacts||{};
-      var html='<div class="banner">HUMAN REVIEW REQUIRED — no price has been sent to the client. price_gate_passed: '+(a.proposal?a.proposal.price_gate_passed:'n/a')+'</div>';
+      var html='';
+      if(s.metadata && s.metadata.is_test){ html+='<div class="banner" style="border-color:#8A8F98;background:rgba(138,143,152,.15);color:#c9cdd3">INTERNAL TEST — '+esc(s.metadata.test_reason||'')+' (marked by '+esc(s.metadata.marked_by||'?')+'). Do NOT use for a real client proposal.</div>'; }
+      html+='<div class="banner">HUMAN REVIEW REQUIRED — no price has been sent to the client. price_gate_passed: '+(a.proposal?a.proposal.price_gate_passed:'n/a')+'</div>';
       html+='<h3>Proposal Draft</h3><pre>'+esc(JSON.stringify(a.proposal||{},null,2))+'</pre>';
       html+='<h3>Scope Score</h3><pre>'+esc(JSON.stringify(a.score||{},null,2))+'</pre>';
       html+='<h3>Agent Blueprint</h3><pre>'+esc(JSON.stringify(a.blueprint||{},null,2))+'</pre>';

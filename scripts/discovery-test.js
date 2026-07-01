@@ -268,6 +268,47 @@ check('finish() no longer shows infinite typing indicator', () => {
   check('resume bypasses start rate limit', () => { assert.strictEqual(resumeResp.code, 200); assert.strictEqual(resumeResp.body.resumed, true); });
   await store.del(liveSess.sessionToken);
 
+  // ---------- test-session marking / exclusion ----------
+  const sadmin = require('./session-admin');
+  const adminH = require('../api/discovery/admin');
+
+  const REAL_EMAIL = 'gabi-real@negocios.com';
+  const realS = store.newSession('gabi'); realS.brainPartial = { client_name: 'Gabi', client_contact: { email: REAL_EMAIL }, business_lines: [{ name: 'Glamping', status: 'active' }] }; await store.save(realS);
+  const testS = store.newSession('gabi'); testS.brainPartial = { client_name: 'Ruth', client_contact: { email: 'gabriela@gmail.com' }, business_lines: [{ name: 'Glamping', status: 'active' }] };
+  testS.metadata = { is_test: true, test_reason: 'Internal test by Ruth', marked_by: 'Tony', marked_at: '2026-07-01T00:00:00.000Z' };
+  await store.save(testS);
+
+  check('test session persists metadata.is_test', async () => {});
+  const roundtrip = await store.get(testS.sessionToken);
+  check('metadata.is_test persists in store', () => assert.strictEqual(roundtrip.metadata.is_test, true));
+
+  await withEnvAsync({ DISCOVERY_ADMIN_TOKEN: 'qa2' }, async () => {
+    const r = mockRes2(); await adminH({ method: 'GET', headers: { authorization: 'Bearer qa2' }, query: {} }, r);
+    check('admin lists real vs test separately', () => {
+      assert.ok(Array.isArray(r.body.sessions) && Array.isArray(r.body.testSessions), 'missing split arrays');
+      assert.ok(r.body.sessions.some((x) => x.sessionToken === realS.sessionToken), 'real session missing from default set');
+      assert.ok(!r.body.sessions.some((x) => x.sessionToken === testS.sessionToken), 'test session leaked into default review set');
+      const t = r.body.testSessions.find((x) => x.sessionToken === testS.sessionToken);
+      assert.ok(t && t.isTest === true && /Ruth/.test(t.testReason || ''), 'test session not flagged with reason');
+    });
+  });
+
+  check('selectForPurge: only is_test + exact match, never real', () => {
+    const all = [realS, testS];
+    assert.deepStrictEqual(sadmin.selectForPurge(all, { email: 'gabriela@gmail.com' }).map((s) => s.sessionToken), [testS.sessionToken]);
+    assert.strictEqual(sadmin.selectForPurge(all, { email: REAL_EMAIL }).length, 0, 'must not select a real session');
+    assert.strictEqual(sadmin.selectForPurge(all, {}).length, 0, 'no filter must select nothing');
+    assert.strictEqual(sadmin.selectForPurge(all, { token: realS.sessionToken }).length, 0, 'real token must not be purgeable');
+  });
+
+  const ADMIN_HTML = fs.readFileSync(path.join(__dirname, '..', 'discovery', 'admin.html'), 'utf8');
+  check('admin.html shows Internal test badge + separate section', () => {
+    assert.ok(/Internal test/.test(ADMIN_HTML) && /testbadge/.test(ADMIN_HTML), 'no test badge');
+    assert.ok(/Test \/ internal sessions/.test(ADMIN_HTML) && /Real sessions/.test(ADMIN_HTML), 'no real/test separation');
+  });
+
+  await store.del(realS.sessionToken); await store.del(testS.sessionToken);
+
   console.log('\n' + pass + ' passed, ' + fail + ' failed');
   console.log('scope class: ' + A.score.classification + ' | completeness: ' + A.brain.completeness);
   console.log('blueprint phases: ' + A.blueprint.components.map(c => c.component + '=P' + c.phase).join(', '));
