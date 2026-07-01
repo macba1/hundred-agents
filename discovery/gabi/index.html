@@ -48,6 +48,8 @@
   .finish{background:none;border:1px solid var(--line);color:var(--soft);cursor:pointer;font:inherit;font-size:12px;padding:8px 12px}
   .finish:hover{color:#fff;border-color:var(--accent)}
   .note{font-family:'Geist Mono',monospace;font-size:11px;color:var(--faint)}
+  .procnote{align-self:flex-start;font-family:'Geist Mono',monospace;font-size:11px;color:var(--faint);padding:2px 2px 4px;max-width:88%}
+  .finish:disabled{opacity:.5;cursor:default}
   .err{color:var(--accent);font-family:'Geist Mono',monospace;font-size:12px;padding:6px 0}
   #done{display:none;flex:1;flex-direction:column;justify-content:center;gap:14px;text-align:center;padding:30px}
   #done.on{display:flex}
@@ -82,7 +84,7 @@
 
   <section id="done">
     <div class="big">¡Gracias! 🎯</div>
-    <p>Con esto tengo lo necesario. El equipo de Hundred Agents estudiará la mejor manera de aplicar AI a tus negocios y te enviaremos por email una propuesta de implantación y comercial con precios.</p>
+    <p>Hemos recibido tus respuestas. El equipo de Hundred Agents las revisará y te enviaremos por email una propuesta de implantación y comercial con precios.</p>
   </section>
 </div>
 
@@ -97,6 +99,7 @@
     var d=document.createElement('div'); d.className='msg '+(role==='user'?'user':'bot'); d.textContent=text;
     log.appendChild(d); log.scrollTop=log.scrollHeight; return d;
   }
+  function addNote(text){ var d=document.createElement('div'); d.className='procnote'; d.textContent=text; log.appendChild(d); log.scrollTop=log.scrollHeight; }
   var typingEl=null;
   function typing(on){ if(on){ typingEl=document.createElement('div'); typingEl.className='typing'; typingEl.innerHTML='<i></i><i></i><i></i>'; log.appendChild(typingEl); log.scrollTop=log.scrollHeight; } else if(typingEl){ typingEl.remove(); typingEl=null; } }
   function showChat(){ el('intro').style.display='none'; el('chat').classList.add('on'); setTimeout(function(){el('input').focus();},50); }
@@ -143,14 +146,20 @@
 
   async function finish(){
     if(busy) return; busy=true; el('finishBtn').disabled=true; el('chatErr').textContent='';
-    typing(true);
-    try{ await api('/api/discovery/finalize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionToken:token})}); typing(false); finishUI(); }
+    // immediate, explicit feedback (no infinite "typing" look)
+    addMsg('bot','Estamos enviando tus respuestas al equipo de Hundred Agents.');
+    addMsg('bot','El equipo revisará la información y te enviaremos por email una propuesta de implantación y comercial con precios cuando esté lista.');
+    addNote('Esto puede tardar unos segundos. Por favor, no cierres esta página todavía.');
+    try{
+      await api('/api/discovery/finalize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionToken:token})});
+      finishUI();
+    }
     catch(e){
-      typing(false); el('finishBtn').disabled=false;
+      el('finishBtn').disabled=false;
       var code=e&&e.code;
       if(code==='email_required'){ el('chatErr').textContent=''; addMsg('bot','¿Cuál es el mejor email para enviarte la propuesta de implantación y comercial con precios?'); el('input').focus(); }
       else if(code==='rate_limited'&&e.message){ addMsg('bot', e.message); }
-      else { el('chatErr').textContent='No se pudo cerrar ahora. Intenta de nuevo.'; }
+      else { addMsg('bot','No hemos podido completar el envío. Tus respuestas pueden estar guardadas, pero por favor inténtalo de nuevo o escríbenos a info@thehagentic.com.'); }
     }
     finally{ busy=false; }
   }

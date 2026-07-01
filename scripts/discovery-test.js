@@ -131,6 +131,23 @@ check('client-facing copy shows no final price ($/amount)', () => {
   assert.ok(!containsFinalPrice(HTML + ' ' + GREETING + ' ' + FINAL_MESSAGE));
 });
 
+// UX: finalize processing feedback + success/error copy
+check('Terminar shows immediate processing copy', () => {
+  assert.ok(HTML.includes('Estamos enviando tus respuestas al equipo de Hundred Agents.'), 'missing processing line 1');
+  assert.ok(HTML.includes('te enviaremos por email una propuesta de implantación y comercial con precios cuando esté lista.'), 'missing processing line 2');
+  assert.ok(HTML.includes('Esto puede tardar unos segundos. Por favor, no cierres esta página todavía.'), 'missing secondary note');
+});
+check('final success copy is the email-proposal message', () => {
+  assert.ok(HTML.includes('Hemos recibido tus respuestas. El equipo de Hundred Agents las revisará'), 'missing success copy');
+});
+check('finalize failure shows friendly error copy', () => {
+  assert.ok(HTML.includes('No hemos podido completar el envío.') && /info@thehagentic\.com/.test(HTML), 'missing friendly error');
+});
+check('finish() no longer shows infinite typing indicator', () => {
+  const fn = HTML.slice(HTML.indexOf('async function finish('), HTML.indexOf('function finishUI('));
+  assert.ok(!/typing\(true\)/.test(fn), 'finish still calls typing(true)');
+});
+
 // --- storage roundtrip (file fallback, no KV needed) ---
 (async () => {
   check('store: session create + save + get roundtrip', () => {});
@@ -224,7 +241,8 @@ check('client-facing copy shows no final price ($/amount)', () => {
   const startHandler = require('../api/discovery/start');
   // direct helper: ok up to limit, then not ok
   let rlOk = 0;
-  for (let i = 0; i < 5; i++) { const r = await rl.check('unit', 'ip-' + Date.now(), 3); if (r.ok) rlOk++; }
+  const unitIp = 'ip-unit-' + Date.now();
+  for (let i = 0; i < 5; i++) { const r = await rl.check('unit', unitIp, 3); if (r.ok) rlOk++; }
   check('rate helper blocks after limit (3)', () => assert.strictEqual(rlOk, 3));
   // start handler 429 after start_per_ip_hour for one IP
   const ip = 'ip-start-' + Date.now();
