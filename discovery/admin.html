@@ -18,6 +18,8 @@
   .flag{color:#FF4D00;font-family:'Geist Mono',monospace;font-size:11px}
   .testbadge{color:#08090A;background:#8A8F98;font-family:'Geist Mono',monospace;font-size:10px;padding:2px 6px;border-radius:2px}
   .testrow{opacity:.7}
+  .counts{font-family:'Geist Mono',monospace;font-size:13px;margin:6px 0 16px}
+  .groupnote{font-family:'Geist Mono',monospace;font-size:11px;color:#8A8F98;margin:6px 0}
   pre{background:#0E0F12;border:1px solid rgba(255,255,255,.12);padding:14px;overflow:auto;font-size:12px;line-height:1.5;max-height:60vh}
   .banner{background:rgba(255,77,0,.12);border:1px solid #FF4D00;padding:10px 12px;margin:14px 0;font-family:'Geist Mono',monospace;font-size:12px}
 </style>
@@ -50,9 +52,14 @@
     el('err').textContent=''; el('detail').innerHTML='';
     try{
       var j=await get('');
-      // Real sessions are the default client-review set; test sessions kept separate.
-      el('list').innerHTML = table('Real sessions', j.sessions||[], false)
-        + '<div style="margin-top:18px;opacity:.75">'+ table('Test / internal sessions (excluded from client review)', j.testSessions||[], true) +'</div>';
+      var c=j.counts||{};
+      var counts='<div class="counts">Real completed: <b>'+(c.realCompleted||0)+'</b> · Incomplete/abandoned: <b>'+(c.incompleteAbandoned||0)+'</b> · Test/internal: <b>'+(c.testInternal||0)+'</b></div>';
+      var real = table('Real completed sessions — client proposal review', j.sessions||[], false);
+      var inc  = '<div class="groupnote">Incomplete / abandoned — do not use for proposal.</div>'+ table('Incomplete / abandoned sessions', j.incompleteSessions||[], false);
+      var test = '<div class="groupnote">Internal test — excluded from client review.</div>'+ table('Test / internal sessions', j.testSessions||[], true);
+      el('list').innerHTML = counts + real
+        + '<div style="margin-top:20px;opacity:.8">'+inc+'</div>'
+        + '<div style="margin-top:20px;opacity:.7">'+test+'</div>';
       Array.prototype.forEach.call(document.querySelectorAll('[data-t]'),function(a){a.addEventListener('click',function(){detail(a.getAttribute('data-t'));});});
     }catch(e){ el('err').textContent='Error: '+e; }
   }

@@ -273,38 +273,54 @@ check('finish() no longer shows infinite typing indicator', () => {
   const adminH = require('../api/discovery/admin');
 
   const REAL_EMAIL = 'gabi-real@negocios.com';
-  const realS = store.newSession('gabi'); realS.brainPartial = { client_name: 'Gabi', client_contact: { email: REAL_EMAIL }, business_lines: [{ name: 'Glamping', status: 'active' }] }; await store.save(realS);
-  const testS = store.newSession('gabi'); testS.brainPartial = { client_name: 'Ruth', client_contact: { email: 'gabriela@gmail.com' }, business_lines: [{ name: 'Glamping', status: 'active' }] };
+  // real completed: finalized + email + not test
+  const realS = store.newSession('gabi'); realS.status = 'finalized'; realS.brainPartial = { client_name: 'Gabi', client_contact: { email: REAL_EMAIL }, business_lines: [{ name: 'Glamping', status: 'active' }] }; realS.artifacts = buildArtifacts(realS.brainPartial, '2026-07-01T00:00:00.000Z'); await store.save(realS);
+  // incomplete: active, no email
+  const incS = store.newSession('gabi'); incS.transcript.push({ role: 'user', content: 'hola' }); await store.save(incS);
+  // test: is_test (simulating the marked prod sessions incl. the two smoke emails)
+  const testS = store.newSession('gabi'); testS.status = 'finalized'; testS.brainPartial = { client_name: 'Ruth', client_contact: { email: 'gabriela@gmail.com' }, business_lines: [{ name: 'Glamping', status: 'active' }] };
   testS.metadata = { is_test: true, test_reason: 'Internal test by Ruth', marked_by: 'Tony', marked_at: '2026-07-01T00:00:00.000Z' };
   await store.save(testS);
+  const testProd = store.newSession('gabi'); testProd.status = 'finalized'; testProd.brainPartial = { client_contact: { email: 'test-gabi-prod@example.com' } }; testProd.metadata = { is_test: true, test_reason: 'Production smoke test', marked_by: 'Tony' }; await store.save(testProd);
 
-  check('test session persists metadata.is_test', async () => {});
   const roundtrip = await store.get(testS.sessionToken);
   check('metadata.is_test persists in store', () => assert.strictEqual(roundtrip.metadata.is_test, true));
 
   await withEnvAsync({ DISCOVERY_ADMIN_TOKEN: 'qa2' }, async () => {
     const r = mockRes2(); await adminH({ method: 'GET', headers: { authorization: 'Bearer qa2' }, query: {} }, r);
-    check('admin lists real vs test separately', () => {
-      assert.ok(Array.isArray(r.body.sessions) && Array.isArray(r.body.testSessions), 'missing split arrays');
-      assert.ok(r.body.sessions.some((x) => x.sessionToken === realS.sessionToken), 'real session missing from default set');
-      assert.ok(!r.body.sessions.some((x) => x.sessionToken === testS.sessionToken), 'test session leaked into default review set');
-      const t = r.body.testSessions.find((x) => x.sessionToken === testS.sessionToken);
-      assert.ok(t && t.isTest === true && /Ruth/.test(t.testReason || ''), 'test session not flagged with reason');
+    const b = r.body;
+    const inReal = (tok) => b.sessions.some((x) => x.sessionToken === tok);
+    const inInc = (tok) => b.incompleteSessions.some((x) => x.sessionToken === tok);
+    const inTest = (tok) => b.testSessions.some((x) => x.sessionToken === tok);
+    check('real completed = finalized + email + not test', () => { assert.ok(inReal(realS.sessionToken)); assert.ok(!inInc(realS.sessionToken) && !inTest(realS.sessionToken)); });
+    check('active/no-email session -> incomplete (not real)', () => { assert.ok(inInc(incS.sessionToken)); assert.ok(!inReal(incS.sessionToken)); });
+    check('marked test sessions -> test group (not real)', () => { assert.ok(inTest(testS.sessionToken) && inTest(testProd.sessionToken)); assert.ok(!inReal(testS.sessionToken) && !inReal(testProd.sessionToken)); });
+    check('review default (sessions) excludes test AND incomplete', () => { assert.ok(!inReal(testS.sessionToken) && !inReal(testProd.sessionToken) && !inReal(incS.sessionToken)); });
+    check('counts present and consistent', () => {
+      assert.ok(b.counts && typeof b.counts.realCompleted === 'number');
+      assert.strictEqual(b.counts.realCompleted, b.sessions.length);
+      assert.strictEqual(b.counts.incompleteAbandoned, b.incompleteSessions.length);
+      assert.strictEqual(b.counts.testInternal, b.testSessions.length);
     });
+    check('test group carries reason', () => { const t = b.testSessions.find((x) => x.sessionToken === testS.sessionToken); assert.ok(t && /Ruth/.test(t.testReason || '')); });
   });
 
-  check('selectForPurge: only is_test + exact match, never real', () => {
-    const all = [realS, testS];
+  check('selectForPurge: only is_test + exact match, never real/incomplete', () => {
+    const all = [realS, incS, testS, testProd];
     assert.deepStrictEqual(sadmin.selectForPurge(all, { email: 'gabriela@gmail.com' }).map((s) => s.sessionToken), [testS.sessionToken]);
+    assert.deepStrictEqual(sadmin.selectForPurge(all, { email: 'test-gabi-prod@example.com' }).map((s) => s.sessionToken), [testProd.sessionToken]);
     assert.strictEqual(sadmin.selectForPurge(all, { email: REAL_EMAIL }).length, 0, 'must not select a real session');
+    assert.strictEqual(sadmin.selectForPurge(all, { token: incS.sessionToken }).length, 0, 'must not select an incomplete session');
     assert.strictEqual(sadmin.selectForPurge(all, {}).length, 0, 'no filter must select nothing');
-    assert.strictEqual(sadmin.selectForPurge(all, { token: realS.sessionToken }).length, 0, 'real token must not be purgeable');
   });
+  await store.del(incS.sessionToken); await store.del(testProd.sessionToken);
 
   const ADMIN_HTML = fs.readFileSync(path.join(__dirname, '..', 'discovery', 'admin.html'), 'utf8');
-  check('admin.html shows Internal test badge + separate section', () => {
+  check('admin.html shows badges + 3-group separation + counts', () => {
     assert.ok(/Internal test/.test(ADMIN_HTML) && /testbadge/.test(ADMIN_HTML), 'no test badge');
-    assert.ok(/Test \/ internal sessions/.test(ADMIN_HTML) && /Real sessions/.test(ADMIN_HTML), 'no real/test separation');
+    assert.ok(/Real completed sessions/.test(ADMIN_HTML) && /Incomplete \/ abandoned/.test(ADMIN_HTML) && /Test \/ internal sessions/.test(ADMIN_HTML), 'missing 3-group separation');
+    assert.ok(/do not use for proposal/.test(ADMIN_HTML) && /excluded from client review/.test(ADMIN_HTML), 'missing group banners');
+    assert.ok(/Real completed:/.test(ADMIN_HTML) && /counts/.test(ADMIN_HTML), 'missing counts');
   });
 
   await store.del(realS.sessionToken); await store.del(testS.sessionToken);

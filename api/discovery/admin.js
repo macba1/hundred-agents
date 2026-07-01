@@ -35,10 +35,18 @@ module.exports = async function handler(req, res) {
       testReason: s.metadata && s.metadata.test_reason,
       createdAt: s.createdAt, finalizedAt: s.finalizedAt,
     }));
-    // Real sessions first (default review set); test sessions kept separate.
+    // Classify into 3 groups. Only "real completed" feeds client proposal review.
+    const group = (x) => x.isTest ? 'test'
+      : (x.status === 'finalized' && x.email) ? 'real'
+      : 'incomplete';
+    const real = summary.filter((x) => group(x) === 'real');
+    const incomplete = summary.filter((x) => group(x) === 'incomplete');
+    const test = summary.filter((x) => group(x) === 'test');
     return res.status(200).json({
-      sessions: summary.filter((x) => !x.isTest),
-      testSessions: summary.filter((x) => x.isTest),
+      sessions: real,             // default review set
+      incompleteSessions: incomplete,
+      testSessions: test,
+      counts: { realCompleted: real.length, incompleteAbandoned: incomplete.length, testInternal: test.length },
     });
   } catch (e) {
     return res.status(503).json({ error: 'store_unavailable' });
