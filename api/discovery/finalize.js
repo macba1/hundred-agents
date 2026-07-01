@@ -8,6 +8,7 @@ const { scoreBrain } = require('../../lib/discovery/score');
 const { buildBlueprint } = require('../../lib/discovery/blueprint');
 const { buildProposal } = require('../../lib/discovery/proposal');
 const { COMPILE_SYSTEM, UPDATE_BRAIN_TOOL } = require('../../lib/discovery/prompts');
+const notify = require('../../lib/discovery/notify');
 
 const MODEL = 'gpt-4o-mini';
 
@@ -80,6 +81,12 @@ module.exports = async function handler(req, res) {
   s.status = 'finalized';
   s.finalizedAt = nowISO;
   try { await store.save(s); } catch (e) { return res.status(502).json({ error: 'store_unavailable_on_save' }); }
+
+  // Notify the team in Notion on REAL (non-test) completions. Best-effort.
+  if (notify.shouldNotify(s)) {
+    try { await notify.notifyCompleted({ brain: artifacts.brain, score: artifacts.score, sessionToken: s.sessionToken }); }
+    catch (e) { console.error('[discovery:notify]', e && e.message); }
+  }
 
   return res.status(200).json({
     ok: true,

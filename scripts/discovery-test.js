@@ -315,6 +315,38 @@ check('finish() no longer shows infinite typing indicator', () => {
   });
   await store.del(incS.sessionToken); await store.del(testProd.sessionToken);
 
+  // ---------- Notion notification on real completion ----------
+  const notify = require('../lib/discovery/notify');
+  check('shouldNotify: real yes, test no', () => {
+    assert.strictEqual(notify.shouldNotify({ metadata: {} }), true);
+    assert.strictEqual(notify.shouldNotify({ metadata: { is_test: true } }), false);
+  });
+  check('buildProps shape correct', () => {
+    const p = notify.buildProps({ client_name: 'Gabi', client_contact: { email: 'g@x.com' }, business_lines: [{ name: 'Glamping' }, { name: 'Terrenos' }], completeness: 0.5 }, { classification: 'Full Agentic Desk' }, 'abcdef1234');
+    assert.strictEqual(p.Cliente.title[0].text.content, 'Gabi');
+    assert.strictEqual(p.Email.email, 'g@x.com');
+    assert.strictEqual(p.Alcance.select.name, 'Full Agentic Desk');
+    assert.strictEqual(p.Completitud.number, 50);
+    assert.strictEqual(p.Estado.select.name, 'Nuevo');
+    assert.ok(/Glamping, Terrenos/.test(p.Negocios.rich_text[0].text.content));
+  });
+  // finalize triggers a Notion page for a real session, skips for test (stub fetch)
+  const realFetch = global.fetch; let notionCalls = 0;
+  global.fetch = async (u, o) => { if (String(u).includes('api.notion.com')) { notionCalls++; return { ok: true, json: async () => ({ id: 'p' }), text: async () => '' }; } return realFetch ? realFetch(u, o) : { ok: false }; };
+  await withEnvAsync({ NOTION_TOKEN: 'tk', NOTION_DISCOVERY_DB_ID: 'db', OPENAI_API_KEY: undefined }, async () => {
+    const finalizeH = require('../api/discovery/finalize');
+    const realFin = store.newSession('gabi'); realFin.brainPartial = { client_name: 'Gabi', client_contact: { email: 'real@x.com' }, business_lines: [{ name: 'Glamping', status: 'active' }] }; await store.save(realFin);
+    notionCalls = 0; let r = mockRes2(); await finalizeH({ method: 'POST', headers: {}, query: {}, body: { sessionToken: realFin.sessionToken } }, r);
+    check('finalize (real) creates a Notion notification page', () => { assert.strictEqual(r.code, 200); assert.strictEqual(notionCalls, 1); });
+    await store.del(realFin.sessionToken);
+
+    const testFin = store.newSession('gabi'); testFin.metadata = { is_test: true }; testFin.brainPartial = { client_name: 'T', client_contact: { email: 't@x.com' }, business_lines: [{ name: 'Glamping', status: 'active' }] }; await store.save(testFin);
+    notionCalls = 0; let r2 = mockRes2(); await finalizeH({ method: 'POST', headers: {}, query: {}, body: { sessionToken: testFin.sessionToken } }, r2);
+    check('finalize (test) does NOT notify', () => { assert.strictEqual(r2.code, 200); assert.strictEqual(notionCalls, 0); });
+    await store.del(testFin.sessionToken);
+  });
+  global.fetch = realFetch;
+
   const ADMIN_HTML = fs.readFileSync(path.join(__dirname, '..', 'discovery', 'admin.html'), 'utf8');
   check('admin.html shows badges + 3-group separation + counts', () => {
     assert.ok(/Internal test/.test(ADMIN_HTML) && /testbadge/.test(ADMIN_HTML), 'no test badge');
