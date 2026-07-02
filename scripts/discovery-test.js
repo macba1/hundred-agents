@@ -330,6 +330,10 @@ check('finish() no longer shows infinite typing indicator', () => {
     assert.strictEqual(p.Estado.select.name, 'Nuevo');
     assert.ok(/Glamping, Terrenos/.test(p.Negocios.rich_text[0].text.content));
   });
+  check('buildProps assigns notify user when NOTION_NOTIFY_USER_ID set', () => withEnv({ NOTION_NOTIFY_USER_ID: 'u1,u2' }, () => {
+    const p = notify.buildProps({ client_name: 'G' }, { classification: 'Starter Pilot' }, 'x');
+    assert.deepStrictEqual(p['Avisar a'].people.map((x) => x.id), ['u1', 'u2']);
+  }));
   // finalize triggers a Notion page for a real session, skips for test (stub fetch)
   const realFetch = global.fetch; let notionCalls = 0;
   global.fetch = async (u, o) => { if (String(u).includes('api.notion.com')) { notionCalls++; return { ok: true, json: async () => ({ id: 'p' }), text: async () => '' }; } return realFetch ? realFetch(u, o) : { ok: false }; };
