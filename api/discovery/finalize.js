@@ -7,18 +7,8 @@ const brainLib = require('../../lib/discovery/brain');
 const { scoreBrain } = require('../../lib/discovery/score');
 const { buildBlueprint } = require('../../lib/discovery/blueprint');
 const { buildProposal } = require('../../lib/discovery/proposal');
-const { COMPILE_SYSTEM, UPDATE_BRAIN_TOOL } = require('../../lib/discovery/prompts');
+const compile = require('../../lib/discovery/compile');
 const notify = require('../../lib/discovery/notify');
-
-const MODEL = 'gpt-4o-mini';
-
-async function callOpenAI(payload, key) {
-  const r = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
-  });
-  if (!r.ok) throw { code: 'upstream', status: r.status, detail: await r.text().catch(() => '') };
-  return r.json();
-}
 
 /** Build the four artifacts from a (possibly LLM-compiled) partial brain. */
 function buildArtifacts(partial, nowISO) {
@@ -42,23 +32,11 @@ module.exports = async function handler(req, res) {
 
   let partial = s.brainPartial || {};
 
-  // Optional LLM compile pass to fill gaps from the full transcript.
+  // LLM compile pass to fill gaps from the full transcript (best-effort).
   const key = process.env.OPENAI_API_KEY;
   if (key && s.transcript && s.transcript.length) {
-    try {
-      const convo = s.transcript.map((m) => `${m.role}: ${m.content}`).join('\n');
-      const out = await callOpenAI({
-        model: MODEL,
-        messages: [{ role: 'system', content: COMPILE_SYSTEM }, { role: 'user', content: 'Transcript:\n' + convo }],
-        tools: [UPDATE_BRAIN_TOOL], tool_choice: { type: 'function', function: { name: 'update_brain' } },
-        temperature: 0.1, max_tokens: 1500,
-      }, key);
-      const tc = out.choices && out.choices[0] && out.choices[0].message && out.choices[0].message.tool_calls && out.choices[0].message.tool_calls[0];
-      if (tc) { let args = {}; try { args = JSON.parse(tc.function.arguments || '{}'); } catch {} partial = brainLib.mergePartial(partial, args); }
-    } catch (e) {
-      // compile is best-effort; fall back to the incrementally-collected partial
-      console.error('[discovery:finalize:compile]', e && e.code, e && e.detail);
-    }
+    try { partial = await compile.compileSession(s.transcript, partial, key); }
+    catch (e) { console.error('[discovery:finalize:compile]', e && e.code, e && e.detail); }
   }
 
   // Email is required before finalization. Persist progress, then ask for it.

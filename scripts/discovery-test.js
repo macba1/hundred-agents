@@ -361,6 +361,28 @@ check('finish() no longer shows infinite typing indicator', () => {
 
   await store.del(realS.sessionToken); await store.del(testS.sessionToken);
 
+  // ---------- compile (stronger extraction) + recompile backfill ----------
+  const compileLib = require('../lib/discovery/compile');
+  const recompileH = require('../api/discovery/recompile');
+  const rf2 = global.fetch;
+  const RICH = { business_unit_details: [{ business: 'Rumbo Vergel', sells: 'hospedaje' }], escalation_rules: [{ trigger: 'negociación', handoff_to: 'Gabi' }], integrations: [{ tool: 'HighLevel', integration_appetite: 'read_write' }], success_criteria: [{ statement: 'reducir tiempos', metric: 'respuesta' }] };
+  global.fetch = async (u, o) => {
+    if (String(u).includes('api.openai.com')) return { ok: true, json: async () => ({ choices: [{ message: { tool_calls: [{ function: { name: 'update_brain', arguments: JSON.stringify(RICH) } }] } }] }), text: async () => '' };
+    if (String(u).includes('api.notion.com')) return { ok: true, json: async () => ({}), text: async () => '' };
+    return rf2 ? rf2(u, o) : { ok: false };
+  };
+  await withEnvAsync({ OPENAI_API_KEY: 'k', DISCOVERY_ADMIN_TOKEN: 'qa3' }, async () => {
+    const p = await compileLib.compileSession([{ role: 'user', content: '...' }], { client_name: 'GAMARE', client_contact: { email: 'g@x.com' } }, 'k');
+    check('compileSession fills structured fields', () => { assert.ok(p.business_unit_details.length && p.escalation_rules.length && p.integrations.length && p.success_criteria.length); });
+    const sess = store.newSession('gabi'); sess.status = 'finalized'; sess.transcript.push({ role: 'user', content: '8 negocios...' }); sess.brainPartial = { client_name: 'GAMARE', client_contact: { email: 'g@x.com' }, business_lines: [{ name: 'Rumbo Vergel' }] }; await store.save(sess);
+    let r = mockRes2(); await recompileH({ method: 'POST', headers: { authorization: 'Bearer qa3' }, query: {}, body: { sessionToken: sess.sessionToken } }, r);
+    check('recompile 200 + backfills structured fields', () => { assert.strictEqual(r.code, 200); assert.ok(r.body.filled.business_unit_details > 0 && r.body.filled.escalation_rules > 0 && r.body.filled.integrations > 0); });
+    let r401 = mockRes2(); await recompileH({ method: 'POST', headers: {}, query: {}, body: { sessionToken: sess.sessionToken } }, r401);
+    check('recompile 401 without admin token', () => assert.strictEqual(r401.code, 401));
+    await store.del(sess.sessionToken);
+  });
+  global.fetch = rf2;
+
   console.log('\n' + pass + ' passed, ' + fail + ' failed');
   console.log('scope class: ' + A.score.classification + ' | completeness: ' + A.brain.completeness);
   console.log('blueprint phases: ' + A.blueprint.components.map(c => c.component + '=P' + c.phase).join(', '));
