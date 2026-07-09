@@ -1,0 +1,28 @@
+{
+  "project": "GAMARE / Rumbo Vergel — landing demo",
+  "generated": "2026-07-06",
+  "internal_only": true,
+  "gate_status": "green",
+  "policy": "Assets fotográficos proporcionados por el cliente (GAMARE / Rumbo Vergel) a través de Tony, autorizados para uso en la demo. Copias locales optimizadas en landing-demo/assets/. Publicación final se confirma con GAMARE. Ningún hotlink a redes; ningún asset de terceros.",
+  "credits_internal": "Fotografía y logo © Rumbo Vergel / GAMARE. Archivos entregados por el cliente para esta propuesta.",
+  "assets": [
+    { "asset_id": "rv-glamping-interior", "file": "landing-demo/assets/rv-glamping-interior.jpg", "source_platform": "provided_by_client", "source_account": "Rumbo Vergel / GAMARE", "asset_type": "image", "business": "Rumbo Vergel", "proposed_use": "hero_alt / card_hospedaje / gallery", "permission_status": "provided_by_gamare_authorized", "dimensions": "1080x566", "notes": "Interior real de tienda glamping (estufa de leña, cama, sala). Landscape." },
+    { "asset_id": "rv-aerial-dusk", "file": "landing-demo/assets/rv-aerial-dusk.jpg", "source_platform": "provided_by_client", "source_account": "Rumbo Vergel / GAMARE", "asset_type": "image", "business": "Rumbo Vergel / Terrenos", "proposed_use": "hero / video_teaser / gallery / background", "permission_status": "provided_by_gamare_authorized", "dimensions": "1080x1350", "notes": "Toma aérea al atardecer, luna sobre la sierra. Vista del entorno." },
+    { "asset_id": "rv-fogata-amigos", "file": "landing-demo/assets/rv-fogata-amigos.jpg", "source_platform": "provided_by_client", "source_account": "Rumbo Vergel / GAMARE", "asset_type": "image", "business": "Experiencias / Eventos", "proposed_use": "card_eventos / card_experiencias / gallery", "permission_status": "provided_by_gamare_authorized", "dimensions": "1080x1350", "notes": "Amigos en fogata, 'Conversaciones sin prisa'. Incluye texto de campaña y personas (consentimiento a validar por GAMARE para publicidad)." },
+    { "asset_id": "rv-kayak-lago", "file": "landing-demo/assets/rv-kayak-lago.jpg", "source_platform": "provided_by_client", "source_account": "Rumbo Vergel / GAMARE", "asset_type": "image", "business": "Experiencias", "proposed_use": "card_experiencias / gallery", "permission_status": "provided_by_gamare_authorized", "dimensions": "1080x1350", "notes": "Kayak en el lago. Personas (consentimiento a validar)." },
+    { "asset_id": "rv-columpio-lago", "file": "landing-demo/assets/rv-columpio-lago.jpg", "source_platform": "provided_by_client", "source_account": "Rumbo Vergel / GAMARE", "asset_type": "image", "business": "Rumbo Vergel / Terrenos", "proposed_use": "card_terrenos / cta / gallery", "permission_status": "provided_by_gamare_authorized", "dimensions": "1080x1350", "notes": "Columpio frente al lago al atardecer. 'Un espacio propio en la naturaleza'." },
+    { "asset_id": "rv-fogata-perro", "file": "landing-demo/assets/rv-fogata-perro.jpg", "source_platform": "provided_by_client", "source_account": "Rumbo Vergel / GAMARE", "asset_type": "image", "business": "Experiencias / Colonos", "proposed_use": "card_colonos / gallery", "permission_status": "provided_by_gamare_authorized", "dimensions": "1638x2048", "notes": "Fogata + perro con cobija, 'No hay ansiedad...'. Incluye texto de campaña." },
+    { "asset_id": "rv-logo-green", "file": "landing-demo/assets/rv-logo-green.jpg", "source_platform": "provided_by_client", "source_account": "Rumbo Vergel / GAMARE", "asset_type": "logo", "business": "Rumbo Vergel", "proposed_use": "brand nav/footer/avatar", "permission_status": "provided_by_gamare_authorized", "dimensions": "1638x2048", "notes": "Logo oficial Rumbo Vergel (crema sobre verde bosque). Se recomienda pedir versión vector." },
+    { "asset_id": "rv-legacy-aerial", "file": "landing-demo/assets/rv-post-glamping.jpg", "source_platform": "instagram", "source_url": "https://www.instagram.com/p/DW4A3qTk9mn/", "source_account": "@rumbovergel", "asset_type": "image", "business": "Rumbo Vergel", "proposed_use": "presentacion_preview", "permission_status": "likely_official_pending_approval", "dimensions": "640x360", "notes": "Cover público 'WELCOME TO RUMBO VERGEL' descargado en discovery previo. Reemplazado por assets del cliente en la landing; se mantiene solo por historial." }
+  ],
+  "third_party_excluded": [
+    { "source_url": "https://www.hotelvergel.com/", "reason": "Hotel Vergel de la Sierra — entidad distinta. No usar." },
+    { "source_url": "https://www.laforet.com.mx/en", "reason": "La Forêt glamping — entidad distinta. No usar." }
+  ],
+  "still_needed_from_gamare": [
+    "Logo en vector (SVG/PNG transparente) — actual es raster.",
+    "1-3 videos/reels originales (archivo) para hero/teaser en video.",
+    "Fotos adicionales de restaurante/comida y de terrenos si se destacan.",
+    "Confirmación de consentimiento de personas que aparecen (uso publicitario)."
+  ]
+}

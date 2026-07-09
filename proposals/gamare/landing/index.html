@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Rumbo Vergel · Baja el ritmo — Promoción de la semana</title>
+<meta name="description" content="Rumbo Vergel: glamping, sierra y descanso a 40 minutos de León. Cada lunes, una nueva forma de bajar el ritmo. Reserva por WhatsApp." />
+<meta name="theme-color" content="#182611" />
+<link rel="icon" href="assets/rv-logo.jpg" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,600;9..144,0,900;9..144,1,400;9..144,1,900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2efe4;--ink:#22301f;--muted:#63705c;
+  --green-deep:#182611;--green:#2f5238;--green-soft:#5f7d54;--sage:#a7b79a;
+  --terra:#c15a2e;--terra-soft:#dd8a54;--cream:#fbf9f0;--wa:#25d366;
+  --card:#fbf9f0;--line:rgba(34,48,31,.14);--line-strong:rgba(34,48,31,.30);
+  --radius:22px;--radius-lg:30px;--shadow:0 30px 80px rgba(24,38,17,.22);--shadow-sm:0 12px 34px rgba(24,38,17,.12);
+  --grot:'Space Grotesk',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,h4{margin:0;line-height:1;letter-spacing:-.02em}
+p{margin:0}
+img{max-width:100%}
+.serif{font-family:Fraunces,Georgia,serif}
+.ital{font-style:italic}
+.wrap{width:min(1220px,calc(100% - 40px));margin:auto}
+.mono-k{font-family:var(--grot);font-size:12px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--terra)}
+.muted{color:var(--muted)}
+body::after{content:"";position:fixed;inset:0;z-index:999;pointer-events:none;opacity:.04;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ---------- live status ribbon ---------- */
+.livebar{background:var(--green-deep);color:#e7ecd8;font-family:var(--grot);font-size:12px;letter-spacing:.05em;text-align:center;padding:9px 12px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+.livebar .live{display:inline-flex;align-items:center;gap:7px;font-weight:600;color:#fff}
+.livedot{width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 0 rgba(74,222,128,.7);animation:live 2s infinite}
+@keyframes live{0%{box-shadow:0 0 0 0 rgba(74,222,128,.6)}70%{box-shadow:0 0 0 9px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
+.livebar .sep{opacity:.4}
+
+/* ---------- nav ---------- */
+header.nav{position:sticky;top:0;z-index:80;background:rgba(242,239,228,.86);backdrop-filter:blur(16px) saturate(1.2);border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0}
+.brand{display:flex;align-items:center;gap:11px}
+.brand img{width:44px;height:44px;border-radius:12px;object-fit:cover;box-shadow:var(--shadow-sm)}
+.brand b{font-family:Fraunces,serif;font-weight:900;font-size:19px;color:var(--green-deep);line-height:1}
+.brand small{display:block;font-family:var(--grot);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.nav-links{display:flex;gap:2px}
+.nav-links a{font-family:var(--grot);font-size:13px;font-weight:500;color:var(--muted);padding:8px 11px;border-radius:9px;transition:.15s}
+.nav-links a:hover{color:var(--ink);background:var(--sage)}
+.btn{font-family:var(--grot);font-weight:600;font-size:14px;border-radius:11px;padding:11px 17px;cursor:pointer;border:none;transition:.2s;display:inline-flex;gap:8px;align-items:center;justify-content:center;white-space:nowrap}
+.btn-wa{background:var(--wa);color:#06310d}.btn-wa:hover{background:#1fb857}
+.btn-terra{background:var(--terra);color:#fff}.btn-terra:hover{background:#a94a22}
+.btn-ink{background:var(--green-deep);color:#fff}.btn-ink:hover{background:#0f1a0a}
+.btn-ghost{background:transparent;border:1.5px solid var(--line-strong);color:var(--ink)}.btn-ghost:hover{border-color:var(--ink)}
+.btn-lg{font-size:15.5px;padding:14px 22px;border-radius:13px}
+@media(max-width:860px){.nav-links{display:none}}
+
+/* ---------- HERO = promo de la semana ---------- */
+.hero{position:relative;min-height:96vh;display:flex;align-items:flex-end;overflow:hidden;color:#f4f1e6;border-top:none}
+.hero .bgimg{position:absolute;inset:0;z-index:0}
+.hero .bgimg img{width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(1.06) contrast(1.03);transition:opacity .8s ease}
+.hero .bgimg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,22,9,.82) 0%,rgba(14,22,9,.45) 42%,rgba(14,22,9,.08) 72%,transparent 100%),linear-gradient(180deg,rgba(18,26,12,.4) 0%,rgba(18,26,12,.26) 38%,rgba(14,22,9,.92) 100%)}
+.hero .wrap{position:relative;z-index:4;padding:110px 0 84px}
+/* live hora + clima */
+.nowbar{display:inline-flex;align-items:center;gap:11px;flex-wrap:wrap;background:rgba(12,18,8,.42);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:8px 16px;margin-bottom:20px;font-family:var(--grot);font-size:13px;color:#f0ecdd}
+.nowbar .nowloc{display:inline-flex;align-items:center;gap:8px;font-weight:600;letter-spacing:.04em}
+.nowbar .nowsep{opacity:.4}
+.nowbar .nowclock{font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:.02em}
+.nowbar .nowwx{display:inline-flex;align-items:center;gap:7px}
+.nowbar .wxdot{width:7px;height:7px;border-radius:50%;background:var(--terra-soft);animation:live 2.4s infinite}
+.promo-flag{display:inline-flex;align-items:center;gap:10px;background:var(--terra);color:#fff;border-radius:999px;padding:9px 16px;font-family:var(--grot);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.promo-flag .livedot{background:#ffe3b0;box-shadow:0 0 0 0 rgba(255,227,176,.7);animation:live 2s infinite}
+.promo-week{display:block;margin-top:16px;font-family:var(--grot);font-size:13.5px;letter-spacing:.06em;text-transform:uppercase;color:#f0e7d6}
+.hero .eyebrow{font-family:var(--grot);font-size:clamp(13px,2vw,15px);font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--terra-soft);margin-top:8px}
+.hero h1{font-size:clamp(42px,8.5vw,108px);font-weight:900;line-height:.92;margin:12px 0 0;max-width:16ch;text-shadow:0 4px 34px rgba(0,0,0,.35)}
+.hero h1 em{font-style:italic;color:var(--terra-soft)}
+.hero .sub{font-size:clamp(16px,2.5vw,23px);max-width:50ch;margin-top:20px;color:#ece7d7;line-height:1.5}
+.hero-ctas{display:flex;gap:11px;flex-wrap:wrap;margin-top:28px;align-items:center}
+.benefit{display:flex;gap:11px;align-items:center;margin-top:22px;font-family:var(--grot);font-size:14.5px;color:#f2ecdb}
+.benefit .b-ico{flex:0 0 auto;width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.14);backdrop-filter:blur(4px);display:grid;place-items:center;font-size:17px}
+/* countdown */
+.count{display:flex;gap:8px;align-items:center;margin-top:26px;flex-wrap:wrap}
+.count .clbl{font-family:var(--grot);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#d9d3c2;margin-right:4px}
+.cbox{background:rgba(12,18,8,.5);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:8px 12px;text-align:center;min-width:56px}
+.cbox b{display:block;font-family:Fraunces,serif;font-weight:900;font-size:24px;line-height:1;font-variant-numeric:tabular-nums}
+.cbox span{display:block;font-family:var(--grot);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#c8c2b1;margin-top:4px}
+.scrollcue{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:4;color:#eae7d7;font-family:var(--grot);font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.85;animation:bob 2.2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+
+/* ---------- sections ---------- */
+section{position:relative;padding:88px 0;border-top:1px solid var(--line)}
+.sec-head{max-width:62ch;margin-bottom:40px}
+.sec-head h2{font-size:clamp(28px,5vw,52px);font-weight:900;margin:14px 0 12px}
+.sec-head p{font-size:clamp(15px,2.2vw,18px);color:var(--muted);max-width:54ch}
+.hl{background:linear-gradient(180deg,transparent 58%,var(--terra-soft) 58%);padding:0 .06em}
+
+/* respira: 3 pilares de descanso */
+.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:860px){.pillars{grid-template-columns:1fr}}
+.pillar{background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius);padding:30px;transition:.3s}
+.pillar:hover{transform:translateY(-6px);box-shadow:var(--shadow);border-color:var(--green)}
+.pillar .pico{width:56px;height:56px;border-radius:15px;background:var(--green-deep);color:var(--terra-soft);display:grid;place-items:center;font-size:26px;margin-bottom:18px;transition:.3s}
+.pillar:hover .pico{background:var(--terra);color:#fff;transform:rotate(-6deg)}
+.pillar h3{font-family:Fraunces,serif;font-size:23px;font-weight:900;margin-bottom:9px}
+.pillar p{font-size:15px;color:var(--muted)}
+
+/* dinámicas / actividades */
+.acts{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:960px){.acts{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.acts{grid-template-columns:1fr}}
+.act{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:22px;transition:.28s;display:flex;flex-direction:column;gap:2px}
+.act:hover{transform:translateY(-6px);box-shadow:var(--shadow-sm);border-color:var(--green)}
+.act .aico{font-size:28px;margin-bottom:12px;line-height:1}
+.act .ritmo{align-self:flex-start;font-family:var(--grot);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:999px;margin-bottom:9px}
+.act .ritmo.lento{background:#e7efe0;color:var(--green)}
+.act .ritmo.activo{background:#fbe7d8;color:var(--terra)}
+.act h3{font-family:Fraunces,serif;font-size:19px;font-weight:900;margin-bottom:6px}
+.act p{font-size:14px;color:var(--muted)}
+/* guía de descanso */
+.restguide{margin-top:22px;background:var(--green-deep);color:#eef0e2;border-radius:var(--radius-lg);padding:34px;position:relative;overflow:hidden}
+.restguide .rg-k{font-family:var(--grot);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--terra-soft)}
+.restguide h3{font-family:Fraunces,serif;font-size:clamp(24px,4vw,36px);font-weight:900;margin:10px 0 22px;line-height:1.02}
+.rg-steps{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+@media(max-width:900px){.rg-steps{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.rg-steps{grid-template-columns:1fr}}
+.rg-step{border-top:2px solid rgba(255,255,255,.16);padding-top:12px}
+.rg-step .rn{font-family:Fraunces,serif;font-weight:900;font-size:22px;color:var(--terra-soft)}
+.rg-step b{display:block;font-size:15px;margin-top:6px;font-weight:700}
+.rg-step p{font-family:var(--grot);font-size:12.5px;color:#a9b299;margin-top:5px;line-height:1.5}
+.acts-note{font-family:var(--grot);font-size:12px;color:var(--muted);margin-top:18px}
+
+/* virtudes grid (living gallery of what RV offers) */
+.virt{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:210px;gap:12px}
+@media(max-width:900px){.virt{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.virt{grid-template-columns:1fr}}
+.vcard{position:relative;border-radius:20px;overflow:hidden;isolation:isolate;display:flex;flex-direction:column;justify-content:flex-end;padding:18px;color:#fff;cursor:default;transition:transform .4s cubic-bezier(.2,.7,.2,1)}
+.vcard:hover{transform:translateY(-6px)}
+.vcard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.vcard:hover img{transform:scale(1.07)}
+.vcard::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(12,18,8,0) 34%,rgba(12,18,8,.78) 100%)}
+.vcard .vk{font-family:var(--grot);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--terra-soft);font-weight:600}
+.vcard h3{font-family:Fraunces,serif;font-weight:900;font-size:21px;line-height:1.04;margin-top:5px}
+.vcard p{font-family:var(--grot);font-size:12px;margin-top:5px;opacity:.92}
+.v-wide{grid-column:span 3}.v-tall{grid-row:span 2}.v-two{grid-column:span 2}
+@media(max-width:900px){.v-wide,.v-two{grid-column:span 2}.v-tall{grid-row:span 1}}
+@media(max-width:520px){.v-wide,.v-two{grid-column:span 1}}
+
+/* how it works: calendario de promos */
+.howwrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:36px;align-items:center}
+@media(max-width:900px){.howwrap{grid-template-columns:1fr}}
+.howlist{display:grid;gap:14px;margin-top:6px}
+.howlist li{list-style:none;display:flex;gap:14px;font-size:16px;font-weight:500;align-items:flex-start}
+.howlist .t{flex:0 0 auto;width:30px;height:30px;border-radius:9px;background:var(--terra);color:#fff;display:grid;place-items:center;font-weight:900;font-size:14px;font-family:Fraunces,serif}
+.cal{background:var(--green-deep);color:#eef0e2;border-radius:var(--radius-lg);padding:26px;box-shadow:var(--shadow)}
+.cal-h{display:flex;align-items:center;gap:10px;font-family:var(--grot);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--terra-soft);margin-bottom:18px}
+.cal-row{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.1)}
+.cal-row:last-child{border-bottom:none}
+.cal-row .cw{font-family:var(--grot);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#9fa88b;flex:0 0 92px}
+.cal-row .ct{font-family:Fraunces,serif;font-weight:600;font-size:16px;flex:1}
+.cal-row.now{background:rgba(193,90,46,.16);border-radius:12px;padding:12px 14px;border-bottom:none;margin:0 -6px}
+.cal-row.now .cw{color:var(--terra-soft)}
+.cal-tag{font-family:var(--grot);font-weight:700;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;background:var(--terra);color:#fff;padding:4px 9px;border-radius:999px}
+.cal-foot{font-family:var(--grot);font-size:11.5px;color:#8a9377;margin-top:16px;line-height:1.6}
+
+/* gallery + video */
+.videoblock{position:relative;border-radius:var(--radius-lg);overflow:hidden;min-height:440px;margin-bottom:22px;display:grid;place-items:center;color:#fff}
+.videoblock img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;filter:saturate(1.05)}
+.videoblock::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(18,26,12,.2),rgba(15,24,10,.6))}
+.play{position:relative;z-index:4;width:84px;height:84px;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);border:2px solid rgba(255,255,255,.6);display:grid;place-items:center;cursor:pointer;transition:.25s}
+.play:hover{background:var(--terra);border-color:var(--terra)}
+.play::after{content:"";border-left:22px solid #fff;border-top:13px solid transparent;border-bottom:13px solid transparent;margin-left:6px}
+.videocap{position:absolute;z-index:4;bottom:18px;left:22px;font-family:var(--grot);font-size:13px;letter-spacing:.03em;color:#f0ede1}
+.gal{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:175px;gap:12px}
+@media(max-width:820px){.gal{grid-template-columns:repeat(2,1fr)}}
+.gitem{position:relative;border-radius:16px;overflow:hidden}
+.gitem img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.gitem:hover img{transform:scale(1.06)}
+.gal .span2{grid-column:span 2}.gal .row2{grid-row:span 2}
+
+/* cta final */
+.ctafinal{position:relative;border-radius:var(--radius-lg);overflow:hidden;padding:74px 44px;text-align:center;color:#f4f1e6}
+.ctafinal img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.ctafinal::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(18,26,12,.5),rgba(15,24,10,.82))}
+.ctafinal .cf-k{position:relative;z-index:3;font-family:var(--grot);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--terra-soft)}
+.ctafinal h2{position:relative;z-index:3;font-family:Fraunces,serif;font-weight:900;font-size:clamp(32px,6vw,66px);line-height:.98;margin-top:14px}
+.ctafinal h2 em{color:var(--terra-soft);font-style:italic}
+.ctafinal .cf-cta{position:relative;z-index:3;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:30px}
+
+/* footer */
+footer{background:var(--green-deep);color:#c4c9b6;padding:52px 0}
+footer .frow{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+footer .frow img{width:52px;height:52px;border-radius:13px;object-fit:cover}
+footer .fbig{font-family:Fraunces,serif;font-weight:900;font-size:22px;color:#f1efe0;line-height:1}
+footer .fbig small{display:block;font-family:var(--grot);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8a9377;margin-top:5px;font-weight:400}
+footer .fmeta{font-family:var(--grot);font-size:12.5px;letter-spacing:.02em;line-height:1.8}
+footer a{color:var(--terra-soft)}
+
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1;transform:none;transition:none}.scrollcue,.livedot{animation:none}}
+</style>
+</head>
+<body>
+
+<!-- LIVE STATUS RIBBON -->
+<div class="livebar">
+  <span class="live"><span class="livedot"></span> En vivo</span>
+  <span class="sep">·</span>
+  <span>Nueva forma de bajar el ritmo, <b style="color:#fff">cada lunes</b> · actualización automática</span>
+</div>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top">
+      <img src="assets/rv-logo.jpg" alt="Rumbo Vergel">
+      <span><b>Rumbo Vergel</b><small>Sierra de Lobos · GTO</small></span>
+    </a>
+    <nav class="nav-links">
+      <a href="#promo">Promo de la semana</a><a href="#respira">Baja el ritmo</a><a href="#dinamicas">Actividades</a><a href="#virtudes">Virtudes</a><a href="#sistema">Cómo funciona</a><a href="#galeria">Galería</a>
+    </nav>
+    <button class="btn btn-wa" data-wa="Hola, quiero reservar mi descanso en Rumbo Vergel.">◆ Reservar</button>
+  </div>
+</header>
+
+<!-- HERO · PROMO DE LA SEMANA (contenido inyectado por el motor semanal) -->
+<section class="hero" id="top">
+  <div class="bgimg"><img id="heroImg" src="assets/rv-columpio-lago.jpg" alt="Descanso frente al lago en Rumbo Vergel"></div>
+  <div class="wrap" id="promo">
+    <div class="nowbar" id="nowbar" title="Hora y clima en Vergel de la Sierra, ahora">
+      <span class="nowloc"><span class="livedot"></span> En Vergel ahora</span>
+      <span class="nowsep">·</span>
+      <span class="nowclock" id="nowClock">--:--</span>
+      <span class="nowsep">·</span>
+      <span class="nowwx" id="nowWx"><span class="wxdot"></span> consultando clima…</span>
+    </div>
+    <span class="promo-flag"><span class="livedot"></span> Promoción de la semana</span>
+    <span class="promo-week" id="promoWeek">Semana en curso</span>
+    <div class="eyebrow" id="promoEyebrow">Baja el ritmo</div>
+    <h1 class="serif" id="promoTitle">El arte de <em>no hacer nada</em></h1>
+    <p class="sub" id="promoSub">Un columpio, el lago quieto y la sierra de fondo. Esta semana, tu única tarea es respirar.</p>
+    <div class="benefit"><span class="b-ico">✦</span><span id="promoBenefit">Escápate entre semana y encuentra el lago para ti solo.</span></div>
+    <div class="count" id="count">
+      <span class="clbl">La promo termina en</span>
+      <div class="cbox"><b id="cd">0</b><span>días</span></div>
+      <div class="cbox"><b id="ch">0</b><span>hrs</span></div>
+      <div class="cbox"><b id="cm">0</b><span>min</span></div>
+      <div class="cbox"><b id="cs">0</b><span>seg</span></div>
+    </div>
+    <div class="hero-ctas">
+      <button class="btn btn-wa btn-lg" id="promoWa" data-wa="Hola, vi la promoción de esta semana en Rumbo Vergel y quiero reservar.">◆ Aprovechar esta semana</button>
+      <a class="btn btn-ghost btn-lg" href="#virtudes" style="color:#f4f1e6;border-color:rgba(255,255,255,.45)">Ver todas las virtudes</a>
+    </div>
+  </div>
+  <div class="scrollcue">↓ respira y baja</div>
+</section>
+
+<!-- RESPIRA · 3 pilares del descanso -->
+<section id="respira">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="mono-k">A 40 minutos de León</div>
+      <h2 class="serif">Vienes a <span class="hl">bajar el ritmo</span>, no a hacer más.</h2>
+      <p>La ciudad te acelera toda la semana. Rumbo Vergel existe para lo contrario: soltar el teléfono, respirar aire de sierra y recordar cómo se siente el descanso de verdad.</p>
+    </div>
+    <div class="pillars">
+      <div class="pillar reveal"><div class="pico">🌬️</div><h3 class="serif">Respira</h3><p>Aire de montaña, bosque de encinos y silencio real. El cuerpo se destensa antes de que lo notes.</p></div>
+      <div class="pillar reveal d1"><div class="pico">📵</div><h3 class="serif">Desconecta</h3><p>Sin ruido, sin prisa, sin pantalla. Solo la fogata, el lago y las personas que trajiste contigo.</p></div>
+      <div class="pillar reveal d2"><div class="pico">🌙</div><h3 class="serif">Descansa</h3><p>Duermes entre árboles y amaneces con la sierra. Regresas a León como si hubieras estado una semana fuera.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- DINÁMICAS / ACTIVIDADES · cómo descansar aquí -->
+<section id="dinamicas">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="mono-k">Qué hacer (y qué no hacer)</div>
+      <h2 class="serif">Dinámicas para <span class="hl">bajar el ritmo</span>.</h2>
+      <p>En Rumbo Vergel el plan lo pones tú: desde no moverte del columpio hasta remar por la presa. Todo pasa dentro de la Sierra de Lobos, entre encinos y a 40 minutos de León.</p>
+    </div>
+    <div class="acts reveal">
+      <div class="act"><div class="aico">🏕️</div><span class="ritmo lento">Ritmo lento</span><h3>Glamping entre encinos</h3><p>Duerme en el bosque con cama de verdad y estufa de leña. El descanso empieza al apagar la luz.</p></div>
+      <div class="act"><div class="aico">🔥</div><span class="ritmo lento">Ritmo lento</span><h3>Noche de fogata</h3><p>Cierra el día junto al fuego, con cielo estrellado y sin prisa por dormir.</p></div>
+      <div class="act"><div class="aico">🛶</div><span class="ritmo activo">Ritmo activo</span><h3>Kayak en la presa</h3><p>Rema despacio por el agua quieta, con el reflejo de la sierra. El ejercicio que también relaja.</p></div>
+      <div class="act"><div class="aico">🥾</div><span class="ritmo activo">Ritmo activo</span><h3>Senderismo en la sierra</h3><p>Caminatas entre encinos y roca de la Sierra de Lobos. Aire de montaña y vistas para respirar.</p></div>
+      <div class="act"><div class="aico">✨</div><span class="ritmo lento">Ritmo lento</span><h3>Cielo estrellado</h3><p>Sin luces de ciudad, la sierra se llena de estrellas. Acuéstate y solo mira hacia arriba.</p></div>
+      <div class="act"><div class="aico">🍽️</div><span class="ritmo lento">Ritmo lento</span><h3>Mesa lenta</h3><p>Comida de la región al aire libre. Comer sin reloj también es una forma de descansar.</p></div>
+      <div class="act"><div class="aico">🐕</div><span class="ritmo lento">Pet-friendly</span><h3>Con tu perro</h3><p>Tráete a tu compañero de cuatro patas: aquí hay espacio de sobra para correr y explorar.</p></div>
+      <div class="act"><div class="aico">🌅</div><span class="ritmo lento">Ritmo lento</span><h3>Amanecer y atardecer</h3><p>El columpio frente al lago para ver salir y meterse el sol. El plan es no tener plan.</p></div>
+    </div>
+
+    <div class="restguide reveal d1">
+      <div class="rg-k">Guía de descanso · Rumbo Vergel</div>
+      <h3 class="serif">Cómo descansar de verdad en la sierra</h3>
+      <div class="rg-steps">
+        <div class="rg-step"><span class="rn">01</span><b>Deja el teléfono</b><p>Guárdalo en la cabaña. Lo que importe puede esperar al lunes.</p></div>
+        <div class="rg-step"><span class="rn">02</span><b>Despierta sin alarma</b><p>Que te levante la luz y los pájaros, no una notificación.</p></div>
+        <div class="rg-step"><span class="rn">03</span><b>Camina sin destino</b><p>Un sendero, sin meta ni cronómetro. Solo por moverte despacio.</p></div>
+        <div class="rg-step"><span class="rn">04</span><b>Cena junto al fuego</b><p>Fogata, conversación y cero prisa. La sierra apaga el ruido.</p></div>
+        <div class="rg-step"><span class="rn">05</span><b>Duerme con el bosque</b><p>Sin ciudad de fondo, solo el sonido de los encinos. Descanso real.</p></div>
+      </div>
+      <div class="hero-ctas" style="margin-top:26px">
+        <button class="btn btn-wa btn-lg" data-wa="Hola, quiero armar mi fin de semana de descanso en Rumbo Vergel. ¿Qué actividades y fechas tienen?">◆ Armar mi fin de semana</button>
+      </div>
+    </div>
+    <p class="acts-note reveal">Actividades dentro de Rumbo Vergel y su entorno en la Sierra de Lobos. Disponibilidad y detalles se confirman por WhatsApp.</p>
+  </div>
+</section>
+
+<!-- VIRTUDES · lo que Rumbo Vergel ofrece -->
+<section id="virtudes">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="mono-k">Las virtudes de Rumbo Vergel</div>
+      <h2 class="serif">Muchas formas de <span class="hl">desestresarte</span>. Una sierra.</h2>
+      <p>Cada semana el sistema pone una al frente. Todas están aquí, esperándote.</p>
+    </div>
+    <div class="virt reveal">
+      <div class="vcard v-wide v-tall"><img src="assets/rv-columpio-lago.jpg" alt="Columpio frente al lago"><span class="vk">Descanso</span><h3 class="serif">El columpio del lago</h3><p>Siéntate y no hagas nada. Ese es el plan.</p></div>
+      <div class="vcard v-tall"><img src="assets/rv-glamping-interior.jpg" alt="Glamping entre encinos"><span class="vk">Glamping</span><h3 class="serif">Dormir en el bosque</h3><p>Cama de verdad, estufa de leña.</p></div>
+      <div class="vcard"><img src="assets/rv-fogata-amigos.jpg" alt="Fogata con amigos"><span class="vk">Fogata</span><h3 class="serif">Junto al fuego</h3></div>
+      <div class="vcard v-two"><img src="assets/rv-aerial-dusk.jpg" alt="Amanecer en la Sierra de Lobos"><span class="vk">Sierra</span><h3 class="serif">Amanecer de montaña</h3><p>Luna sobre los encinos, silencio total.</p></div>
+      <div class="vcard"><img src="assets/rv-kayak-lago.jpg" alt="Kayak en el lago"><span class="vk">Lago</span><h3 class="serif">Kayak sin prisa</h3></div>
+      <div class="vcard v-two"><img src="assets/rv-fogata-perro.jpg" alt="Noche de fogata"><span class="vk">Compañía</span><h3 class="serif">Con los tuyos (y el perro)</h3><p>Los planes que de verdad recargan.</p></div>
+      <div class="vcard"><img src="assets/rv-post-glamping.jpg" alt="Sabores de la sierra"><span class="vk">Mesa lenta</span><h3 class="serif">Comer despacio</h3></div>
+    </div>
+  </div>
+</section>
+
+<!-- SISTEMA · promoción semanal automatizada (esto es lo que deben ver) -->
+<section id="sistema">
+  <div class="wrap">
+    <div class="howwrap">
+      <div class="reveal">
+        <div class="mono-k">Promoción viva</div>
+        <h2 class="serif" style="font-size:clamp(28px,5vw,48px);font-weight:900;margin:12px 0 16px">Una promo nueva <span class="hl">cada lunes</span>, sin mover un dedo.</h2>
+        <p class="muted" style="font-size:16px;max-width:46ch;margin-bottom:6px">Esta página no es un folleto fijo. Es un sistema que enciende una virtud distinta de Rumbo Vergel cada semana y la promociona sola.</p>
+        <ul class="howlist">
+          <li><span class="t">1</span><div><b>Cada lunes cambia.</b> El sistema elige la virtud de la semana y arma el mensaje, la foto y el beneficio.</div></li>
+          <li><span class="t">2</span><div><b>La cuenta regresiva corre sola.</b> El visitante ve que la promo es de esta semana y que se acaba. Eso mueve a reservar hoy.</div></li>
+          <li><span class="t">3</span><div><b>El interés llega por WhatsApp.</b> Cada botón abre un mensaje ya escrito con la promo activa; tu equipo solo responde y cierra.</div></li>
+        </ul>
+      </div>
+      <aside class="cal reveal d1">
+        <div class="cal-h"><span class="livedot" style="background:#4ade80"></span> Calendario de promociones</div>
+        <div id="calList"><!-- inyectado --></div>
+        <p class="cal-foot">El sistema rota automáticamente entre las virtudes de Rumbo Vergel. La semana activa se calcula sola según la fecha — nadie tiene que publicar nada.</p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- GALERÍA + VIDEO -->
+<section id="galeria">
+  <div class="wrap">
+    <div class="sec-head reveal"><div class="mono-k">Galería</div><h2 class="serif">Un vistazo a la <span class="hl">sierra</span>.</h2></div>
+    <div class="videoblock reveal">
+      <img src="assets/rv-aerial-dusk.jpg" alt="Rumbo Vergel al atardecer">
+      <button class="play" id="playBtn" aria-label="Ver experiencia"></button>
+      <span class="videocap">Rumbo Vergel · Sierra de Lobos, Guanajuato</span>
+    </div>
+    <div class="gal reveal">
+      <div class="gitem span2 row2"><img src="assets/rv-glamping-interior.jpg" alt="Glamping Rumbo Vergel"></div>
+      <div class="gitem"><img src="assets/rv-kayak-lago.jpg" alt="Kayak en el lago"></div>
+      <div class="gitem"><img src="assets/rv-fogata-amigos.jpg" alt="Fogata con amigos"></div>
+      <div class="gitem"><img src="assets/rv-aerial-dusk.jpg" alt="Sierra de Lobos"></div>
+      <div class="gitem"><img src="assets/rv-fogata-perro.jpg" alt="Noche de fogata"></div>
+      <div class="gitem span2"><img src="assets/rv-columpio-lago.jpg" alt="Descanso frente al lago"></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section>
+  <div class="wrap">
+    <div class="ctafinal reveal">
+      <img src="assets/rv-columpio-lago.jpg" alt="Tu descanso te espera en la sierra">
+      <div class="cf-k">Tu semana necesita una pausa</div>
+      <h2 class="serif">Baja el ritmo<br><em>este fin de semana.</em></h2>
+      <div class="cf-cta">
+        <button class="btn btn-wa btn-lg" id="ctaWa" data-wa="Hola, quiero reservar mi descanso en Rumbo Vergel.">◆ Reservar por WhatsApp</button>
+        <a class="btn btn-ghost btn-lg" href="#promo" style="color:#f4f1e6;border-color:rgba(255,255,255,.45)">Ver la promo de la semana</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="frow">
+      <img src="assets/rv-logo.jpg" alt="Rumbo Vergel">
+      <span class="fbig serif">Rumbo Vergel<small>Sierra de Lobos · a 40 min de León</small></span>
+    </div>
+    <p class="fmeta">
+      Glamping · naturaleza · descanso · comunidad · Sierra de Lobos, San Felipe–León, Guanajuato.<br>
+      Promoción actualizada automáticamente cada lunes. Escríbenos por WhatsApp para reservar tu semana.
+    </p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ====== NÚMERO DE WHATSAPP ======
+     Deja WA_PHONE vacío para abrir WhatsApp y que el visitante elija el chat,
+     o pon el número de Rumbo Vergel con lada país, ej: '5214771234567'. */
+  var WA_PHONE='';
+
+  /* ====== MOTOR DE PROMOCIÓN SEMANAL ====== */
+  var PROMOS=[
+    {img:'assets/rv-columpio-lago.jpg',eyebrow:'Baja el ritmo',
+      title:'El arte de <em>no hacer nada</em>',
+      sub:'Un columpio, el lago quieto y la sierra de fondo. Esta semana, tu única tarea es respirar.',
+      benefit:'Escápate entre semana y encuentra el lago casi para ti solo.',
+      wa:'Hola, vi la promo de esta semana en Rumbo Vergel ("El arte de no hacer nada") y quiero reservar mi descanso.'},
+    {img:'assets/rv-glamping-interior.jpg',eyebrow:'Duerme en el bosque',
+      title:'Glamping entre <em>encinos</em>',
+      sub:'Cama de verdad, estufa de leña y el sonido del bosque. Desconecta sin renunciar a la comodidad.',
+      benefit:'Noche de glamping con amanecer en la sierra incluido.',
+      wa:'Hola, me interesa la promo de glamping de esta semana en Rumbo Vergel. Quiero fechas y disponibilidad.'},
+    {img:'assets/rv-fogata-amigos.jpg',eyebrow:'Suelta el estrés',
+      title:'Todo se arregla <em>junto al fuego</em>',
+      sub:'Fogata, buena compañía y cero prisa. La sierra apaga el ruido de la ciudad.',
+      benefit:'Fin de semana de fogata para reconectar con los tuyos.',
+      wa:'Hola, quiero la promo de fogata / fin de semana de esta semana en Rumbo Vergel.'},
+    {img:'assets/rv-aerial-dusk.jpg',eyebrow:'Respira hondo',
+      title:'Amanece en la <em>Sierra de Lobos</em>',
+      sub:'Aire de montaña, luna sobre los encinos y silencio real. Un reset a 40 minutos de León.',
+      benefit:'Amanecer en la sierra: la mejor forma de reiniciar la semana.',
+      wa:'Hola, vi la promo de amanecer en la sierra de esta semana en Rumbo Vergel y quiero reservar.'},
+    {img:'assets/rv-kayak-lago.jpg',eyebrow:'Ritmo lento',
+      title:'Rema despacio, <em>no hay prisa</em>',
+      sub:'El lago, un kayak y el reflejo de la sierra. Deja que el agua te marque el ritmo.',
+      benefit:'Mañana de kayak y calma sobre el agua.',
+      wa:'Hola, me interesa la promo de kayak / lago de esta semana en Rumbo Vergel.'},
+    {img:'assets/rv-post-glamping.jpg',eyebrow:'Mesa lenta',
+      title:'Sabores de la sierra, <em>sin reloj</em>',
+      sub:'Cocina de la región al aire libre. Comer despacio también es descansar.',
+      benefit:'Comida en el bosque para tomarte tu tiempo, sin prisa.',
+      wa:'Hola, quiero la promo gastronómica / mesa de esta semana en Rumbo Vergel.'}
+  ];
+  var CAL_LABEL=['El columpio del lago','Glamping entre encinos','Junto al fuego','Amanecer en la sierra','Kayak sin prisa','Mesa lenta en el bosque'];
+  var MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+  function weekBounds(base){
+    var d=new Date(base.getFullYear(),base.getMonth(),base.getDate());
+    var off=(d.getDay()+6)%7;                 // 0 = lunes
+    var mon=new Date(d); mon.setDate(d.getDate()-off);
+    var sun=new Date(mon); sun.setDate(mon.getDate()+6); sun.setHours(23,59,59,999);
+    // índice de rotación estable: semanas transcurridas desde epoch (lunes)
+    var idx=Math.floor(mon.getTime()/6048e5);
+    return {mon:mon,sun:sun,idx:idx};
+  }
+  function fmt(d){return d.getDate()+' '+MES[d.getMonth()];}
+
+  var now=new Date();
+  var wb=weekBounds(now);
+  var cur=((wb.idx%PROMOS.length)+PROMOS.length)%PROMOS.length;
+  var p=PROMOS[cur];
+
+  // pintar hero
+  document.getElementById('heroImg').src=p.img;
+  document.getElementById('promoWeek').textContent='Semana del '+fmt(wb.mon)+' al '+fmt(wb.sun);
+  document.getElementById('promoEyebrow').textContent=p.eyebrow;
+  document.getElementById('promoTitle').innerHTML=p.title;
+  document.getElementById('promoSub').textContent=p.sub;
+  document.getElementById('promoBenefit').textContent=p.benefit;
+  document.getElementById('promoWa').setAttribute('data-wa',p.wa);
+
+  // calendario (esta semana + próximas 3)
+  var cal=document.getElementById('calList'),html='';
+  for(var i=0;i<4;i++){
+    var wIdx=(((wb.idx+i)%PROMOS.length)+PROMOS.length)%PROMOS.length;
+    var m=new Date(wb.mon); m.setDate(wb.mon.getDate()+i*7);
+    var s=new Date(m); s.setDate(m.getDate()+6);
+    var isNow=i===0;
+    html+='<div class="cal-row'+(isNow?' now':'')+'">'+
+      '<span class="cw">'+fmt(m)+'–'+fmt(s)+'</span>'+
+      '<span class="ct">'+CAL_LABEL[wIdx]+'</span>'+
+      (isNow?'<span class="cal-tag">Activa</span>':'')+'</div>';
+  }
+  cal.innerHTML=html;
+
+  // cuenta regresiva al domingo 23:59
+  var cd=document.getElementById('cd'),ch=document.getElementById('ch'),cm=document.getElementById('cm'),cs=document.getElementById('cs');
+  function pad(n){return n<10?'0'+n:''+n;}
+  function tick(){
+    var diff=wb.sun.getTime()-Date.now();
+    if(diff<0)diff=0;
+    var s=Math.floor(diff/1000);
+    cd.textContent=Math.floor(s/86400);
+    ch.textContent=pad(Math.floor(s%86400/3600));
+    cm.textContent=pad(Math.floor(s%3600/60));
+    cs.textContent=pad(s%60);
+  }
+  tick(); if(!reduce) setInterval(tick,1000);
+
+  /* ====== HORA LOCAL EN VERGEL (America/Mexico_City) ====== */
+  var clockEl=document.getElementById('nowClock');
+  var clockFmt;
+  try{clockFmt=new Intl.DateTimeFormat('es-MX',{timeZone:'America/Mexico_City',hour:'2-digit',minute:'2-digit',hour12:true});}catch(e){clockFmt=null;}
+  function clock(){
+    if(!clockEl)return;
+    if(clockFmt){clockEl.textContent=clockFmt.format(new Date()).replace(/\s?[ap]\.?\s?m\.?/i,function(m){return ' '+m.trim().replace(/\./g,'').toLowerCase();});}
+    else{var d=new Date();clockEl.textContent=pad(d.getHours())+':'+pad(d.getMinutes());}
+  }
+  clock(); if(!reduce) setInterval(clock,1000);
+
+  /* ====== CLIMA EN VERGEL (Open-Meteo · sin API key) ====== */
+  var wxEl=document.getElementById('nowWx');
+  // Vergel de la Sierra / Sierra de Lobos, León–San Felipe, GTO
+  var WX_LAT=21.27, WX_LON=-101.78;
+  var WMO={0:['Despejado','☀️','🌙'],1:['Casi despejado','🌤️','🌙'],2:['Parcial nublado','⛅','☁️'],3:['Nublado','☁️','☁️'],
+    45:['Niebla','🌫️','🌫️'],48:['Niebla','🌫️','🌫️'],51:['Llovizna','🌦️','🌧️'],53:['Llovizna','🌦️','🌧️'],55:['Llovizna','🌦️','🌧️'],
+    61:['Lluvia','🌧️','🌧️'],63:['Lluvia','🌧️','🌧️'],65:['Lluvia fuerte','🌧️','🌧️'],66:['Lluvia','🌧️','🌧️'],67:['Lluvia','🌧️','🌧️'],
+    71:['Nieve','🌨️','🌨️'],73:['Nieve','🌨️','🌨️'],75:['Nieve','🌨️','🌨️'],77:['Granizo','🌨️','🌨️'],
+    80:['Chubascos','🌦️','🌧️'],81:['Chubascos','🌦️','🌧️'],82:['Chubascos','⛈️','⛈️'],85:['Chubascos','🌨️','🌨️'],86:['Chubascos','🌨️','🌨️'],
+    95:['Tormenta','⛈️','⛈️'],96:['Tormenta','⛈️','⛈️'],99:['Tormenta','⛈️','⛈️']};
+  function paintWx(t,code,isDay){
+    if(!wxEl)return;
+    var w=WMO[code]||['—','🌡️','🌡️'];
+    var ico=isDay?w[1]:w[2];
+    wxEl.innerHTML='<span class="wxico">'+ico+'</span> '+Math.round(t)+'°C · '+w[0];
+  }
+  function loadWx(){
+    if(!wxEl||!window.fetch)return;
+    var url='https://api.open-meteo.com/v1/forecast?latitude='+WX_LAT+'&longitude='+WX_LON+'&current=temperature_2m,weather_code,is_day&timezone=America%2FMexico_City';
+    fetch(url).then(function(r){return r.ok?r.json():Promise.reject();}).then(function(d){
+      var c=d&&d.current; if(!c)throw 0;
+      paintWx(c.temperature_2m,c.weather_code,c.is_day===1);
+    }).catch(function(){ wxEl.innerHTML='<span class="wxico">⛰️</span> Sierra de Lobos'; });
+  }
+  loadWx(); if(!reduce) setInterval(loadWx,900000); // refresca cada 15 min
+
+  /* ====== WHATSAPP ====== */
+  function waLink(text){
+    var base=WA_PHONE?('https://wa.me/'+WA_PHONE):'https://wa.me/';
+    return base+'?text='+encodeURIComponent(text);
+  }
+  document.body.addEventListener('click',function(e){
+    var w=e.target.closest('[data-wa]');
+    if(w){e.preventDefault();window.open(waLink(w.getAttribute('data-wa')),'_blank','noopener');return;}
+    var pl=e.target.closest('#playBtn');
+    if(pl){e.preventDefault();window.open(waLink('Hola, quiero ver más de Rumbo Vergel y reservar.'),'_blank','noopener');}
+  });
+
+  /* ====== REVEAL ====== */
+  if(!reduce&&'IntersectionObserver'in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});},{threshold:.12});
+    [].forEach.call(document.querySelectorAll('.reveal'),function(el){io.observe(el);});
+  }else{[].forEach.call(document.querySelectorAll('.reveal'),function(el){el.classList.add('in');});}
+})();
+</script>
+</body>
+</html>
