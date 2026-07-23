@@ -1,0 +1,11 @@
+# Standalone para la demo del agente WhatsApp. Levanta con:  docker compose up
+services:
+  dulces-agent:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./demo.db:/app/demo.db   # persiste la SQLite entre reinicios
+    restart: unless-stopped
