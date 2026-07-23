@@ -18,7 +18,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 
 import httpx
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, BackgroundTasks
 from fastapi.responses import PlainTextResponse, HTMLResponse, JSONResponse
 
 # --------------------------------------------------------------------------- #
@@ -408,27 +408,37 @@ CLOSING_MSG = (
 
 
 @app.post("/webhook")
-async def incoming(request: Request):
-    # Siempre 200 a Meta, pase lo que pase.
+async def incoming(request: Request, background_tasks: BackgroundTasks):
+    # CRÍTICO: devolver 200 a Meta al instante. OpenAI+envío tardan segundos;
+    # si Meta no ve 200 en ~5s reintenta y puede desactivar el webhook.
+    # Parseo rápido aquí; el trabajo pesado va a background.
     try:
         payload = await request.json()
         for entry in payload.get("entry", []):
             for change in entry.get("changes", []):
                 value = change.get("value", {})
+                # Estados de entrega (sent/delivered/read): registrar y no procesar.
+                for st in value.get("statuses", []):
+                    log.info("status wamid=%s -> %s", st.get("id", "?"), st.get("status", "?"))
+                # Mensajes entrantes: dedup síncrono aquí (antes de encolar) para
+                # que un reintento de Meta no encole el mismo mensaje dos veces;
+                # el procesamiento (OpenAI + envío) va a background.
                 for m in value.get("messages", []):
-                    await handle_message(m)
+                    mid = m.get("id", "")
+                    if mid and already_seen(mid):
+                        log.info("dedup: mensaje %s ya visto, se ignora", mid)
+                        continue
+                    background_tasks.add_task(handle_message, m)
     except Exception:  # noqa: BLE001
         log.exception("error procesando webhook")
     return JSONResponse({"status": "ok"})
 
 
 async def handle_message(m: dict) -> None:
-    mid = m.get("id", "")
+    # Nota: dedup ya se hizo en incoming() antes de encolar esta tarea.
     phone = m.get("from", "")
     if not phone:
         return
-    if mid and already_seen(mid):
-        return  # dedup
 
     mtype = m.get("type", "unknown")
 
