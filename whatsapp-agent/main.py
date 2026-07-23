@@ -29,14 +29,22 @@ BASE_DIR = Path(__file__).resolve().parent
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")
 
-WA_ACCESS_TOKEN = os.getenv("WA_ACCESS_TOKEN", "")
-WA_PHONE_NUMBER_ID = os.getenv("WA_PHONE_NUMBER_ID", "")
-WA_VERIFY_TOKEN = os.getenv("WA_VERIFY_TOKEN", "")
+# Nombres nuevos (WHATSAPP_*) con prioridad; fallback a los antiguos (WA_*)
+# para no romper .env existentes. Internamente se conservan los nombres WA_*.
+WA_ACCESS_TOKEN = os.getenv("WHATSAPP_TOKEN") or os.getenv("WA_ACCESS_TOKEN") or ""
+WA_PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID") or os.getenv("WA_PHONE_NUMBER_ID") or ""
+WA_VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN") or os.getenv("WA_VERIFY_TOKEN") or ""
 HUMAN_NOTIFY_WA = os.getenv("HUMAN_NOTIFY_WA", "")
 
-DB_PATH = os.getenv("DB_PATH", "demo.db")
+DB_PATH = os.getenv("DATABASE_PATH") or os.getenv("DB_PATH") or "demo.db"
 MAX_TURNS = int(os.getenv("MAX_TURNS", "14"))
-GRAPH = "https://graph.facebook.com/v20.0"
+
+# Versión de Graph API por env, con default seguro.
+WHATSAPP_API_VERSION = os.getenv("WHATSAPP_API_VERSION", "v20.0")
+GRAPH = f"https://graph.facebook.com/{WHATSAPP_API_VERSION}"
+
+# URL pública del túnel (solo informativa: se muestra en /health y root).
+PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "")
 
 HISTORY_LIMIT = 24        # mensajes de memoria por teléfono
 MAX_TOOL_ITERS = 5        # iteraciones del loop de function calling
@@ -363,6 +371,7 @@ async def send_whatsapp_text(to: str, body: str) -> bool:
             headers={"Authorization": f"Bearer {WA_ACCESS_TOKEN}"},
             json={
                 "messaging_product": "whatsapp",
+                "recipient_type": "individual",
                 "to": to,
                 "type": "text",
                 "text": {"body": body[:4096]},
@@ -546,6 +555,51 @@ async def panel():
     return HTMLResponse(html)
 
 
+@app.get("/health")
+async def health():
+    # Estado de DB (nunca expone valores secretos, solo booleanos).
+    db_ok = False
+    leads = pedidos = escalados = 0
+    try:
+        conn = db()
+        conn.execute("SELECT 1")
+        leads = conn.execute("SELECT COUNT(*) c FROM leads").fetchone()["c"]
+        pedidos = conn.execute(
+            "SELECT COUNT(*) c FROM leads WHERE tipo IN ('pedido','cotizacion')"
+        ).fetchone()["c"]
+        escalados = conn.execute("SELECT COUNT(*) c FROM leads WHERE tipo='escalado'").fetchone()["c"]
+        conn.close()
+        db_ok = True
+    except Exception:  # noqa: BLE001
+        log.exception("healthcheck DB falló")
+
+    config = {
+        "openai_api_key": bool(OPENAI_API_KEY),
+        "whatsapp_token": bool(WA_ACCESS_TOKEN),
+        "whatsapp_phone_number_id": bool(WA_PHONE_NUMBER_ID),
+        "whatsapp_verify_token": bool(WA_VERIFY_TOKEN),
+        "human_notify_wa": bool(HUMAN_NOTIFY_WA),
+    }
+    ready = db_ok and all(
+        [config["openai_api_key"], config["whatsapp_token"], config["whatsapp_phone_number_id"], config["whatsapp_verify_token"]]
+    )
+    return {
+        "status": "ok" if ready else "degraded",
+        "app": "up",
+        "database": "ok" if db_ok else "error",
+        "graph_api_version": WHATSAPP_API_VERSION,
+        "public_base_url": PUBLIC_BASE_URL or None,
+        "config_present": config,
+        "counters": {"leads": leads, "pedidos": pedidos, "escalados": escalados},
+    }
+
+
 @app.get("/")
 async def root():
-    return {"service": "dulces-del-alto-agent", "panel": "/leads", "webhook": "/webhook"}
+    return {
+        "service": "dulces-del-alto-agent",
+        "panel": "/leads",
+        "webhook": "/webhook",
+        "health": "/health",
+        "public_base_url": PUBLIC_BASE_URL or None,
+    }
