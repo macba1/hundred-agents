@@ -37,7 +37,29 @@ registros concurrentes y permite exportar CSV directo. Los leads se guardan en l
 | `OPENAI_MODEL` | opcional | `gpt-4o-mini` | Modelo del chat |
 | `REDIS_URL` | ✅ (ya existe) | — | Guardar leads + rate limit |
 | `ADMIN_TOKEN` | ✅ **nueva** | — | Protege el CSV `/api/coparmex/leads` |
-| `LEADS_NOTIFY_WEBHOOK` | opcional | — | POST por cada lead nuevo (Slack/Sheet/etc.) |
+| `LEADS_NOTIFY_WEBHOOK` | opcional | — | POST genérico por cada lead nuevo (Slack/Sheet/etc.) |
+| `WA_NOTIFY_TOKEN` | opcional | — | WhatsApp notify: token (= `WA_ACCESS_TOKEN` de whatsapp-demo) |
+| `WA_NOTIFY_PHONE_ID` | opcional | — | WhatsApp notify: Phone Number ID de prueba |
+| `WA_NOTIFY_TO` | opcional | — | WhatsApp notify: tu celular destino (E.164 sin +) |
+
+## Notificación de leads a tu WhatsApp (opcional, DESACTIVADA)
+El código en `api/coparmex/lead.js` ya reenvía cada lead como WhatsApp, pero está
+**apagado** hasta que definas las 3 envs `WA_NOTIFY_*`. Para activarlo en Vercel:
+```
+WA_NOTIFY_TOKEN     = <WA_ACCESS_TOKEN permanente (System User) de whatsapp-demo>
+WA_NOTIFY_PHONE_ID  = 1211779025353605
+WA_NOTIFY_TO        = <tu celular, formato 5213...>
+```
+**Caveats del número de PRUEBA de Meta (por eso viene desactivado):**
+- Solo envía a números en la **lista de destinatarios autorizados** (tu celular debe estar).
+- Solo dentro de la **ventana de 24h**: si no le has escrito al número de prueba en las
+  últimas 24h, el envío free-form falla (requeriría plantilla aprobada). Truco para el
+  evento: mándale un WhatsApp al número de prueba al empezar → abre la ventana 24h y los
+  avisos llegan durante el evento.
+- Mete el token permanente en el env de ESTE proyecto (otra superficie de secreto).
+
+Por estos límites, para el evento **el CSV es el canal confiable**. El WhatsApp notify
+queda listo para activar si lo quieres, sabiendo lo anterior.
 
 ## Cómo subir el PDF
 1. Nombra tu archivo **`presentacion.pdf`**.

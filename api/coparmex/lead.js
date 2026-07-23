@@ -62,5 +62,35 @@ module.exports = async function handler(req, res) {
     }
   }
 
+  // Optional WhatsApp notification (DISABLED unless the 3 envs are set).
+  // Reenvía cada lead como WhatsApp usando las credenciales de whatsapp-demo:
+  //   WA_NOTIFY_TOKEN     <- WA_ACCESS_TOKEN (token permanente System User)
+  //   WA_NOTIFY_PHONE_ID  <- WA_PHONE_NUMBER_ID (número de prueba de Meta)
+  //   WA_NOTIFY_TO        <- HUMAN_NOTIFY_WA (tu celular, en la lista de permitidos)
+  // Caveat número de prueba: solo envía a destinatarios autorizados y dentro de
+  // la ventana de 24h (o requiere plantilla). Ver coparmex/README.md.
+  const waToken = process.env.WA_NOTIFY_TOKEN;
+  const waPhoneId = process.env.WA_NOTIFY_PHONE_ID;
+  const waTo = process.env.WA_NOTIFY_TO;
+  if (waToken && waPhoneId && waTo) {
+    const ver = process.env.WHATSAPP_API_VERSION || 'v20.0';
+    try {
+      const r = await fetch(`https://graph.facebook.com/${ver}/${waPhoneId}/messages`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${waToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
+          to: waTo,
+          type: 'text',
+          text: { body: `🟠 Nuevo lead Coparmex\n${name}\n${email}` },
+        }),
+      });
+      if (!r.ok) console.error('[coparmex:lead:wa]', r.status);
+    } catch (err) {
+      console.error('[coparmex:lead:wa]', err && err.message);
+    }
+  }
+
   return res.status(200).json({ ok: true });
 };

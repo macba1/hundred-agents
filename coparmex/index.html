@@ -45,6 +45,9 @@
   .canvaswrap{width:100%;overflow:auto;text-align:center;background:#000;border-radius:10px}
   #pdfCanvas{max-width:100%;height:auto;display:inline-block}
   .pdfmsg{color:var(--muted);font-size:14px;text-align:center;padding:40px 10px}
+  .dl{display:block;text-align:center;margin-top:12px;padding:11px;border:1px solid var(--line);
+    border-radius:10px;color:var(--fg);text-decoration:none;font-size:14px;background:#0f0f12}
+  .dl:hover{border-color:var(--accent)}
   /* chat */
   #chatCard{margin-top:18px;padding:0;overflow:hidden;display:flex;flex-direction:column;max-height:70vh}
   .chathead{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;font-weight:bold}
@@ -100,6 +103,10 @@
       </div>
       <div class="canvaswrap"><canvas id="pdfCanvas"></canvas></div>
       <div class="pdfmsg hidden" id="pdfMsg"></div>
+      <!-- Fallback siempre visible: aunque pdf.js falle en un móvil viejo,
+           la presentación se puede abrir/descargar directo. El chat es
+           independiente y sigue funcionando pase lo que pase. -->
+      <a class="dl" id="dlPdf" href="/coparmex/presentacion.pdf" target="_blank" rel="noopener" download>⬇ Descargar presentación (PDF)</a>
     </div>
 
     <div class="card" id="chatCard">
