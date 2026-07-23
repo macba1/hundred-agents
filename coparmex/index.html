@@ -48,19 +48,6 @@
   .dl{display:block;text-align:center;margin-top:12px;padding:11px;border:1px solid var(--line);
     border-radius:10px;color:var(--fg);text-decoration:none;font-size:14px;background:#0f0f12}
   .dl:hover{border-color:var(--accent)}
-  /* chat */
-  #chatCard{margin-top:18px;padding:0;overflow:hidden;display:flex;flex-direction:column;max-height:70vh}
-  .chathead{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;font-weight:bold}
-  .chathead .dot{width:9px;height:9px;border-radius:50%;background:var(--ok)}
-  #msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;min-height:200px}
-  .msg{max-width:85%;padding:11px 14px;border-radius:14px;font-size:15px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word}
-  .msg.a{background:#1c1c21;align-self:flex-start;border-bottom-left-radius:4px}
-  .msg.u{background:var(--accent);color:#0b0b0d;align-self:flex-end;border-bottom-right-radius:4px}
-  .typing{color:var(--muted);font-size:13px;align-self:flex-start;padding:2px 6px}
-  .composer{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
-  .composer input{flex:1}
-  .send{background:var(--accent);color:#0b0b0d;border:none;border-radius:12px;padding:0 18px;font-size:16px;font-weight:bold}
-  .send:disabled{opacity:.5}
   .foot{color:var(--muted);font-size:12px;text-align:center;margin-top:26px}
 </style>
 </head>
@@ -104,18 +91,8 @@
       <div class="canvaswrap"><canvas id="pdfCanvas"></canvas></div>
       <div class="pdfmsg hidden" id="pdfMsg"></div>
       <!-- Fallback siempre visible: aunque pdf.js falle en un móvil viejo,
-           la presentación se puede abrir/descargar directo. El chat es
-           independiente y sigue funcionando pase lo que pase. -->
+           la presentación se puede abrir/descargar directo. -->
       <a class="dl" id="dlPdf" href="/coparmex/presentacion.pdf" target="_blank" rel="noopener" download>⬇ Descargar presentación (PDF)</a>
-    </div>
-
-    <div class="card" id="chatCard">
-      <div class="chathead"><span class="dot"></span>Asistente de Hundred Agents</div>
-      <div id="msgs"></div>
-      <form class="composer" id="chatForm">
-        <input id="chatInput" type="text" placeholder="Escribe tu pregunta…" autocomplete="off">
-        <button class="send" id="sendBtn" type="submit">➤</button>
-      </form>
     </div>
   </section>
 
@@ -136,9 +113,10 @@
   function showB(){
     $('stateA').classList.add('hidden');
     $('stateB').classList.remove('hidden');
-    $('hello').textContent = user && user.name ? ('Hola ' + user.name + ' 👋') : '';
+    var nm = (user && user.name) ? user.name : '';
+    $('hello').textContent = 'Gracias' + (nm ? ' ' + nm : '') +
+      ', aquí tienes la presentación completa. Cualquier consulta: info@thehagentic.com';
     initPdf();
-    startChat();
   }
 
   function validEmail(s){ return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(s||'').trim()); }
@@ -220,70 +198,6 @@
   $('prev').addEventListener('click', function(){ go(pageNum - 1); });
   $('next').addEventListener('click', function(){ go(pageNum + 1); });
   window.addEventListener('resize', function(){ if (pdfDoc) renderPage(pageNum); });
-
-  /* ---------- Chat ---------- */
-  var history = [];       // {role, content}
-  var MAX_USER_TURNS = 12;
-  var busy = false;
-
-  function bubble(role, text){
-    var d = document.createElement('div');
-    d.className = 'msg ' + (role === 'user' ? 'u' : 'a');
-    d.textContent = text;
-    $('msgs').appendChild(d);
-    $('msgs').scrollTop = $('msgs').scrollHeight;
-    return d;
-  }
-  function typing(on){
-    var ex = document.getElementById('typing');
-    if (on && !ex){
-      var t = document.createElement('div'); t.id='typing'; t.className='typing'; t.textContent='escribiendo…';
-      $('msgs').appendChild(t); $('msgs').scrollTop = $('msgs').scrollHeight;
-    } else if (!on && ex){ ex.remove(); }
-  }
-
-  function startChat(){
-    var name = (user && user.name) ? user.name : '';
-    var welcome = 'Hola ' + (name || '') + ', soy el asistente de Hundred Agents. Aquí tienes la presentación completa. Estamos a tu disposición para cualquier consulta: puedo explicarte cualquier ejemplo de la charla o cómo se aplicaría un agente a tu negocio.';
-    welcome = welcome.replace('Hola , ', 'Hola, ');
-    bubble('assistant', welcome);
-    history.push({ role:'assistant', content: welcome });
-  }
-
-  function send(text){
-    if (busy || !text.trim()) return;
-    var userTurns = history.filter(function(m){ return m.role==='user'; }).length;
-    if (userTurns >= MAX_USER_TURNS){
-      bubble('assistant', 'Hemos avanzado bastante 🙂. Para seguir, escríbenos a info@thehagentic.com.');
-      return;
-    }
-    busy = true; $('sendBtn').disabled = true;
-    bubble('user', text);
-    history.push({ role:'user', content:text });
-    typing(true);
-
-    fetch('/api/coparmex/chat', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ name:(user&&user.name)||'', messages:history })
-    }).then(function(r){ return r.json().catch(function(){ return {}; }); })
-      .then(function(j){
-        typing(false);
-        var reply = j.reply || 'Perdón, no pude responder. Intenta de nuevo.';
-        bubble('assistant', reply);
-        history.push({ role:'assistant', content:reply });
-      })
-      .catch(function(){
-        typing(false);
-        bubble('assistant', 'Estamos saturados, intenta en un momento 🙏.');
-      })
-      .then(function(){ busy = false; $('sendBtn').disabled = false; $('chatInput').focus(); });
-  }
-
-  $('chatForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    var inp = $('chatInput'); var t = inp.value; inp.value='';
-    send(t);
-  });
 
   /* ---------- arranque ---------- */
   if (user && user.name && user.email){ showB(); }

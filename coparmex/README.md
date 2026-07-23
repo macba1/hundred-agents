@@ -1,8 +1,8 @@
 # Landing Coparmex — `/coparmex`
 
 Página pública para la charla de **Coparmex San Miguel el Alto**: captura de leads +
-visor de la presentación (PDF) + agente de bienvenida. URL final:
-`https://thehagentic.com/coparmex`.
+visor de la presentación (PDF). Flujo en **2 pasos**: registro (nombre + correo) →
+visor de la presentación. URL final: `https://thehagentic.com/coparmex`.
 
 Integrada al proyecto Node/Vercel existente (funciones serverless en `api/`, estático
 en la raíz). No modifica el sitio principal, la conferencia ni los clientes.
@@ -10,16 +10,18 @@ en la raíz). No modifica el sitio principal, la conferencia ni los clientes.
 ## Archivos
 | Ruta | Qué es |
 |---|---|
-| `coparmex/index.html` | Página (3 estados: registro → presentación → chat) |
-| `coparmex/presentacion.pdf` | **Lo subes tú** (ver abajo) |
+| `coparmex/index.html` | Página (2 pasos: registro → visor PDF) |
+| `coparmex/presentacion.pdf` | La presentación (16 slides) |
 | `coparmex/qr-coparmex.png` | QR 1000×1000 → `/coparmex` (copia también en la raíz del repo) |
-| `api/coparmex/lead.js` | POST — guarda lead en Redis |
+| `api/coparmex/lead.js` | POST — guarda lead en Redis (+ notify opcional) |
 | `api/coparmex/leads.js` | GET — export CSV (protegido con `ADMIN_TOKEN`) |
-| `api/coparmex/chat.js` | POST — agente OpenAI + rate limit por IP |
 | `lib/coparmex.js` | Almacenamiento de leads en Redis |
 
-Reusa: `lib/discovery/ratelimit.js` (rate limit), `lib/notion.js` (`validEmail`), y el
-mismo Redis (`REDIS_URL`) ya conectado al proyecto.
+> El chat/asistente se retiró: no hay `api/coparmex/chat.js`. Tras registrarse, la
+> página muestra un texto fijo con el correo de contacto (`info@thehagentic.com`).
+
+Reusa: `lib/notion.js` (`validEmail`) y el mismo Redis (`REDIS_URL`) ya conectado al
+proyecto.
 
 ## Almacenamiento de leads — decisión
 **Redis** (`REDIS_URL`), que ya está provisionado en el proyecto y con la dependencia
@@ -33,9 +35,7 @@ registros concurrentes y permite exportar CSV directo. Los leads se guardan en l
 
 | Variable | Obligatoria | Default | Uso |
 |---|---|---|---|
-| `OPENAI_API_KEY` | ✅ (ya existe) | — | Chat del agente |
-| `OPENAI_MODEL` | opcional | `gpt-4o-mini` | Modelo del chat |
-| `REDIS_URL` | ✅ (ya existe) | — | Guardar leads + rate limit |
+| `REDIS_URL` | ✅ (ya existe) | — | Guardar leads |
 | `ADMIN_TOKEN` | ✅ **nueva** | — | Protege el CSV `/api/coparmex/leads` |
 | `LEADS_NOTIFY_WEBHOOK` | opcional | — | POST genérico por cada lead nuevo (Slack/Sheet/etc.) |
 | `WA_NOTIFY_TOKEN` | opcional | — | WhatsApp notify: token (= `WA_ACCESS_TOKEN` de whatsapp-demo) |
@@ -76,16 +76,16 @@ Descarga `coparmex-leads.csv` (columnas: ts, name, email, consent, ip, ua).
 Sin token válido → 401.
 
 ## Checklist de deploy
-- [ ] En Vercel, define `ADMIN_TOKEN` (valor largo y secreto). Verifica que ya existan
-      `OPENAI_API_KEY` y `REDIS_URL`. Opcional: `OPENAI_MODEL`, `LEADS_NOTIFY_WEBHOOK`.
+- [ ] En Vercel, define `ADMIN_TOKEN` (valor largo y secreto). Verifica que ya exista
+      `REDIS_URL`. Opcional: `LEADS_NOTIFY_WEBHOOK`.
 - [ ] Sube `coparmex/presentacion.pdf`.
-- [ ] Deploy a producción (merge de la rama `coparmex-landing` a `master`).
-- [ ] Abre `https://thehagentic.com/coparmex` → registra un lead de prueba → verás el
-      visor y el chat.
+- [ ] Deploy a producción (`master`).
+- [ ] Abre `https://thehagentic.com/coparmex` → registra un lead de prueba → pasa al visor.
 - [ ] Descarga el CSV con tu `ADMIN_TOKEN` y confirma el lead.
 - [ ] Inserta `qr-coparmex.png` (raíz del repo) en la primera y última slide del PPTX.
 
-## Rate limit y robustez
-- `/api/coparmex/chat`: 30 req/hora por IP (fail-open si el store falla).
-- Errores de OpenAI/Redis → mensaje amable al usuario, log interno, siempre responde.
+## Robustez
+- El visor usa pdf.js; si falla en un móvil viejo, el botón **Descargar presentación**
+  (siempre visible) abre el PDF directo.
+- Errores de Redis → mensaje amable al usuario, log interno.
 - El registro se cachea en `localStorage`: quien ya se registró entra directo al visor.
