@@ -1,19 +1,24 @@
 /* ============================================================
    GET /api/coparmex/sync-notion?token=ADMIN_TOKEN
-   One-off admin: vuelca los leads de la landing Coparmex (Redis)
-   al Notion "asistente conferencia mexico" (NOTION_MEXICO_DB_ID).
+   Vuelca los leads de la landing Coparmex (Redis) al Notion
+   "Asistentes Conferencia México" (NOTION_MEXICO_DB_ID), SIN
+   duplicar correos.
 
-   - Sin ?do=1  -> inspección: devuelve el título del DB + props +
-                   cuántos leads hay (NO escribe nada).
-   - Con  ?do=1 -> inserta cada lead (idempotente: salta correos ya
-                   sincronizados via set Redis coparmex:synced).
+   Dedup real: consulta TODOS los correos ya presentes en el DB
+   (no solo un set local) y salta los leads cuyo correo ya existe.
+   También audita y reporta correos duplicados dentro del DB.
 
-   Protegido con ADMIN_TOKEN. Reusa lib/notion (modo mexico) y
-   lib/coparmex (leads en Redis).
+   - Sin ?do=1  -> inspección: título DB, nº leads, cuántos son
+                   nuevos, y duplicados existentes. NO escribe.
+   - Con  ?do=1 -> inserta solo los correos nuevos.
+
+   Protegido con ADMIN_TOKEN.
    ============================================================ */
 
 const { listLeads } = require('../../lib/coparmex');
 const { createLeadPage } = require('../../lib/notion');
+
+const NOTION_VERSION = '2022-06-28';
 
 function authorized(req) {
   const expected = process.env.ADMIN_TOKEN;
@@ -22,12 +27,43 @@ function authorized(req) {
   return url.searchParams.get('token') === expected;
 }
 
-async function redis() {
-  const { createClient } = require('redis');
-  const c = createClient({ url: process.env.REDIS_URL });
-  c.on('error', () => {});
-  if (!c.isOpen) await c.connect();
-  return c;
+function notionHeaders(token) {
+  return { Authorization: `Bearer ${token}`, 'Notion-Version': NOTION_VERSION, 'Content-Type': 'application/json' };
+}
+
+async function dbTitle(token, dbId) {
+  try {
+    const r = await fetch(`https://api.notion.com/v1/databases/${dbId}`, { headers: notionHeaders(token) });
+    if (!r.ok) return `error_http_${r.status}`;
+    const d = await r.json();
+    return (d.title || []).map((t) => t.plain_text).join('');
+  } catch { return 'error'; }
+}
+
+/** Map<emailLower, count> of every email already in the DB (paginated). */
+async function dbEmailCounts(token, dbId) {
+  const counts = new Map();
+  let cursor;
+  do {
+    const body = cursor ? { start_cursor: cursor, page_size: 100 } : { page_size: 100 };
+    const r = await fetch(`https://api.notion.com/v1/databases/${dbId}/query`, {
+      method: 'POST', headers: notionHeaders(token), body: JSON.stringify(body),
+    });
+    if (!r.ok) throw { code: 'notion_query', status: r.status };
+    const d = await r.json();
+    for (const pg of d.results || []) {
+      const props = pg.properties || {};
+      for (const k in props) {
+        if (props[k] && props[k].type === 'email' && props[k].email) {
+          const key = String(props[k].email).trim().toLowerCase();
+          counts.set(key, (counts.get(key) || 0) + 1);
+          break;
+        }
+      }
+    }
+    cursor = d.has_more ? d.next_cursor : undefined;
+  } while (cursor);
+  return counts;
 }
 
 module.exports = async function handler(req, res) {
@@ -37,19 +73,30 @@ module.exports = async function handler(req, res) {
   const dbId = process.env.NOTION_MEXICO_DB_ID;
   if (!token || !dbId) return res.status(502).json({ ok: false, error: 'notion_not_configured' });
 
-  // Título del DB destino (para confirmar que es el correcto).
-  let dbTitle = null;
-  try {
-    const r = await fetch(`https://api.notion.com/v1/databases/${dbId}`, {
-      headers: { Authorization: `Bearer ${token}`, 'Notion-Version': '2022-06-28' },
-    });
-    if (r.ok) { const d = await r.json(); dbTitle = (d.title || []).map((t) => t.plain_text).join(''); }
-    else dbTitle = `error_http_${r.status}`;
-  } catch { dbTitle = 'error'; }
+  const title = await dbTitle(token, dbId);
 
   let leads = [];
-  try { leads = await listLeads(); } catch (e) {
-    return res.status(502).json({ ok: false, error: 'store_unavailable', dbTitle });
+  try { leads = await listLeads(); } catch {
+    return res.status(502).json({ ok: false, error: 'store_unavailable', dbTitle: title });
+  }
+
+  let existing;
+  try { existing = await dbEmailCounts(token, dbId); } catch (e) {
+    return res.status(502).json({ ok: false, error: 'notion_query_failed', detail: e && e.status, dbTitle: title });
+  }
+
+  // Duplicados YA presentes en el DB (correo repetido >1 vez).
+  const duplicatesInDb = [...existing.entries()].filter(([, n]) => n > 1).map(([email, n]) => ({ email, count: n }));
+
+  // Qué leads son nuevos (correo no presente en DB), deduplicando también dentro del batch.
+  const seenBatch = new Set();
+  const toInsert = [], alreadyInDb = [];
+  for (const l of leads) {
+    const key = String(l.email || '').trim().toLowerCase();
+    if (!key) continue;
+    if (existing.has(key) || seenBatch.has(key)) { alreadyInDb.push(l.email); continue; }
+    seenBatch.add(key);
+    toInsert.push(l);
   }
 
   const url = new URL(req.url, 'http://x');
@@ -57,18 +104,16 @@ module.exports = async function handler(req, res) {
 
   if (!doWrite) {
     return res.status(200).json({
-      ok: true, mode: 'inspect', dbTitle, leadCount: leads.length,
-      sample: leads.slice(0, 3).map((l) => ({ name: l.name, email: l.email })),
-      hint: 'Añade &do=1 para escribir en Notion.',
+      ok: true, mode: 'inspect', dbTitle: title,
+      leadsInRedis: leads.length, alreadyInNotion: alreadyInDb.length, wouldInsert: toInsert.length,
+      newEmails: toInsert.map((l) => l.email),
+      duplicatesInDb,
+      hint: 'Añade &do=1 para insertar los nuevos.',
     });
   }
 
-  // Escritura idempotente: salta correos ya sincronizados.
-  const c = await redis();
-  const inserted = [], skipped = [], failed = [];
-  for (const l of leads) {
-    const emailKey = (l.email || '').toLowerCase();
-    if (emailKey && await c.sIsMember('coparmex:synced', emailKey)) { skipped.push(l.email); continue; }
+  const inserted = [], failed = [];
+  for (const l of toInsert) {
     try {
       await createLeadPage('mexico', {
         name: l.name,
@@ -76,17 +121,16 @@ module.exports = async function handler(req, res) {
         question: '(registro/descarga desde landing Coparmex San Miguel el Alto)',
         summary: `Landing Coparmex · ${l.ts || ''}`,
       });
-      if (emailKey) await c.sAdd('coparmex:synced', emailKey);
       inserted.push(l.email);
     } catch (err) {
       failed.push({ email: l.email, error: (err && err.code) || 'error' });
     }
   }
-  await c.quit();
 
   return res.status(200).json({
-    ok: true, mode: 'sync', dbTitle,
-    total: leads.length, inserted: inserted.length, skipped: skipped.length, failed,
-    insertedEmails: inserted,
+    ok: true, mode: 'sync', dbTitle: title,
+    leadsInRedis: leads.length, skippedAlreadyInNotion: alreadyInDb.length,
+    inserted: inserted.length, insertedEmails: inserted, failed,
+    duplicatesInDb,
   });
 };
