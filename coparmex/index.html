@@ -110,12 +110,16 @@
   var user = null;
   try { user = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch(e){}
 
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
   function showB(){
     $('stateA').classList.add('hidden');
     $('stateB').classList.remove('hidden');
     var nm = (user && user.name) ? user.name : '';
-    $('hello').textContent = 'Gracias' + (nm ? ' ' + nm : '') +
-      ', aquí tienes la presentación completa. Cualquier consulta: info@thehagentic.com';
+    $('hello').innerHTML = 'Gracias' + (nm ? ' ' + esc(nm) : '') +
+      ', aquí tienes la presentación completa. Cualquier consulta: ' +
+      '<a href="mailto:ruth.anaya@thehagentic.com">ruth.anaya@thehagentic.com</a>';
     initPdf();
   }
 
