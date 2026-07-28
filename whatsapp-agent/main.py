@@ -1,70 +1,210 @@
 """
-Agente de ventas de WhatsApp — Dulces del Alto (DEMO).
+Agente de WhatsApp multi-cliente (multi-tenant).
 
-Stack: Python + FastAPI + OpenAI (gpt-4o, function calling + visión) +
-WhatsApp Cloud API (Graph v20.0) + SQLite (sqlite3 directo, sin ORM).
+Stack: Python + FastAPI + OpenAI (chat con function calling + visión +
+transcripción de audio) + WhatsApp Cloud API (Graph) + SQLite (sin ORM).
+
+Cada cliente vive en clients/<clave>/ con:
+    config.json    — phone_number_id, nombre, límites, datos del negocio
+    prompt.md      — system prompt del asistente
+    catalogo.json  — catálogo/menú consultable por la herramienta buscar_catalogo
+
+El enrutado es por `phone_number_id` del webhook de Meta
+(entry[].changes[].value.metadata.phone_number_id).
 
 Servicio autónomo. No toca la estructura Node/Vercel del repo.
 Corre con:  uvicorn main:app --host 0.0.0.0 --port 8000
 """
 
 import os
-import re
 import json
 import base64
 import sqlite3
 import logging
+import unicodedata
 from pathlib import Path
-from datetime import datetime, timezone
+from dataclasses import dataclass, field
+from datetime import datetime, timezone, date
 
 import httpx
-from fastapi import FastAPI, Request, Response, BackgroundTasks
+from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.responses import PlainTextResponse, HTMLResponse, JSONResponse
 
 # --------------------------------------------------------------------------- #
-# Config (todo por env)
+# Config global (todo por env). Lo específico de cada cliente va en su config.json
 # --------------------------------------------------------------------------- #
 BASE_DIR = Path(__file__).resolve().parent
+CLIENTS_DIR = BASE_DIR / "clients"
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")
+TRANSCRIBE_MODEL = os.getenv("TRANSCRIBE_MODEL", "whisper-1")
 
 # Nombres nuevos (WHATSAPP_*) con prioridad; fallback a los antiguos (WA_*)
 # para no romper .env existentes. Internamente se conservan los nombres WA_*.
 WA_ACCESS_TOKEN = os.getenv("WHATSAPP_TOKEN") or os.getenv("WA_ACCESS_TOKEN") or ""
-WA_PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID") or os.getenv("WA_PHONE_NUMBER_ID") or ""
 WA_VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN") or os.getenv("WA_VERIFY_TOKEN") or ""
-HUMAN_NOTIFY_WA = os.getenv("HUMAN_NOTIFY_WA", "")
+
+# phone_number_id global: ya NO se usa para enrutar ni enviar (eso sale de cada
+# config.json). Se conserva solo como fallback de envío si un cliente no lo trae.
+WA_PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID") or os.getenv("WA_PHONE_NUMBER_ID") or ""
 
 DB_PATH = os.getenv("DATABASE_PATH") or os.getenv("DB_PATH") or "demo.db"
-MAX_TURNS = int(os.getenv("MAX_TURNS", "14"))
 
-# Versión de Graph API por env, con default seguro.
+# Cliente a usar cuando el webhook no trae metadata.phone_number_id.
+# Si se omite y solo hay un cliente activo, se usa ese.
+DEFAULT_CLIENT = os.getenv("DEFAULT_CLIENT", "")
+
 WHATSAPP_API_VERSION = os.getenv("WHATSAPP_API_VERSION", "v20.0")
 GRAPH = f"https://graph.facebook.com/{WHATSAPP_API_VERSION}"
 
-# URL pública del túnel (solo informativa: se muestra en /health y root).
 PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "")
 
-HISTORY_LIMIT = 24        # mensajes de memoria por teléfono
-MAX_TOOL_ITERS = 5        # iteraciones del loop de function calling
+MAX_TOOL_ITERS = int(os.getenv("MAX_TOOL_ITERS", "6"))
+
+# --- Voz -------------------------------------------------------------------- #
+AUDIO_MAX_PER_DAY = int(os.getenv("AUDIO_MAX_PER_DAY", "5"))
+AUDIO_MAX_SECONDS = int(os.getenv("AUDIO_MAX_SECONDS", "120"))
+# Corte barato por tamaño antes de transcribir. Una nota de voz de WhatsApp
+# (opus ~16 kbps) pesa ~2 KB/s, así que 2 min ≈ 240 KB. Dejamos holgura x4 para
+# no rechazar audios legítimos grabados con otro códec; el corte fino por
+# duración real se hace después con la respuesta de la transcripción.
+AUDIO_MAX_BYTES = int(os.getenv("AUDIO_MAX_BYTES", str(1024 * 1024)))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-log = logging.getLogger("dulces-agent")
+log = logging.getLogger("wa-agent")
 
-app = FastAPI(title="Dulces del Alto — Agente WhatsApp (DEMO)")
-
-# --------------------------------------------------------------------------- #
-# Carga de catálogo + system prompt (editables sin tocar código)
-# --------------------------------------------------------------------------- #
-with open(BASE_DIR / "catalogo.json", encoding="utf-8") as f:
-    CATALOGO = json.load(f)
-
-SYSTEM_PROMPT = (BASE_DIR / "prompt_agente.md").read_text(encoding="utf-8")
+app = FastAPI(title="Agente WhatsApp multi-cliente")
 
 
 def now_iso() -> str:
     return datetime.now(timezone.utc).astimezone().isoformat()
+
+
+def today_str() -> str:
+    return date.today().isoformat()
+
+
+# --------------------------------------------------------------------------- #
+# Registro de clientes
+# --------------------------------------------------------------------------- #
+@dataclass
+class Client:
+    clave: str
+    nombre: str
+    activo: bool
+    phone_number_id: str
+    human_notify_wa: str
+    max_turns: int
+    memoria_mensajes: int
+    folio_prefix: str
+    modo: str
+    acento_panel: str
+    mensaje_cierre: str
+    datos: dict = field(default_factory=dict)
+    prompt: str = ""
+    catalogo: dict = field(default_factory=dict)
+
+    @property
+    def system_prompt(self) -> str:
+        """Prompt del cliente + bloque de datos del negocio (editable en config.json)."""
+        partes = [self.prompt.strip()]
+        if self.datos:
+            lineas = "\n".join(f"- {k}: {v}" for k, v in self.datos.items())
+            partes.append(
+                "## DATOS DEL NEGOCIO (fuente de verdad)\n"
+                f"{lineas}\n"
+                'REGLA DURA: si un dato contiene "REEMPLAZAR" o "PENDIENTE", todavía no está '
+                "confirmado. Nunca lo presentes como un hecho. Si el dato trae un valor "
+                "provisional puedes mencionarlo, pero SIEMPRE aclarando en la misma frase que "
+                "está por confirmar con el equipo. Si no trae valor, dilo y ofrece confirmarlo."
+            )
+        partes.append(f"Fecha y hora actual: {now_iso()}.")
+        return "\n\n".join(partes)
+
+
+def _load_one_client(folder: Path) -> Client:
+    cfg = json.loads((folder / "config.json").read_text(encoding="utf-8"))
+    prompt = (folder / "prompt.md").read_text(encoding="utf-8")
+    catalogo_path = folder / "catalogo.json"
+    catalogo = json.loads(catalogo_path.read_text(encoding="utf-8")) if catalogo_path.exists() else {}
+    clave = cfg.get("clave") or folder.name
+    return Client(
+        clave=clave,
+        nombre=cfg.get("nombre", clave),
+        activo=bool(cfg.get("activo", True)),
+        phone_number_id=str(cfg.get("phone_number_id", "")),
+        human_notify_wa=str(cfg.get("human_notify_wa", "")),
+        max_turns=int(cfg.get("max_turns", 14)),
+        memoria_mensajes=int(cfg.get("memoria_mensajes", 24)),
+        folio_prefix=cfg.get("folio_prefix", clave[:3].upper()),
+        modo=cfg.get("modo", "demo"),
+        acento_panel=cfg.get("acento_panel", "#ff4e1c"),
+        mensaje_cierre=cfg.get(
+            "mensaje_cierre",
+            "Por hoy aquí termina esta demo. ¡Gracias por escribir!",
+        ),
+        datos=cfg.get("datos") or {},
+        prompt=prompt,
+        catalogo=catalogo,
+    )
+
+
+def load_clients() -> tuple[dict[str, Client], dict[str, Client]]:
+    """Devuelve (por_clave, por_phone_number_id[solo activos])."""
+    por_clave: dict[str, Client] = {}
+    por_pnid: dict[str, Client] = {}
+    if not CLIENTS_DIR.exists():
+        log.error("No existe %s — no hay clientes configurados", CLIENTS_DIR)
+        return por_clave, por_pnid
+
+    for folder in sorted(p for p in CLIENTS_DIR.iterdir() if p.is_dir()):
+        if not (folder / "config.json").exists():
+            continue
+        try:
+            c = _load_one_client(folder)
+        except Exception:  # noqa: BLE001
+            log.exception("cliente %s: config inválida, se omite", folder.name)
+            continue
+        por_clave[c.clave] = c
+        if not c.activo:
+            log.info("cliente %s (%s) INACTIVO — no recibe tráfico", c.clave, c.nombre)
+            continue
+        if not c.phone_number_id:
+            log.error("cliente %s activo pero sin phone_number_id — no recibirá tráfico", c.clave)
+            continue
+        if c.phone_number_id in por_pnid:
+            # Dos clientes ACTIVOS con el mismo número: enrutar sería adivinar.
+            # Fallamos al arrancar en vez de mandar mensajes al cliente equivocado.
+            otro = por_pnid[c.phone_number_id]
+            raise RuntimeError(
+                f"phone_number_id duplicado entre clientes activos: "
+                f"'{otro.clave}' y '{c.clave}' comparten {c.phone_number_id}. "
+                f"Deja activo=true en solo uno de los dos."
+            )
+        por_pnid[c.phone_number_id] = c
+    return por_clave, por_pnid
+
+
+CLIENTS, CLIENTS_BY_PNID = load_clients()
+
+
+def resolve_client(phone_number_id: str | None) -> Client | None:
+    """
+    phone_number_id del webhook -> cliente.
+
+    Un phone_number_id PRESENTE pero desconocido NO cae al fallback: sería
+    contestar en nombre del cliente equivocado. El fallback existe solo para
+    payloads sin metadata (tests, herramientas de simulación).
+    """
+    if phone_number_id:
+        return CLIENTS_BY_PNID.get(phone_number_id)
+    if DEFAULT_CLIENT and DEFAULT_CLIENT in CLIENTS:
+        return CLIENTS[DEFAULT_CLIENT]
+    activos = [c for c in CLIENTS.values() if c.activo]
+    if len(activos) == 1:
+        return activos[0]
+    return None
 
 
 # --------------------------------------------------------------------------- #
@@ -77,6 +217,13 @@ def db() -> sqlite3.Connection:
     return conn
 
 
+LEGACY_CLIENT = os.getenv("LEGACY_CLIENT", "demo-dulces")
+
+
+def _cols(conn: sqlite3.Connection, table: str) -> set[str]:
+    return {r["name"] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()}
+
+
 def init_db() -> None:
     conn = db()
     conn.executescript(
@@ -86,19 +233,22 @@ def init_db() -> None:
             ts         TEXT
         );
         CREATE TABLE IF NOT EXISTS messages (
-            id    INTEGER PRIMARY KEY AUTOINCREMENT,
-            phone TEXT NOT NULL,
-            role  TEXT NOT NULL,
+            id      INTEGER PRIMARY KEY AUTOINCREMENT,
+            client  TEXT NOT NULL DEFAULT '',
+            phone   TEXT NOT NULL,
+            role    TEXT NOT NULL,
             content TEXT NOT NULL,
-            ts    TEXT NOT NULL
+            ts      TEXT NOT NULL
         );
-        CREATE INDEX IF NOT EXISTS idx_messages_phone ON messages(phone, id);
         CREATE TABLE IF NOT EXISTS sessions (
-            phone TEXT PRIMARY KEY,
-            turns INTEGER NOT NULL DEFAULT 0
+            client TEXT NOT NULL DEFAULT '',
+            phone  TEXT NOT NULL,
+            turns  INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (client, phone)
         );
         CREATE TABLE IF NOT EXISTS leads (
             id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            client        TEXT NOT NULL DEFAULT '',
             ts            TEXT NOT NULL,
             phone         TEXT NOT NULL,
             tipo          TEXT NOT NULL,
@@ -107,6 +257,45 @@ def init_db() -> None:
             total         REAL,
             folio         TEXT
         );
+        CREATE TABLE IF NOT EXISTS audio_usage (
+            client TEXT NOT NULL,
+            phone  TEXT NOT NULL,
+            dia    TEXT NOT NULL,
+            n      INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (client, phone, dia)
+        );
+        """
+    )
+
+    # --- migración de DBs creadas antes del multi-cliente -------------------- #
+    if "client" not in _cols(conn, "messages"):
+        conn.execute(f"ALTER TABLE messages ADD COLUMN client TEXT NOT NULL DEFAULT '{LEGACY_CLIENT}'")
+        log.info("migración: messages.client añadida (filas viejas -> %s)", LEGACY_CLIENT)
+    if "client" not in _cols(conn, "leads"):
+        conn.execute(f"ALTER TABLE leads ADD COLUMN client TEXT NOT NULL DEFAULT '{LEGACY_CLIENT}'")
+        log.info("migración: leads.client añadida (filas viejas -> %s)", LEGACY_CLIENT)
+    if "client" not in _cols(conn, "sessions"):
+        # sessions tenía PRIMARY KEY(phone); hay que reconstruir la tabla.
+        conn.executescript(
+            f"""
+            ALTER TABLE sessions RENAME TO sessions_old;
+            CREATE TABLE sessions (
+                client TEXT NOT NULL DEFAULT '',
+                phone  TEXT NOT NULL,
+                turns  INTEGER NOT NULL DEFAULT 0,
+                PRIMARY KEY (client, phone)
+            );
+            INSERT INTO sessions(client, phone, turns)
+                SELECT '{LEGACY_CLIENT}', phone, turns FROM sessions_old;
+            DROP TABLE sessions_old;
+            """
+        )
+        log.info("migración: sessions reconstruida con PK(client, phone)")
+
+    conn.executescript(
+        """
+        CREATE INDEX IF NOT EXISTS idx_messages_client_phone ON messages(client, phone, id);
+        CREATE INDEX IF NOT EXISTS idx_leads_client ON leads(client, id);
         """
     )
     conn.commit()
@@ -117,36 +306,37 @@ init_db()
 
 
 # ---- memoria / sesión ------------------------------------------------------ #
-def load_history(phone: str) -> list[dict]:
+def load_history(client: str, phone: str, limit: int) -> list[dict]:
     conn = db()
     rows = conn.execute(
-        "SELECT role, content FROM messages WHERE phone=? ORDER BY id DESC LIMIT ?",
-        (phone, HISTORY_LIMIT),
+        "SELECT role, content FROM messages WHERE client=? AND phone=? ORDER BY id DESC LIMIT ?",
+        (client, phone, limit),
     ).fetchall()
     conn.close()
     return [{"role": r["role"], "content": r["content"]} for r in reversed(rows)]
 
 
-def save_message(phone: str, role: str, content: str) -> None:
+def save_message(client: str, phone: str, role: str, content: str) -> None:
     conn = db()
     conn.execute(
-        "INSERT INTO messages(phone, role, content, ts) VALUES (?,?,?,?)",
-        (phone, role, content, now_iso()),
+        "INSERT INTO messages(client, phone, role, content, ts) VALUES (?,?,?,?,?)",
+        (client, phone, role, content, now_iso()),
     )
     conn.commit()
     conn.close()
 
 
-def bump_turn(phone: str) -> int:
-    """Incrementa y devuelve el número de turno del usuario."""
+def bump_turn(client: str, phone: str) -> int:
     conn = db()
     conn.execute(
-        "INSERT INTO sessions(phone, turns) VALUES (?, 1) "
-        "ON CONFLICT(phone) DO UPDATE SET turns = turns + 1",
-        (phone,),
+        "INSERT INTO sessions(client, phone, turns) VALUES (?,?,1) "
+        "ON CONFLICT(client, phone) DO UPDATE SET turns = turns + 1",
+        (client, phone),
     )
     conn.commit()
-    turns = conn.execute("SELECT turns FROM sessions WHERE phone=?", (phone,)).fetchone()["turns"]
+    turns = conn.execute(
+        "SELECT turns FROM sessions WHERE client=? AND phone=?", (client, phone)
+    ).fetchone()["turns"]
     conn.close()
     return turns
 
@@ -163,12 +353,12 @@ def already_seen(message_id: str) -> bool:
     return seen
 
 
-def log_lead(phone: str, tipo: str, clasificacion=None, resumen=None, total=None, folio=None) -> int:
+def log_lead(client: str, phone: str, tipo: str, clasificacion=None, resumen=None, total=None, folio=None) -> int:
     conn = db()
     cur = conn.execute(
-        "INSERT INTO leads(ts, phone, tipo, clasificacion, resumen, total, folio) "
-        "VALUES (?,?,?,?,?,?,?)",
-        (now_iso(), phone, tipo, clasificacion, resumen, total, folio),
+        "INSERT INTO leads(client, ts, phone, tipo, clasificacion, resumen, total, folio) "
+        "VALUES (?,?,?,?,?,?,?,?)",
+        (client, now_iso(), phone, tipo, clasificacion, resumen, total, folio),
     )
     conn.commit()
     lead_id = cur.lastrowid
@@ -176,35 +366,87 @@ def log_lead(phone: str, tipo: str, clasificacion=None, resumen=None, total=None
     return lead_id
 
 
+def bump_audio_usage(client: str, phone: str) -> int:
+    """Incrementa y devuelve cuántos audios lleva hoy este teléfono."""
+    conn = db()
+    conn.execute(
+        "INSERT INTO audio_usage(client, phone, dia, n) VALUES (?,?,?,1) "
+        "ON CONFLICT(client, phone, dia) DO UPDATE SET n = n + 1",
+        (client, phone, today_str()),
+    )
+    conn.commit()
+    n = conn.execute(
+        "SELECT n FROM audio_usage WHERE client=? AND phone=? AND dia=?",
+        (client, phone, today_str()),
+    ).fetchone()["n"]
+    conn.close()
+    return n
+
+
 # --------------------------------------------------------------------------- #
 # Herramientas (function calling)
 # --------------------------------------------------------------------------- #
-def tool_buscar_catalogo(consulta: str) -> dict:
-    q = (consulta or "").strip().lower()
-    matches = []
-    for p in CATALOGO["productos"]:
-        haystack = f'{p["nombre"]} {p["categoria"]} {p["sku"]}'.lower()
-        if not q or all(tok in haystack for tok in q.split()):
+def _norm(s: str) -> str:
+    """Minúsculas sin acentos: 'Café' y 'cafe' deben empatar."""
+    return "".join(
+        c for c in unicodedata.normalize("NFD", str(s).lower())
+        if unicodedata.category(c) != "Mn"
+    )
+
+
+def _variantes(token: str) -> list[str]:
+    """Token + formas sin plural ('cafes'->'cafe', 'frappes'->'frappe')."""
+    v = [token]
+    if len(token) > 4 and token.endswith("es"):
+        v.append(token[:-2])
+    if len(token) > 3 and token.endswith("s"):
+        v.append(token[:-1])
+    return v
+
+
+def tool_buscar_catalogo(client: Client, consulta: str) -> dict:
+    cat = client.catalogo or {}
+    productos = cat.get("productos", [])
+    tokens = [_norm(t) for t in (consulta or "").split() if t.strip()]
+    matches: list[dict] = []
+
+    def hay(p: dict) -> str:
+        campos = [str(p.get(k, "")) for k in ("nombre", "categoria", "sku", "descripcion")]
+        campos += [str(x) for x in (p.get("opciones") or []) + (p.get("tamanos") or []) + (p.get("extras") or [])]
+        return _norm(" ".join(campos))
+
+    def coincide(tok: str, texto: str) -> bool:
+        return any(v in texto for v in _variantes(tok))
+
+    for p in productos:
+        texto = hay(p)
+        if not tokens or all(coincide(t, texto) for t in tokens):
             matches.append(p)
-        if len(matches) >= 6:
+        if len(matches) >= 12:
             break
     # fallback: si el AND por tokens no encontró nada, prueba OR laxo
-    if not matches and q:
-        for p in CATALOGO["productos"]:
-            haystack = f'{p["nombre"]} {p["categoria"]} {p["sku"]}'.lower()
-            if any(tok in haystack for tok in q.split()):
+    if not matches and tokens:
+        for p in productos:
+            texto = hay(p)
+            if any(coincide(t, texto) for t in tokens):
                 matches.append(p)
-            if len(matches) >= 6:
+            if len(matches) >= 12:
                 break
-    return {
-        "moneda": CATALOGO["moneda"],
-        "envios": CATALOGO["envios"],
+
+    out = {
+        "negocio": cat.get("negocio", client.nombre),
+        "moneda": cat.get("moneda", "MXN"),
         "coincidencias": matches,
         "total_coincidencias": len(matches),
     }
+    # Metadatos opcionales del catálogo (varían por cliente).
+    for k in ("envios", "pagos", "info", "extras", "estado_menu", "notas_precios", "horario_humano"):
+        if k in cat:
+            out[k] = cat[k]
+    return out
 
 
-def tool_registrar_pedido(phone: str, clasificacion: str, resumen: str, total=None) -> dict:
+def tool_registrar_pedido(client: Client, phone: str, clasificacion: str, resumen: str, total=None) -> dict:
     valid = {"pedido", "cotizacion", "duda", "lead_caliente"}
     if clasificacion not in valid:
         clasificacion = "duda"
@@ -212,8 +454,8 @@ def tool_registrar_pedido(phone: str, clasificacion: str, resumen: str, total=No
         total_val = float(total) if total is not None else None
     except (TypeError, ValueError):
         total_val = None
-    lead_id = log_lead(phone, clasificacion, clasificacion, resumen, total_val)
-    folio = f"DA-{lead_id:04d}"
+    lead_id = log_lead(client.clave, phone, clasificacion, clasificacion, resumen, total_val)
+    folio = f"{client.folio_prefix}-{lead_id:04d}"
     conn = db()
     conn.execute("UPDATE leads SET folio=? WHERE id=?", (folio, lead_id))
     conn.commit()
@@ -221,16 +463,17 @@ def tool_registrar_pedido(phone: str, clasificacion: str, resumen: str, total=No
     return {"folio": folio, "clasificacion": clasificacion, "total": total_val}
 
 
-async def tool_escalar_humano(phone: str, motivo: str) -> dict:
-    log_lead(phone, "escalado", "lead_caliente", motivo, None, None)
+async def tool_escalar_humano(client: Client, phone: str, motivo: str) -> dict:
+    log_lead(client.clave, phone, "escalado", "lead_caliente", motivo, None, None)
+    modo = f" ({client.modo.upper()})" if client.modo else ""
     aviso = (
-        f"🚨 Escalamiento Dulces del Alto (DEMO)\n"
+        f"🚨 Escalamiento {client.nombre}{modo}\n"
         f"Cliente: +{phone}\n"
         f"Motivo: {motivo}"
     )
     entregado = False
-    if HUMAN_NOTIFY_WA:
-        entregado = await send_whatsapp_text(HUMAN_NOTIFY_WA, aviso)
+    if client.human_notify_wa:
+        entregado = await send_whatsapp_text(client, client.human_notify_wa, aviso)
     return {"escalado": True, "notificado_a_humano": entregado, "motivo": motivo}
 
 
@@ -240,14 +483,14 @@ TOOLS = [
         "function": {
             "name": "buscar_catalogo",
             "description": (
-                "Busca productos en el catálogo por nombre, categoría o SKU. "
-                "DEBES llamarla antes de dar cualquier precio o stock. "
-                "Devuelve hasta 6 coincidencias con precios de menudeo/mayoreo y stock."
+                "Busca en el catálogo/menú del negocio por nombre, categoría o SKU. "
+                "DEBES llamarla antes de mencionar cualquier producto, precio o disponibilidad. "
+                "Nunca respondas de memoria."
             ),
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "consulta": {"type": "string", "description": "Texto a buscar (producto, categoría o sku)."}
+                    "consulta": {"type": "string", "description": "Texto a buscar (producto, categoría o sku). Vacío = todo."}
                 },
                 "required": ["consulta"],
             },
@@ -257,7 +500,7 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "registrar_pedido",
-            "description": "Registra un pedido/cotización/lead y devuelve un folio DA-XXXX.",
+            "description": "Registra un pedido/cotización/lead y devuelve un folio. Úsala solo cuando ya tengas el pedido completo.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -265,8 +508,11 @@ TOOLS = [
                         "type": "string",
                         "enum": ["pedido", "cotizacion", "duda", "lead_caliente"],
                     },
-                    "resumen": {"type": "string", "description": "Resumen breve del pedido/consulta."},
-                    "total": {"type": "number", "description": "Total estimado en MXN si aplica."},
+                    "resumen": {
+                        "type": "string",
+                        "description": "Resumen del pedido: productos, cantidades, nombre de quien recoge y hora de recolección si aplica.",
+                    },
+                    "total": {"type": "number", "description": "Total estimado en MXN si se conoce."},
                 },
                 "required": ["clasificacion", "resumen"],
             },
@@ -276,7 +522,7 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "escalar_humano",
-            "description": "Escala a un humano y notifica al equipo por WhatsApp.",
+            "description": "Escala a una persona del equipo y la notifica por WhatsApp.",
             "parameters": {
                 "type": "object",
                 "properties": {"motivo": {"type": "string", "description": "Por qué se escala."}},
@@ -287,16 +533,16 @@ TOOLS = [
 ]
 
 
-async def dispatch_tool(phone: str, name: str, args: dict) -> dict:
+async def dispatch_tool(client: Client, phone: str, name: str, args: dict) -> dict:
     try:
         if name == "buscar_catalogo":
-            return tool_buscar_catalogo(args.get("consulta", ""))
+            return tool_buscar_catalogo(client, args.get("consulta", ""))
         if name == "registrar_pedido":
             return tool_registrar_pedido(
-                phone, args.get("clasificacion", "duda"), args.get("resumen", ""), args.get("total")
+                client, phone, args.get("clasificacion", "duda"), args.get("resumen", ""), args.get("total")
             )
         if name == "escalar_humano":
-            return await tool_escalar_humano(phone, args.get("motivo", ""))
+            return await tool_escalar_humano(client, phone, args.get("motivo", ""))
         return {"error": f"herramienta desconocida: {name}"}
     except Exception as e:  # noqa: BLE001
         log.exception("tool %s falló", name)
@@ -307,8 +553,8 @@ async def dispatch_tool(phone: str, name: str, args: dict) -> dict:
 # OpenAI (REST directo vía httpx — sin SDK extra)
 # --------------------------------------------------------------------------- #
 async def openai_chat(messages: list[dict]) -> dict:
-    async with httpx.AsyncClient(timeout=60) as client:
-        r = await client.post(
+    async with httpx.AsyncClient(timeout=60) as http:
+        r = await http.post(
             "https://api.openai.com/v1/chat/completions",
             headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
             json={"model": OPENAI_MODEL, "messages": messages, "tools": TOOLS, "temperature": 0.4},
@@ -317,15 +563,40 @@ async def openai_chat(messages: list[dict]) -> dict:
         return r.json()
 
 
-async def run_agent(phone: str, user_content, memory_text: str) -> str:
+async def openai_transcribe(audio: bytes, mime: str) -> dict:
+    """Transcribe audio con OpenAI. Devuelve el JSON crudo de la API."""
+    ext = {
+        "audio/ogg": "ogg", "audio/opus": "ogg", "audio/mpeg": "mp3", "audio/mp4": "m4a",
+        "audio/mp4a-latm": "m4a", "audio/aac": "m4a", "audio/amr": "amr", "audio/wav": "wav",
+        "audio/x-wav": "wav", "audio/webm": "webm",
+    }.get(mime.split(";")[0].strip().lower(), "ogg")
+
+    data = {"model": TRANSCRIBE_MODEL, "language": "es"}
+    # whisper-1 soporta verbose_json (trae duración real). Los modelos
+    # gpt-4o-*-transcribe solo soportan json/text.
+    if TRANSCRIBE_MODEL == "whisper-1":
+        data["response_format"] = "verbose_json"
+
+    async with httpx.AsyncClient(timeout=120) as http:
+        r = await http.post(
+            "https://api.openai.com/v1/audio/transcriptions",
+            headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
+            data=data,
+            files={"file": (f"audio.{ext}", audio, mime.split(";")[0].strip() or "audio/ogg")},
+        )
+        r.raise_for_status()
+        return r.json()
+
+
+async def run_agent(client: Client, phone: str, user_content, memory_text: str) -> str:
     """
     user_content: string (texto) o lista de partes (visión).
     memory_text : representación en texto para persistir en memoria.
     """
-    history = load_history(phone)
-    messages = [{"role": "system", "content": SYSTEM_PROMPT}] + history
+    history = load_history(client.clave, phone, client.memoria_mensajes)
+    messages = [{"role": "system", "content": client.system_prompt}] + history
     messages.append({"role": "user", "content": user_content})
-    save_message(phone, "user", memory_text)
+    save_message(client.clave, phone, "user", memory_text)
 
     final_text = ""
     for _ in range(MAX_TOOL_ITERS):
@@ -344,30 +615,30 @@ async def run_agent(phone: str, user_content, memory_text: str) -> str:
                 args = json.loads(tc["function"].get("arguments") or "{}")
             except json.JSONDecodeError:
                 args = {}
-            result = await dispatch_tool(phone, fn, args)
+            result = await dispatch_tool(client, phone, fn, args)
             messages.append(
                 {"role": "tool", "tool_call_id": tc["id"], "content": json.dumps(result, ensure_ascii=False)}
             )
     else:
-        # se agotaron las iteraciones sin respuesta final
         final_text = final_text or "Permíteme confirmar ese dato y te respondo enseguida. 🙌"
 
     if not final_text:
         final_text = "¿Me repites por favor? No te entendí bien."
-    save_message(phone, "assistant", final_text)
+    save_message(client.clave, phone, "assistant", final_text)
     return final_text
 
 
 # --------------------------------------------------------------------------- #
 # WhatsApp Cloud API
 # --------------------------------------------------------------------------- #
-async def send_whatsapp_text(to: str, body: str) -> bool:
-    if not (WA_ACCESS_TOKEN and WA_PHONE_NUMBER_ID):
+async def send_whatsapp_text(client: Client, to: str, body: str) -> bool:
+    pnid = client.phone_number_id or WA_PHONE_NUMBER_ID
+    if not (WA_ACCESS_TOKEN and pnid):
         log.warning("WA no configurado; no se envía a %s: %s", to, body[:80])
         return False
-    async with httpx.AsyncClient(timeout=30) as client:
-        r = await client.post(
-            f"{GRAPH}/{WA_PHONE_NUMBER_ID}/messages",
+    async with httpx.AsyncClient(timeout=30) as http:
+        r = await http.post(
+            f"{GRAPH}/{pnid}/messages",
             headers={"Authorization": f"Bearer {WA_ACCESS_TOKEN}"},
             json={
                 "messaging_product": "whatsapp",
@@ -378,25 +649,88 @@ async def send_whatsapp_text(to: str, body: str) -> bool:
             },
         )
         if r.status_code >= 400:
-            log.error("WA send falló %s: %s", r.status_code, r.text)
+            log.error("WA send falló %s -> %s: %s", to, r.status_code, r.text)
             return False
     return True
 
 
-async def download_media_b64(media_id: str) -> tuple[str, str]:
-    """Descarga media de Graph y devuelve (data_uri_base64, mime)."""
-    async with httpx.AsyncClient(timeout=60) as client:
-        meta = await client.get(
+async def download_media(media_id: str) -> tuple[bytes, str, int]:
+    """Descarga media de Graph. Devuelve (bytes, mime, file_size_declarado)."""
+    async with httpx.AsyncClient(timeout=90) as http:
+        meta = await http.get(
             f"{GRAPH}/{media_id}",
             headers={"Authorization": f"Bearer {WA_ACCESS_TOKEN}"},
         )
         meta.raise_for_status()
         info = meta.json()
-        url, mime = info["url"], info.get("mime_type", "image/jpeg")
-        media = await client.get(url, headers={"Authorization": f"Bearer {WA_ACCESS_TOKEN}"})
+        url = info["url"]
+        mime = info.get("mime_type", "application/octet-stream")
+        size = int(info.get("file_size") or 0)
+        media = await http.get(url, headers={"Authorization": f"Bearer {WA_ACCESS_TOKEN}"})
         media.raise_for_status()
-        b64 = base64.b64encode(media.content).decode()
-    return f"data:{mime};base64,{b64}", mime
+    return media.content, mime, size
+
+
+async def download_media_b64(media_id: str) -> tuple[str, str]:
+    """Igual que download_media pero como data URI (para visión)."""
+    content, mime, _ = await download_media(media_id)
+    if mime == "application/octet-stream":
+        mime = "image/jpeg"
+    return f"data:{mime};base64,{base64.b64encode(content).decode()}", mime
+
+
+# --------------------------------------------------------------------------- #
+# Voz: audio entrante -> transcripción -> agente
+# --------------------------------------------------------------------------- #
+PEDIR_TEXTO_LARGO = (
+    "Ese audio está un poco largo para mí 🙈 ¿Me lo mandas por escrito, "
+    "o en una nota de voz más cortita (menos de 2 minutos)?"
+)
+PEDIR_TEXTO_FALLO = (
+    "No logré escuchar bien tu nota de voz. ¿Me escribes tu mensaje por texto, por favor?"
+)
+PEDIR_TEXTO_LIMITE = (
+    "Por hoy ya no puedo procesar más notas de voz. ¿Me escribes tu mensaje por texto? "
+    "Con gusto te sigo atendiendo por ahí."
+)
+
+
+async def transcribir_audio(client: Client, phone: str, media_id: str) -> tuple[str | None, str]:
+    """
+    Devuelve (texto_transcrito, motivo). Si texto es None, `motivo` es el mensaje
+    que hay que enviarle al cliente.
+    """
+    usados = bump_audio_usage(client.clave, phone)
+    if usados > AUDIO_MAX_PER_DAY:
+        log.info("audio: %s/%s superó el límite diario (%s)", client.clave, phone, AUDIO_MAX_PER_DAY)
+        return None, PEDIR_TEXTO_LIMITE
+
+    try:
+        content, mime, size = await download_media(media_id)
+    except Exception:  # noqa: BLE001
+        log.exception("audio: fallo descargando media %s", media_id)
+        return None, PEDIR_TEXTO_FALLO
+
+    peso = size or len(content)
+    if peso > AUDIO_MAX_BYTES:
+        log.info("audio: %s bytes supera AUDIO_MAX_BYTES=%s", peso, AUDIO_MAX_BYTES)
+        return None, PEDIR_TEXTO_LARGO
+
+    try:
+        data = await openai_transcribe(content, mime)
+    except Exception:  # noqa: BLE001
+        log.exception("audio: fallo transcribiendo con %s", TRANSCRIBE_MODEL)
+        return None, PEDIR_TEXTO_FALLO
+
+    dur = data.get("duration")
+    if dur is not None and float(dur) > AUDIO_MAX_SECONDS:
+        log.info("audio: duración %.1fs supera AUDIO_MAX_SECONDS=%s", float(dur), AUDIO_MAX_SECONDS)
+        return None, PEDIR_TEXTO_LARGO
+
+    texto = (data.get("text") or "").strip()
+    if not texto:
+        return None, PEDIR_TEXTO_FALLO
+    return texto, ""
 
 
 # --------------------------------------------------------------------------- #
@@ -410,40 +744,44 @@ async def verify(request: Request):
     return PlainTextResponse("forbidden", status_code=403)
 
 
-CLOSING_MSG = (
-    "¡Gracias por probar la demo de Dulces del Alto! 🍬 "
-    "Aquí termina este recorrido de muestra. Si quieres seguir, escríbenos de nuevo."
-)
-
-
 @app.post("/webhook")
 async def incoming(request: Request, background_tasks: BackgroundTasks):
     # CRÍTICO: devolver 200 a Meta al instante. OpenAI+envío tardan segundos;
     # si Meta no ve 200 en ~5s reintenta y puede desactivar el webhook.
-    # Parseo rápido aquí; el trabajo pesado va a background.
+    # Parseo rápido + enrutado aquí; el trabajo pesado va a background.
     try:
         payload = await request.json()
         for entry in payload.get("entry", []):
             for change in entry.get("changes", []):
                 value = change.get("value", {})
-                # Estados de entrega (sent/delivered/read): registrar y no procesar.
+                pnid = (value.get("metadata") or {}).get("phone_number_id")
+
                 for st in value.get("statuses", []):
                     log.info("status wamid=%s -> %s", st.get("id", "?"), st.get("status", "?"))
-                # Mensajes entrantes: dedup síncrono aquí (antes de encolar) para
-                # que un reintento de Meta no encole el mismo mensaje dos veces;
-                # el procesamiento (OpenAI + envío) va a background.
-                for m in value.get("messages", []):
+
+                mensajes = value.get("messages", [])
+                if not mensajes:
+                    continue
+
+                client = resolve_client(pnid)
+                if client is None:
+                    log.error("webhook sin cliente para phone_number_id=%s — se ignoran %d mensajes", pnid, len(mensajes))
+                    continue
+
+                # Dedup síncrono ANTES de encolar: un reintento de Meta no debe
+                # encolar el mismo mensaje dos veces.
+                for m in mensajes:
                     mid = m.get("id", "")
                     if mid and already_seen(mid):
                         log.info("dedup: mensaje %s ya visto, se ignora", mid)
                         continue
-                    background_tasks.add_task(handle_message, m)
+                    background_tasks.add_task(handle_message, client, m)
     except Exception:  # noqa: BLE001
         log.exception("error procesando webhook")
     return JSONResponse({"status": "ok"})
 
 
-async def handle_message(m: dict) -> None:
+async def handle_message(client: Client, m: dict) -> None:
     # Nota: dedup ya se hizo en incoming() antes de encolar esta tarea.
     phone = m.get("from", "")
     if not phone:
@@ -451,82 +789,116 @@ async def handle_message(m: dict) -> None:
 
     mtype = m.get("type", "unknown")
 
-    # límite de turnos de la demo
-    turns = bump_turn(phone)
-    if turns > MAX_TURNS:
-        log_lead(phone, "mensaje", None, f"[límite {MAX_TURNS} turnos alcanzado]", None)
-        await send_whatsapp_text(phone, CLOSING_MSG)
+    turns = bump_turn(client.clave, phone)
+    if turns > client.max_turns:
+        log_lead(client.clave, phone, "mensaje", None, f"[límite {client.max_turns} turnos alcanzado]", None)
+        await send_whatsapp_text(client, phone, client.mensaje_cierre)
         return
 
     try:
         if mtype == "text":
             body = m["text"]["body"]
-            log_lead(phone, "mensaje", None, body[:200], None)
-            reply = await run_agent(phone, body, body)
-            await send_whatsapp_text(phone, reply)
+            log_lead(client.clave, phone, "mensaje", None, body[:200], None)
+            reply = await run_agent(client, phone, body, body)
+            await send_whatsapp_text(client, phone, reply)
+
+        elif mtype in ("audio", "voice"):
+            log_lead(client.clave, phone, "mensaje", None, "[audio]", None)
+            media_id = (m.get(mtype) or {}).get("id", "")
+            texto, aviso = await transcribir_audio(client, phone, media_id)
+            if texto is None:
+                await send_whatsapp_text(client, phone, aviso)
+                return
+            log.info("audio transcrito (%s/%s): %s", client.clave, phone, texto[:120])
+            log_lead(client.clave, phone, "mensaje", None, f"[audio] {texto}"[:200], None)
+            marcado = f"[Audio transcrito]: {texto}"
+            reply = await run_agent(client, phone, marcado, marcado)
+            await send_whatsapp_text(client, phone, reply)
 
         elif mtype == "image":
             caption = m["image"].get("caption", "")
-            log_lead(phone, "mensaje", None, f"[imagen] {caption}".strip()[:200], None)
+            log_lead(client.clave, phone, "mensaje", None, f"[imagen] {caption}".strip()[:200], None)
             data_uri, _ = await download_media_b64(m["image"]["id"])
             parts = [
-                {"type": "text", "text": caption or "Identifica este dulce y sugiere el más parecido del catálogo."},
+                {"type": "text", "text": caption or "Identifica lo que aparece en la foto y relaciónalo con el catálogo."},
                 {"type": "image_url", "image_url": {"url": data_uri}},
             ]
-            reply = await run_agent(phone, parts, f"[imagen] {caption}".strip())
-            await send_whatsapp_text(phone, reply)
+            reply = await run_agent(client, phone, parts, f"[imagen] {caption}".strip())
+            await send_whatsapp_text(client, phone, reply)
 
         else:
-            # audio, sticker, ubicación, etc.
-            log_lead(phone, "mensaje", None, f"[{mtype}]", None)
+            # sticker, ubicación, contacto, documento, etc.
+            log_lead(client.clave, phone, "mensaje", None, f"[{mtype}]", None)
             await send_whatsapp_text(
+                client,
                 phone,
-                "Por ahora solo puedo leer *texto* (y fotos de producto). "
-                "¿Me escribes tu consulta en un mensaje? 🙏",
+                "Por ahora puedo leer *texto*, *notas de voz* y *fotos*. "
+                "¿Me escribes tu consulta? 🙏",
             )
     except Exception:  # noqa: BLE001
-        log.exception("error atendiendo mensaje de %s", phone)
-        await send_whatsapp_text(phone, "Tuvimos un detalle técnico. ¿Me repites tu mensaje?")
+        log.exception("error atendiendo mensaje de %s (%s)", phone, client.clave)
+        await send_whatsapp_text(client, phone, "Tuvimos un detalle técnico. ¿Me repites tu mensaje?")
 
 
 # --------------------------------------------------------------------------- #
 # Panel para proyector
 # --------------------------------------------------------------------------- #
 @app.get("/leads", response_class=HTMLResponse)
-async def panel():
+async def panel(client: str = ""):
+    sel = CLIENTS.get(client)
+    acento = sel.acento_panel if sel else "#ff4e1c"
+    titulo = sel.nombre if sel else "Todos los clientes"
+
     conn = db()
-    total_eventos = conn.execute("SELECT COUNT(*) c FROM leads").fetchone()["c"]
-    contactos = conn.execute("SELECT COUNT(DISTINCT phone) c FROM leads").fetchone()["c"]
-    rows = conn.execute("SELECT * FROM leads ORDER BY id DESC LIMIT 200").fetchall()
+    if client:
+        total_eventos = conn.execute("SELECT COUNT(*) c FROM leads WHERE client=?", (client,)).fetchone()["c"]
+        contactos = conn.execute("SELECT COUNT(DISTINCT phone) c FROM leads WHERE client=?", (client,)).fetchone()["c"]
+        rows = conn.execute("SELECT * FROM leads WHERE client=? ORDER BY id DESC LIMIT 200", (client,)).fetchall()
+    else:
+        total_eventos = conn.execute("SELECT COUNT(*) c FROM leads").fetchone()["c"]
+        contactos = conn.execute("SELECT COUNT(DISTINCT phone) c FROM leads").fetchone()["c"]
+        rows = conn.execute("SELECT * FROM leads ORDER BY id DESC LIMIT 200").fetchall()
     conn.close()
 
     def td(x):
         return "" if x is None else str(x)
+
+    def esc(x):
+        return td(x).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
     trs = ""
     for r in rows:
         hora = td(r["ts"])[11:19]
         tel4 = td(r["phone"])[-4:]
         total = f'${r["total"]:,.2f}' if r["total"] is not None else ""
-        resumen = (td(r["resumen"])[:80]).replace("<", "&lt;").replace(">", "&gt;")
         trs += (
-            f"<tr><td>{hora}</td><td>…{tel4}</td><td>{td(r['tipo'])}</td>"
-            f"<td>{td(r['clasificacion'])}</td><td class='res'>{resumen}</td>"
+            f"<tr><td>{hora}</td><td>{esc(r['client'])}</td><td>…{tel4}</td><td>{esc(r['tipo'])}</td>"
+            f"<td>{esc(r['clasificacion'])}</td><td>{esc(r['folio'])}</td>"
+            f"<td class='res'>{esc(td(r['resumen'])[:80])}</td>"
             f"<td class='num'>{total}</td></tr>"
         )
+
+    tabs = f'<a href="/leads" class="{"on" if not client else ""}">Todos</a>'
+    for c in CLIENTS.values():
+        estado = "" if c.activo else " ·inactivo"
+        tabs += f'<a href="/leads?client={c.clave}" class="{"on" if client == c.clave else ""}">{esc(c.nombre)}{estado}</a>'
 
     html = f"""<!doctype html><html lang="es"><head>
 <meta charset="utf-8"><meta http-equiv="refresh" content="5">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dulces del Alto — Leads en vivo</title>
+<title>{esc(titulo)} — Leads en vivo</title>
 <style>
-  :root {{ --bg:#0b0b0d; --accent:#ff4e1c; --fg:#f2f2f4; --muted:#8a8a92; --line:#1e1e22; }}
+  :root {{ --bg:#0b0b0d; --accent:{acento}; --fg:#f2f2f4; --muted:#8a8a92; --line:#1e1e22; }}
   * {{ box-sizing:border-box; }}
   body {{ margin:0; background:var(--bg); color:var(--fg);
     font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; padding:32px; }}
   h1 {{ margin:0 0 4px; font-size:20px; letter-spacing:.5px; }}
   h1 span {{ color:var(--accent); }}
-  .sub {{ color:var(--muted); margin-bottom:28px; font-size:13px; }}
+  .sub {{ color:var(--muted); margin-bottom:20px; font-size:13px; }}
+  .tabs {{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:28px; }}
+  .tabs a {{ color:var(--muted); text-decoration:none; border:1px solid var(--line);
+    padding:6px 14px; border-radius:999px; font-size:13px; }}
+  .tabs a.on {{ color:#0b0b0d; background:var(--accent); border-color:var(--accent); font-weight:600; }}
   .cards {{ display:flex; gap:24px; margin-bottom:32px; flex-wrap:wrap; }}
   .card {{ background:#131316; border:1px solid var(--line); border-radius:16px;
     padding:24px 32px; min-width:220px; }}
@@ -540,16 +912,17 @@ async def panel():
   td.res {{ color:#cfcfd4; }}
   tr:hover td {{ background:#141418; }}
 </style></head><body>
-  <h1>Dulces del <span>Alto</span> — leads en vivo</h1>
-  <div class="sub">Demo · Hundred Agents · auto-refresh 5s · {now_iso()[11:19]}</div>
+  <h1>{esc(titulo)} — <span>leads en vivo</span></h1>
+  <div class="sub">Hundred Agents · auto-refresh 5s · {now_iso()[11:19]}</div>
+  <div class="tabs">{tabs}</div>
   <div class="cards">
     <div class="card"><div class="n">{contactos}</div><div class="l">Contactos únicos</div></div>
     <div class="card"><div class="n">{total_eventos}</div><div class="l">Eventos totales</div></div>
   </div>
   <table>
-    <thead><tr><th>Hora</th><th>Tel</th><th>Tipo</th><th>Clasificación</th>
-      <th>Resumen</th><th class="num">Total</th></tr></thead>
-    <tbody>{trs or '<tr><td colspan="6" style="color:#8a8a92">Sin eventos todavía…</td></tr>'}</tbody>
+    <thead><tr><th>Hora</th><th>Cliente</th><th>Tel</th><th>Tipo</th><th>Clasificación</th>
+      <th>Folio</th><th>Resumen</th><th class="num">Total</th></tr></thead>
+    <tbody>{trs or '<tr><td colspan="8" style="color:#8a8a92">Sin eventos todavía…</td></tr>'}</tbody>
   </table>
 </body></html>"""
     return HTMLResponse(html)
@@ -557,7 +930,6 @@ async def panel():
 
 @app.get("/health")
 async def health():
-    # Estado de DB (nunca expone valores secretos, solo booleanos).
     db_ok = False
     leads = pedidos = escalados = 0
     try:
@@ -576,13 +948,23 @@ async def health():
     config = {
         "openai_api_key": bool(OPENAI_API_KEY),
         "whatsapp_token": bool(WA_ACCESS_TOKEN),
-        "whatsapp_phone_number_id": bool(WA_PHONE_NUMBER_ID),
         "whatsapp_verify_token": bool(WA_VERIFY_TOKEN),
-        "human_notify_wa": bool(HUMAN_NOTIFY_WA),
     }
-    ready = db_ok and all(
-        [config["openai_api_key"], config["whatsapp_token"], config["whatsapp_phone_number_id"], config["whatsapp_verify_token"]]
-    )
+    clientes = [
+        {
+            "clave": c.clave,
+            "nombre": c.nombre,
+            "activo": c.activo,
+            "phone_number_id": c.phone_number_id,
+            "productos_catalogo": len(c.catalogo.get("productos", [])),
+            "human_notify_wa": bool(c.human_notify_wa),
+            "max_turns": c.max_turns,
+            "memoria_mensajes": c.memoria_mensajes,
+        }
+        for c in CLIENTS.values()
+    ]
+    activos = [c for c in clientes if c["activo"]]
+    ready = db_ok and all(config.values()) and bool(activos)
     return {
         "status": "ok" if ready else "degraded",
         "app": "up",
@@ -590,6 +972,9 @@ async def health():
         "graph_api_version": WHATSAPP_API_VERSION,
         "public_base_url": PUBLIC_BASE_URL or None,
         "config_present": config,
+        "modelos": {"chat": OPENAI_MODEL, "transcripcion": TRANSCRIBE_MODEL},
+        "voz": {"max_por_dia": AUDIO_MAX_PER_DAY, "max_segundos": AUDIO_MAX_SECONDS},
+        "clientes": clientes,
         "counters": {"leads": leads, "pedidos": pedidos, "escalados": escalados},
     }
 
@@ -597,7 +982,8 @@ async def health():
 @app.get("/")
 async def root():
     return {
-        "service": "dulces-del-alto-agent",
+        "service": "whatsapp-agent-multicliente",
+        "clientes_activos": [c.clave for c in CLIENTS.values() if c.activo],
         "panel": "/leads",
         "webhook": "/webhook",
         "health": "/health",

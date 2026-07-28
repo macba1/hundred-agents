@@ -1,0 +1,55 @@
+{
+  "negocio": "Sanmi Café",
+  "moneda": "MXN",
+  "estado_menu": "PLACEHOLDER — menú de referencia. TODOS los precios dicen \"REEMPLAZAR\" hasta que Sanmi Café entregue su carta real.",
+  "notas_precios": "Los precios de este catálogo NO son reales: el valor \"REEMPLAZAR\" significa precio pendiente. Si el cliente pregunta un precio, di con naturalidad que estamos actualizando la carta y que el precio te lo confirma el equipo; NUNCA inventes una cifra.",
+  "productos": [
+    {"sku": "CAF-ESP", "nombre": "Espresso", "categoria": "cafe caliente", "descripcion": "Shot sencillo de espresso", "tamanos": ["sencillo", "doble"], "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "CAF-AME", "nombre": "Americano", "categoria": "cafe caliente", "descripcion": "Espresso con agua caliente", "tamanos": ["chico", "grande"], "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "CAF-CAP", "nombre": "Capuchino", "categoria": "cafe caliente", "descripcion": "Espresso con leche vaporizada y espuma", "tamanos": ["chico", "grande"], "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "CAF-LAT", "nombre": "Latte", "categoria": "cafe caliente", "descripcion": "Espresso con leche vaporizada", "tamanos": ["chico", "grande"], "precio": "REEMPLAZAR", "disponible": true, "extras": ["vainilla", "caramelo", "avellana"]},
+    {"sku": "CAF-MOC", "nombre": "Mocha", "categoria": "cafe caliente", "descripcion": "Latte con chocolate", "tamanos": ["chico", "grande"], "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "CAF-OLL", "nombre": "Café de olla", "categoria": "cafe caliente", "descripcion": "Café con piloncillo y canela", "tamanos": ["taza"], "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "CAF-CHO", "nombre": "Chocolate caliente", "categoria": "cafe caliente", "descripcion": "Chocolate a la taza", "tamanos": ["chico", "grande"], "precio": "REEMPLAZAR", "disponible": true},
+
+    {"sku": "FRA-CAF", "nombre": "Frappé de café", "categoria": "frappes", "descripcion": "Frappé clásico de café", "tamanos": ["chico", "grande"], "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "FRA-MOC", "nombre": "Frappé de mocha", "categoria": "frappes", "descripcion": "Frappé de café con chocolate", "tamanos": ["chico", "grande"], "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "FRA-CAR", "nombre": "Frappé de caramelo", "categoria": "frappes", "descripcion": "Frappé de café con caramelo", "tamanos": ["chico", "grande"], "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "FRA-ORE", "nombre": "Frappé de galleta", "categoria": "frappes", "descripcion": "Frappé de galleta con crema", "tamanos": ["chico", "grande"], "precio": "REEMPLAZAR", "disponible": true},
+
+    {"sku": "TE-NEG", "nombre": "Té negro", "categoria": "tes e infusiones", "descripcion": "Té negro en taza", "tamanos": ["taza"], "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "TE-VER", "nombre": "Té verde", "categoria": "tes e infusiones", "descripcion": "Té verde en taza", "tamanos": ["taza"], "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "TE-MAN", "nombre": "Té de manzanilla", "categoria": "tes e infusiones", "descripcion": "Infusión de manzanilla", "tamanos": ["taza"], "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "TE-CHA", "nombre": "Chai latte", "categoria": "tes e infusiones", "descripcion": "Té chai con leche vaporizada", "tamanos": ["chico", "grande"], "precio": "REEMPLAZAR", "disponible": true},
+
+    {"sku": "DES-CHI", "nombre": "Chilaquiles", "categoria": "desayunos", "descripcion": "Chilaquiles rojos o verdes", "opciones": ["rojos", "verdes", "con pollo", "con huevo"], "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "DES-MOL", "nombre": "Molletes", "categoria": "desayunos", "descripcion": "Molletes con frijol y queso gratinado (orden de 2)", "opciones": ["sencillos", "con chorizo", "con jamón"], "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "DES-HUE", "nombre": "Huevos al gusto", "categoria": "desayunos", "descripcion": "Huevos al gusto con frijoles y pan", "opciones": ["revueltos", "estrellados", "a la mexicana"], "precio": "REEMPLAZAR", "disponible": true},
+
+    {"sku": "BAG-JAM", "nombre": "Baguette de jamón y queso", "categoria": "baguettes y sandwiches", "descripcion": "Baguette caliente de jamón con queso", "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "BAG-POL", "nombre": "Baguette de pollo", "categoria": "baguettes y sandwiches", "descripcion": "Baguette de pollo con verduras", "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "BAG-VEG", "nombre": "Baguette vegetariana", "categoria": "baguettes y sandwiches", "descripcion": "Baguette de verduras asadas y queso panela", "precio": "REEMPLAZAR", "disponible": true},
+
+    {"sku": "PAN-CON", "nombre": "Concha", "categoria": "pan dulce", "descripcion": "Concha de vainilla o chocolate", "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "PAN-CUE", "nombre": "Cuernito", "categoria": "pan dulce", "descripcion": "Cuernito de mantequilla", "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "PAN-ORE", "nombre": "Oreja", "categoria": "pan dulce", "descripcion": "Oreja de hojaldre", "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "PAN-GAL", "nombre": "Galletas de la casa", "categoria": "pan dulce", "descripcion": "Galletas horneadas en casa", "precio": "REEMPLAZAR", "disponible": true},
+
+    {"sku": "PAS-CHO", "nombre": "Pastel de chocolate (rebanada)", "categoria": "pasteles y postres", "descripcion": "Rebanada de pastel de chocolate", "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "PAS-ZAN", "nombre": "Pastel de zanahoria (rebanada)", "categoria": "pasteles y postres", "descripcion": "Rebanada de pastel de zanahoria", "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "PAS-CHE", "nombre": "Cheesecake (rebanada)", "categoria": "pasteles y postres", "descripcion": "Rebanada de cheesecake con frutos rojos", "precio": "REEMPLAZAR", "disponible": true},
+    {"sku": "PAS-FLA", "nombre": "Flan napolitano", "categoria": "pasteles y postres", "descripcion": "Porción de flan napolitano", "precio": "REEMPLAZAR", "disponible": true}
+  ],
+  "extras": [
+    {"nombre": "Leche deslactosada", "precio": "REEMPLAZAR"},
+    {"nombre": "Leche de almendra", "precio": "REEMPLAZAR"},
+    {"nombre": "Shot extra de espresso", "precio": "REEMPLAZAR"},
+    {"nombre": "Crema batida", "precio": "REEMPLAZAR"}
+  ],
+  "info": {
+    "servicio": "Consumo en cafetería y pedidos para recoger.",
+    "pedidos_para_recoger": "Se toman por WhatsApp; se confirma folio y hora de recolección.",
+    "domicilio": "REEMPLAZAR — confirmar si Sanmi Café entrega a domicilio.",
+    "eventos_y_grupos": "Reservas de grupo y pedidos grandes los atiende una persona del equipo (escalar)."
+  }
+}

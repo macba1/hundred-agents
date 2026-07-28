@@ -1,0 +1,26 @@
+{
+  "clave": "sanmi",
+  "nombre": "Sanmi Café",
+  "activo": true,
+  "phone_number_id": "1211779025353605",
+  "_phone_number_id_nota": "NÚMERO DEMO DE META (prestado). Al migrar al número real de Sanmi, este es el ÚNICO campo que cambia. Ver README.md de esta carpeta.",
+  "human_notify_wa": "523471053350",
+  "_human_notify_wa_nota": "E.164 sin '+'. Si Meta rechaza el envío (error 131030 / número no válido), probar 5213471053350.",
+  "human_notify_wa_alt": "5213471053350",
+  "max_turns": 60,
+  "memoria_mensajes": 30,
+  "folio_prefix": "SNM",
+  "modo": "demo",
+  "acento_panel": "#8a5a2b",
+  "datos": {
+    "negocio": "Sanmi Café",
+    "ciudad": "San Miguel el Alto, Jalisco",
+    "direccion": "PENDIENTE (REEMPLAZAR) — no tenemos la dirección exacta cargada todavía",
+    "horario": "PENDIENTE (REEMPLAZAR). Horario provisional solo para pruebas: Lun-Sáb 8:00-21:00, Dom 9:00-14:00. Si lo mencionas, aclara SIEMPRE en la misma frase que está por confirmar con el equipo",
+    "telefono": "PENDIENTE (REEMPLAZAR) — teléfono público de la cafetería",
+    "recoleccion": "PENDIENTE (REEMPLAZAR). Tiempo provisional de preparación: 15-20 minutos; aclarar que está por confirmar",
+    "pagos": "PENDIENTE (REEMPLAZAR) — métodos de pago aceptados en mostrador",
+    "servicio_domicilio": "PENDIENTE (REEMPLAZAR) — falta confirmar si hay entrega a domicilio. En periodo de pruebas NO se ofrece"
+  },
+  "mensaje_cierre": "Por hoy aquí le paramos, pero con gusto seguimos mañana. ¡Gracias por escribir a Sanmi Café! ☕"
+}

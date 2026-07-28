@@ -1,9 +1,12 @@
 """
-Prueba de humo — simula un POST de webhook con un mensaje de texto.
+Prueba de humo (offline) — simula POSTs de webhook multi-cliente.
 
-- Mockea OpenAI (fuerza el loop: 1) llama buscar_catalogo, 2) responde texto).
+- Mockea OpenAI (fuerza el loop: 1) llama buscar_catalogo, 2) registra, 3) responde).
 - Mockea la llamada a Meta (captura lo que se "enviaría" al cliente).
-- Ejercita: dedup, memoria SQLite, function calling, registro de lead, panel /leads.
+- Mockea la transcripción de audio.
+- Ejercita: enrutado por phone_number_id, dedup, memoria SQLite por cliente,
+  function calling, folio con prefijo del cliente, límite de audios y panel
+  /leads?client=
 
 Corre offline, sin llaves reales:   python smoke_test.py
 """
@@ -15,6 +18,7 @@ import tempfile
 os.environ["DB_PATH"] = os.path.join(tempfile.mkdtemp(), "smoke.db")
 os.environ.setdefault("OPENAI_API_KEY", "test")
 os.environ.setdefault("WA_VERIFY_TOKEN", "verify-123")
+os.environ.setdefault("WHATSAPP_TOKEN", "test-token")
 
 import main  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
@@ -22,20 +26,20 @@ from fastapi.testclient import TestClient  # noqa: E402
 SENT = []  # capturamos mensajes "enviados" a WhatsApp
 
 
-async def fake_send(to, body):
-    SENT.append((to, body))
-    print(f"  📤 WhatsApp → +{to}: {body!r}")
+async def fake_send(client, to, body):
+    SENT.append((client.clave, to, body))
+    print(f"  📤 [{client.clave}] WhatsApp → +{to}: {body!r}")
     return True
 
 
-# Guion de OpenAI: primero pide catálogo, luego responde.
+# Guion de OpenAI: primero pide catálogo, luego registra, luego responde.
 _openai_calls = {"n": 0}
 
 
 async def fake_openai(messages):
     _openai_calls["n"] += 1
     if _openai_calls["n"] == 1:
-        print("  🤖 OpenAI (turno 1): pide tool buscar_catalogo('cajeta')")
+        print("  🤖 OpenAI (turno 1): pide tool buscar_catalogo('capuchino')")
         return {
             "choices": [
                 {
@@ -48,7 +52,7 @@ async def fake_openai(messages):
                                 "type": "function",
                                 "function": {
                                     "name": "buscar_catalogo",
-                                    "arguments": json.dumps({"consulta": "cajeta"}),
+                                    "arguments": json.dumps({"consulta": "capuchino"}),
                                 },
                             }
                         ],
@@ -56,13 +60,12 @@ async def fake_openai(messages):
                 }
             ]
         }
-    # turno 2: ya tiene el resultado de la tool -> registra pedido
     if _openai_calls["n"] == 2:
-        # verificamos que el resultado de la tool llegó al contexto
         tool_msgs = [m for m in messages if m.get("role") == "tool"]
         assert tool_msgs, "no llegó el resultado de la tool al modelo"
         cat = json.loads(tool_msgs[-1]["content"])
-        assert cat["total_coincidencias"] >= 1, "buscar_catalogo no encontró cajeta"
+        assert cat["total_coincidencias"] >= 1, "buscar_catalogo no encontró capuchino"
+        assert cat["negocio"] == "Sanmi Café", f"catálogo equivocado: {cat['negocio']}"
         print(f"  🤖 OpenAI (turno 2): recibió {cat['total_coincidencias']} coincidencias; registra pedido")
         return {
             "choices": [
@@ -78,9 +81,8 @@ async def fake_openai(messages):
                                     "name": "registrar_pedido",
                                     "arguments": json.dumps(
                                         {
-                                            "clasificacion": "cotizacion",
-                                            "resumen": "24 frascos cajeta 250g menudeo",
-                                            "total": 1392,
+                                            "clasificacion": "pedido",
+                                            "resumen": "2 capuchinos grandes, recoge Ana, 5:30 pm",
                                         }
                                     ),
                                 },
@@ -96,23 +98,57 @@ async def fake_openai(messages):
             {
                 "message": {
                     "role": "assistant",
-                    "content": (
-                        "¡Va! Te armo la cotización de Cajeta 250g:\n"
-                        "24 frascos x $58 = $1,392 MXN\n"
-                        "Envío local gratis desde $1,500. Vigencia 3 días.\n"
-                        "Folio de tu solicitud registrado. ¿Confirmo el pedido? 🙂"
-                    ),
+                    "content": "Listo, quedan 2 capuchinos grandes para recoger a las 5:30 pm. ☕",
                 }
             }
         ]
     }
 
 
+async def fake_transcribe(audio, mime):
+    return {"text": "Hola, ¿a qué hora abren mañana?", "duration": 4.2}
+
+
+async def fake_download(media_id):
+    return b"\x00" * 2048, "audio/ogg", 2048
+
+
+SANMI_PNID = main.CLIENTS["sanmi"].phone_number_id
+
+
+def wh(msg: dict, pnid: str = SANMI_PNID) -> dict:
+    return {
+        "object": "whatsapp_business_account",
+        "entry": [
+            {
+                "changes": [
+                    {
+                        "value": {
+                            "messaging_product": "whatsapp",
+                            "metadata": {"phone_number_id": pnid},
+                            "messages": [msg],
+                        }
+                    }
+                ]
+            }
+        ],
+    }
+
+
 def main_flow():
     main.openai_chat = fake_openai
     main.send_whatsapp_text = fake_send
+    main.openai_transcribe = fake_transcribe
+    main.download_media = fake_download
 
     client = TestClient(main.app)
+
+    print("\n=== 0) Registro de clientes ===")
+    for c in main.CLIENTS.values():
+        print(f"  - {c.clave:12} activo={c.activo!s:5} pnid={c.phone_number_id} folio={c.folio_prefix}-")
+    assert "sanmi" in main.CLIENTS and "demo-dulces" in main.CLIENTS
+    assert main.CLIENTS["sanmi"].activo and not main.CLIENTS["demo-dulces"].activo
+    assert main.resolve_client(SANMI_PNID).clave == "sanmi", "el número demo debe enrutar a sanmi"
 
     print("\n=== 1) Verificación GET /webhook (Meta) ===")
     r = client.get(
@@ -126,82 +162,69 @@ def main_flow():
     print(f"  token malo → status={r.status_code}  (esperado 403)")
     assert r.status_code == 403
 
-    print("\n=== 2) POST /webhook con mensaje de texto ===")
-    webhook_payload = {
-        "object": "whatsapp_business_account",
-        "entry": [
-            {
-                "changes": [
-                    {
-                        "value": {
-                            "messaging_product": "whatsapp",
-                            "messages": [
-                                {
-                                    "id": "wamid.TEST123",
-                                    "from": "5213339876543",
-                                    "type": "text",
-                                    "text": {"body": "hola, cuánto la cajeta de 250g por 24 piezas?"},
-                                }
-                            ],
-                        }
-                    }
-                ]
-            }
-        ],
-    }
-    r = client.post("/webhook", json=webhook_payload)
+    print("\n=== 2) POST /webhook con texto (enruta a sanmi) ===")
+    payload = wh(
+        {
+            "id": "wamid.TEST123",
+            "from": "5213339876543",
+            "type": "text",
+            "text": {"body": "quiero 2 capuchinos grandes para recoger a las 5:30, a nombre de Ana"},
+        }
+    )
+    r = client.post("/webhook", json=payload)
     print(f"  status={r.status_code} body={r.text}  (siempre 200 a Meta)")
     assert r.status_code == 200
-    assert SENT, "no se envió respuesta al cliente"
+    assert SENT and SENT[0][0] == "sanmi", "no se atendió como sanmi"
 
     print("\n=== 3) Dedup — mismo message id no re-procesa ===")
     before = len(SENT)
-    client.post("/webhook", json=webhook_payload)
+    client.post("/webhook", json=payload)
     print(f"  mensajes enviados antes={before} después={len(SENT)}  (esperado igual)")
     assert len(SENT) == before, "el dedup falló"
 
-    print("\n=== 4) Tipo no soportado (audio) → pide texto ===")
-    audio_payload = {
-        "entry": [
-            {
-                "changes": [
-                    {
-                        "value": {
-                            "messages": [
-                                {"id": "wamid.AUDIO1", "from": "5213339876543", "type": "audio", "audio": {"id": "a1"}}
-                            ]
-                        }
-                    }
-                ]
-            }
-        ]
-    }
-    client.post("/webhook", json=audio_payload)
-    print(f"  último enviado: {SENT[-1][1]!r}")
-    assert "texto" in SENT[-1][1].lower()
-
-    print("\n=== 5) Estado en SQLite ===")
+    print("\n=== 4) Audio → transcripción → agente ===")
+    client.post("/webhook", json=wh({"id": "wamid.AUDIO1", "from": "5213339876543", "type": "audio", "audio": {"id": "a1"}}))
     conn = main.db()
-    leads = conn.execute("SELECT tipo, clasificacion, resumen, total, folio FROM leads ORDER BY id").fetchall()
-    msgs = conn.execute("SELECT role, content FROM messages ORDER BY id").fetchall()
+    umsg = conn.execute(
+        "SELECT content FROM messages WHERE client='sanmi' AND role='user' ORDER BY id DESC LIMIT 1"
+    ).fetchone()["content"]
     conn.close()
-    print("  leads:")
-    for l in leads:
-        print(f"    - tipo={l['tipo']:9} clas={l['clasificacion']} folio={l['folio']} total={l['total']} :: {l['resumen']}")
-    print("  memoria (messages):")
-    for m in msgs:
-        print(f"    - {m['role']:9}: {m['content'][:70]}")
+    print(f"  memoria del usuario: {umsg!r}")
+    assert umsg.startswith("[Audio transcrito]:"), "el audio no llegó marcado al agente"
+
+    print("\n=== 5) Límite de audios por día ===")
+    for i in range(2, 8):
+        client.post("/webhook", json=wh({"id": f"wamid.AUDIO{i}", "from": "5213339876543", "type": "audio", "audio": {"id": f"a{i}"}}))
+    print(f"  último enviado: {SENT[-1][2]!r}")
+    assert "no puedo procesar más notas de voz" in SENT[-1][2], "no se aplicó el límite de 5 audios/día"
+
+    print("\n=== 6) phone_number_id desconocido → se ignora (no contesta por nadie) ===")
+    before = len(SENT)
+    client.post("/webhook", json=wh({"id": "wamid.OTRO", "from": "5210000000000", "type": "text", "text": {"body": "hola"}}, pnid="999999999"))
+    print(f"  enviados antes={before} después={len(SENT)}  (esperado igual)")
+    assert len(SENT) == before, "un phone_number_id desconocido no debe contestar"
+
+    print("\n=== 7) Estado en SQLite ===")
+    conn = main.db()
+    leads = conn.execute("SELECT client, tipo, clasificacion, resumen, folio FROM leads ORDER BY id").fetchall()
+    conn.close()
+    for l in leads[:8]:
+        print(f"    - [{l['client']}] tipo={l['tipo']:9} folio={l['folio']} :: {(l['resumen'] or '')[:50]}")
     folios = [l["folio"] for l in leads if l["folio"]]
-    assert folios and folios[0].startswith("DA-"), "no se generó folio DA-XXXX"
+    assert folios and folios[0].startswith("SNM-"), f"folio esperado SNM-XXXX, salió {folios[:1]}"
+    assert all(l["client"] == "sanmi" for l in leads), "hay leads sin cliente sanmi"
 
-    print("\n=== 6) Panel /leads (proyector) ===")
-    r = client.get("/leads")
-    print(f"  status={r.status_code}, contiene acento #ff4e1c: {'#ff4e1c' in r.text}, "
-          f"contadores: {'Contactos únicos' in r.text}")
-    assert r.status_code == 200 and "#ff4e1c" in r.text
+    print("\n=== 8) Panel /leads?client=sanmi ===")
+    r = client.get("/leads", params={"client": "sanmi"})
+    print(f"  status={r.status_code} · título Sanmi: {'Sanmi Café' in r.text} · folio visible: {folios[0] in r.text}")
+    assert r.status_code == 200 and "Sanmi Café" in r.text and folios[0] in r.text
 
-    print("\n✅ Flujo completo OK. Respuesta final al cliente:")
-    print("   " + SENT[0][1].replace("\n", "\n   "))
+    r = client.get("/leads", params={"client": "demo-dulces"})
+    print(f"  demo-dulces (inactivo, sin eventos): status={r.status_code} · vacío: {'Sin eventos todavía' in r.text}")
+    assert "Sin eventos todavía" in r.text
+
+    print("\n✅ Flujo multi-cliente OK. Primera respuesta enviada:")
+    print("   " + SENT[0][2].replace("\n", "\n   "))
 
 
 if __name__ == "__main__":
