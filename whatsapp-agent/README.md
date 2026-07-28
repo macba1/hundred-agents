@@ -128,7 +128,36 @@ Audio entrante → descarga de Graph → transcripción con OpenAI → el agente
   cuando el modelo la reporta (`whisper-1` con `verbose_json`).
 - Cualquier fallo de descarga o transcripción → se pide texto, nunca se cae.
 
-## Exponer con cloudflared (para que Meta llegue a tu localhost)
+## Deploy 24/7 (Fly.io)
+
+Para que el staff pruebe durante semanas hace falta una URL fija que no dependa
+de una laptop encendida. `fly.toml` + `deploy_fly.sh` dejan eso listo.
+
+```bash
+FLY_API_TOKEN=... ./deploy_fly.sh
+```
+
+El script instala `flyctl` si falta, crea la app y un volumen de 1 GB para la
+SQLite, sube los secretos desde `.env` (nunca se hornean en la imagen), despliega
+e imprime las URLs. La máquina **no se suspende** (`auto_stop_machines = false`):
+Meta necesita respuesta en menos de 5 s y un cold start rompería el webhook.
+
+Después, registrar el webhook sin entrar al panel de Meta:
+
+```bash
+python set_meta_webhook.py https://sanmi-whatsapp-agent.fly.dev/webhook
+```
+
+Esto necesita `META_APP_SECRET` en `.env`: Meta exige un *App access token* para
+`/{app-id}/subscriptions` y el token de System User no alcanza.
+
+Logs: `flyctl logs --app sanmi-whatsapp-agent`
+
+> **El panel es público junto con el webhook.** `PANEL_TOKEN` es obligatorio en
+> cualquier despliegue: `/leads` responde 403 sin él. Sin la variable, el panel
+> queda abierto y el arranque lo avisa en el log.
+
+## Exponer con cloudflared (solo para pruebas locales)
 
 ```bash
 brew install cloudflared
