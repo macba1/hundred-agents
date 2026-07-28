@@ -1,0 +1,11 @@
+# Nunca hornear secretos ni estado local dentro de la imagen.
+.env
+.env.*
+!.env.example
+*.db
+*.db-wal
+*.db-shm
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/

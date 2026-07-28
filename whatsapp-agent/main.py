@@ -21,6 +21,7 @@ import json
 import base64
 import sqlite3
 import logging
+import secrets
 import unicodedata
 from pathlib import Path
 from dataclasses import dataclass, field
@@ -60,6 +61,9 @@ WHATSAPP_API_VERSION = os.getenv("WHATSAPP_API_VERSION", "v20.0")
 GRAPH = f"https://graph.facebook.com/{WHATSAPP_API_VERSION}"
 
 PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "")
+
+# Token del panel /leads. Vacío = panel abierto (solo aceptable en local).
+PANEL_TOKEN = os.getenv("PANEL_TOKEN", "")
 
 MAX_TOOL_ITERS = int(os.getenv("MAX_TOOL_ITERS", "6"))
 
@@ -487,9 +491,9 @@ MAX_CATALOGO_RESULTS = int(os.getenv("MAX_CATALOGO_RESULTS", "24"))
 
 # Claves de nivel superior del catálogo que describen al negocio (no productos).
 CATALOGO_INFO_KEYS = (
-    "direccion", "ubicacion", "telefono", "horarios", "horario_humano",
-    "domicilio", "pagos", "envios", "notas_generales", "info",
-    "estado_menu", "notas_precios",
+    "direccion", "ubicacion", "telefono", "tel_llamadas", "tel_whatsapp",
+    "horarios", "horario_humano", "domicilio", "pagos", "envios",
+    "notas_generales", "info", "estado_menu", "notas_precios",
 )
 
 
@@ -1009,7 +1013,17 @@ async def handle_message(client: Client, m: dict) -> None:
 # Panel para proyector
 # --------------------------------------------------------------------------- #
 @app.get("/leads", response_class=HTMLResponse)
-async def panel(client: str = ""):
+async def panel(client: str = "", token: str = ""):
+    # El panel queda expuesto a internet junto con el webhook: sin token, cualquiera
+    # con la URL ve teléfonos y pedidos de clientes reales.
+    if PANEL_TOKEN:
+        if not secrets.compare_digest(token, PANEL_TOKEN):
+            return HTMLResponse(
+                "<h1>403</h1><p>Falta el token del panel. Usa /leads?token=…</p>",
+                status_code=403,
+            )
+    else:
+        log.warning("PANEL_TOKEN vacío: /leads está abierto a quien tenga la URL")
     sel = CLIENTS.get(client)
     acento = sel.acento_panel if sel else "#ff4e1c"
     titulo = sel.nombre if sel else "Todos los clientes"
@@ -1043,10 +1057,13 @@ async def panel(client: str = ""):
             f"<td class='num'>{total}</td></tr>"
         )
 
-    tabs = f'<a href="/leads" class="{"on" if not client else ""}">Todos</a>'
+    # El token viaja en los enlaces para no perder la sesión al cambiar de pestaña.
+    tk = f"&token={token}" if token else ""
+    tabs = f'<a href="/leads?client={tk}" class="{"on" if not client else ""}">Todos</a>'
     for c in CLIENTS.values():
         estado = "" if c.activo else " ·inactivo"
-        tabs += f'<a href="/leads?client={c.clave}" class="{"on" if client == c.clave else ""}">{esc(c.nombre)}{estado}</a>'
+        tabs += (f'<a href="/leads?client={c.clave}{tk}" '
+                 f'class="{"on" if client == c.clave else ""}">{esc(c.nombre)}{estado}</a>')
 
     html = f"""<!doctype html><html lang="es"><head>
 <meta charset="utf-8"><meta http-equiv="refresh" content="5">

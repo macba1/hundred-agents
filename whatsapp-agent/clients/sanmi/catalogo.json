@@ -2,16 +2,16 @@
   "negocio": "Sanmi Café",
   "ubicacion": "San Miguel el Alto, Jalisco",
   "moneda": "MXN",
-  "direccion": "C. Santuario 8, Centro, 47140 San Miguel el Alto, Jalisco (a unos pasos de la Parroquia)",
+  "direccion": "C. Santuario 8, Centro, 47140 San Miguel el Alto, Jalisco (junto a la Parroquia)",
   "horarios": {
-    "lunes": "8:30-12:30 y 17:00-22:30",
-    "martes": "8:30-12:30 y 17:00-22:30",
-    "miercoles": "8:30-12:30 y 17:00-22:30",
-    "jueves": "8:30-12:30 y 17:00-22:30 (VERIFICAR: Google marca distinto este día)",
-    "viernes": "8:30-12:30 y 17:00-22:30",
-    "sabado": "8:30-12:30 y 17:00-22:30",
-    "domingo": "8:30-12:30 y 17:00-22:30",
-    "nota": "Horario partido: cierran de 12:30 a 17:00"
+    "lunes": "8:30-12:30 y 17:00-22:15",
+    "martes": "8:30-12:30 y 17:00-22:15",
+    "miercoles": "8:30-12:30 y 17:00-22:15",
+    "jueves": "CERRADO — día de descanso",
+    "viernes": "8:30-12:30 y 17:00-22:15",
+    "sabado": "8:30-12:30 y 17:00-22:15",
+    "domingo": "8:30-12:30 y 17:00-22:15",
+    "nota": "Horario partido: cierran de 12:30 a 17:00. Los jueves NO abren (día de descanso); el siguiente día que abren es el viernes a las 8:30."
   },
   "domicilio": "Sí hay servicio a domicilio dentro de San Miguel el Alto. VERIFICAR: el costo de envío está pendiente de confirmar con el equipo; si el cliente pregunta cuánto cobran de envío, dile que el equipo se lo confirma al recibir el pedido y no inventes una cifra.",
   "pagos": "Efectivo y transferencia. En pedidos a domicilio, efectivo contra entrega.",
@@ -664,5 +664,6 @@
       }
     }
   },
-  "telefono": "+52 347 788 2003"
+  "tel_llamadas": "+52 347 788 2003 (solo llamadas)",
+  "tel_whatsapp": "+52 347 105 3350"
 }
