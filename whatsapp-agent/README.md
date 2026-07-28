@@ -11,7 +11,7 @@ Un solo proceso atiende **varios negocios a la vez**. El enrutado es por el
 
 | Clave | Negocio | Estado | Número | Panel |
 |---|---|---|---|---|
-| `sanmi` | Sanmi Café (San Miguel el Alto, Jal.) | **activo** — modo demo | número demo de Meta | `/leads?client=sanmi` |
+| `sanmi` | Sanmi Café (San Miguel el Alto, Jal.) | **activo** · `modo_demo: true` · carta real, 96 platillos | número demo de Meta | `/leads?client=sanmi` |
 | `demo-dulces` | Dulces del Alto | inactivo | — (cedió el número demo) | `/leads?client=demo-dulces` |
 
 `sanmi` tomó prestado el número demo; `demo-dulces` quedó en pausa con su carpeta
@@ -58,9 +58,34 @@ Campos de `config.json`:
 | `max_turns` | Turnos por contacto antes del mensaje de cierre |
 | `memoria_mensajes` | Mensajes de historial que ve el modelo |
 | `folio_prefix` | Prefijo de los folios (`SNM-0001`) |
-| `datos` | Horario, dirección, etc. Se inyectan al system prompt |
+| `datos` | Sobrescribe los datos del negocio en el system prompt. Vacío = manda `catalogo.json` |
+| `modo_demo` | `true`: el agente atiende normal pero agrega `aviso_demo` al confirmar un pedido |
+| `aviso_demo` | La línea que se agrega en modo demo |
+| `zona_horaria` / `etiqueta_zona` | Para "¿están abiertos?" y la hora de los escalamientos |
 | `mensaje_cierre` | Texto al agotar `max_turns` |
 | `acento_panel` | Color del panel de ese cliente |
+
+### Catálogo: dos formas soportadas
+
+```jsonc
+// plana
+{ "productos": [ { "nombre": "...", "precio": 99 } ] }
+
+// anidada — categorias → subcategoría → items
+{ "categorias": { "favoritos": { "panninis": {
+    "descripcion": "Servidos con papas o ensalada.",
+    "extras":    { "Queso extra": 15 },
+    "sinonimos": ["pannini", "panini", "sándwich caliente"],
+    "items":     [ { "nombre": "Pannini Arrachera", "precio": 99 } ] } } } }
+```
+
+`buscar_catalogo` aplana la anidada sola y hereda `descripcion`/`extras` a cada
+item. `sinonimos` es solo para búsqueda (no se le manda al modelo): sirve cuando
+la subcategoría se llama `coffee` y el cliente escribe "¿qué cafés tienen?".
+
+Las claves de negocio del nivel superior (`direccion`, `horarios`, `domicilio`,
+`pagos`, `telefono`, `notas_generales`) se inyectan al system prompt **y** las
+devuelve la herramienta — una sola fuente, sin horarios contradictorios.
 
 > **Dos clientes activos con el mismo `phone_number_id` hacen fallar el arranque
 > a propósito.** Enrutar sería adivinar, y adivinar significa contestar en nombre

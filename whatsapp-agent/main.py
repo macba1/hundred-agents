@@ -25,6 +25,7 @@ import unicodedata
 from pathlib import Path
 from dataclasses import dataclass, field
 from datetime import datetime, timezone, date
+from zoneinfo import ZoneInfo
 
 import httpx
 from fastapi import FastAPI, Request, BackgroundTasks
@@ -85,6 +86,34 @@ def today_str() -> str:
     return date.today().isoformat()
 
 
+DIAS = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
+MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
+         "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+
+
+def _tz(nombre: str):
+    try:
+        return ZoneInfo(nombre)
+    except Exception:  # noqa: BLE001
+        log.warning("zona horaria desconocida '%s'; se usa la del servidor", nombre)
+        return None
+
+
+def ahora_local(client: "Client") -> str:
+    """Fecha/hora corta en la zona del cliente. Ej: '28/07/2026 17:52 (CDMX)'."""
+    d = datetime.now(_tz(client.zona_horaria))
+    return f"{d:%d/%m/%Y %H:%M} ({client.etiqueta_zona})"
+
+
+def ahora_local_largo(client: "Client") -> str:
+    """Para el system prompt: día de la semana + hora, que el modelo razone horarios."""
+    d = datetime.now(_tz(client.zona_horaria))
+    return (
+        f"{DIAS[d.weekday()]} {d.day} de {MESES[d.month - 1]} de {d.year}, "
+        f"{d:%H:%M} hora local de {client.etiqueta_zona}"
+    )
+
+
 # --------------------------------------------------------------------------- #
 # Registro de clientes
 # --------------------------------------------------------------------------- #
@@ -101,16 +130,43 @@ class Client:
     modo: str
     acento_panel: str
     mensaje_cierre: str
+    human_notify_wa_alt: str = ""
+    zona_horaria: str = "America/Mexico_City"
+    etiqueta_zona: str = "CDMX"
+    modo_demo: bool = False
+    aviso_demo: str = ""
     datos: dict = field(default_factory=dict)
     prompt: str = ""
     catalogo: dict = field(default_factory=dict)
 
     @property
+    def productos(self) -> list[dict]:
+        """Catálogo aplanado (soporta la forma plana y la anidada)."""
+        if not hasattr(self, "_productos"):
+            object.__setattr__(self, "_productos", aplanar_catalogo(self.catalogo))
+        return self._productos  # type: ignore[attr-defined]
+
+    @property
+    def datos_negocio(self) -> dict:
+        """
+        Datos del negocio para el system prompt. El catálogo manda (es la fuente
+        que también ve la herramienta); `datos` en config.json puede sobrescribir.
+        Así no hay dos versiones del horario contradiciéndose.
+        """
+        base = {k: self.catalogo[k] for k in CATALOGO_INFO_KEYS if k in self.catalogo}
+        base.update(self.datos)
+        return base
+
+    @property
     def system_prompt(self) -> str:
-        """Prompt del cliente + bloque de datos del negocio (editable en config.json)."""
+        """Prompt del cliente + datos del negocio + hora local + aviso de modo demo."""
         partes = [self.prompt.strip()]
-        if self.datos:
-            lineas = "\n".join(f"- {k}: {v}" for k, v in self.datos.items())
+        datos = self.datos_negocio
+        if datos:
+            lineas = "\n".join(
+                f"- {k}: {json.dumps(v, ensure_ascii=False) if isinstance(v, (dict, list)) else v}"
+                for k, v in datos.items()
+            )
             partes.append(
                 "## DATOS DEL NEGOCIO (fuente de verdad)\n"
                 f"{lineas}\n"
@@ -119,7 +175,22 @@ class Client:
                 "provisional puedes mencionarlo, pero SIEMPRE aclarando en la misma frase que "
                 "está por confirmar con el equipo. Si no trae valor, dilo y ofrece confirmarlo."
             )
-        partes.append(f"Fecha y hora actual: {now_iso()}.")
+        partes.append(
+            f"Ahora mismo es {ahora_local_largo(self)}. "
+            "Úsalo para responder si están abiertos o cerrados en este momento."
+        )
+        if self.modo_demo:
+            partes.append(
+                "## PERIODO DE PRUEBAS\n"
+                "Estamos validando el asistente antes de lanzarlo. Atiendes NORMAL: "
+                "tomas el pedido completo, registras con la herramienta y confirmas "
+                "folio y total como siempre. NO escales un pedido solo por ser periodo "
+                "de pruebas.\n"
+                "Lo único que cambia: cuando confirmes un pedido registrado, cierra el "
+                "mensaje con esta línea, tal cual y en su propio renglón:\n"
+                f"{self.aviso_demo}\n"
+                "No la repitas en mensajes que no confirmen un pedido."
+            )
         return "\n\n".join(partes)
 
 
@@ -135,10 +206,18 @@ def _load_one_client(folder: Path) -> Client:
         activo=bool(cfg.get("activo", True)),
         phone_number_id=str(cfg.get("phone_number_id", "")),
         human_notify_wa=str(cfg.get("human_notify_wa", "")),
+        human_notify_wa_alt=str(cfg.get("human_notify_wa_alt", "")),
+        zona_horaria=cfg.get("zona_horaria", "America/Mexico_City"),
+        etiqueta_zona=cfg.get("etiqueta_zona", "CDMX"),
         max_turns=int(cfg.get("max_turns", 14)),
         memoria_mensajes=int(cfg.get("memoria_mensajes", 24)),
         folio_prefix=cfg.get("folio_prefix", clave[:3].upper()),
         modo=cfg.get("modo", "demo"),
+        modo_demo=bool(cfg.get("modo_demo", False)),
+        aviso_demo=cfg.get(
+            "aviso_demo",
+            "⚠️ Estamos en periodo de pruebas: este pedido es de práctica y no se preparará.",
+        ),
         acento_panel=cfg.get("acento_panel", "#ff4e1c"),
         mensaje_cierre=cfg.get(
             "mensaje_cierre",
@@ -404,43 +483,121 @@ def _variantes(token: str) -> list[str]:
     return v
 
 
+MAX_CATALOGO_RESULTS = int(os.getenv("MAX_CATALOGO_RESULTS", "24"))
+
+# Claves de nivel superior del catálogo que describen al negocio (no productos).
+CATALOGO_INFO_KEYS = (
+    "direccion", "ubicacion", "telefono", "horarios", "horario_humano",
+    "domicilio", "pagos", "envios", "notas_generales", "info",
+    "estado_menu", "notas_precios",
+)
+
+
+def aplanar_catalogo(cat: dict) -> list[dict]:
+    """
+    Normaliza a una lista plana de productos. Acepta las dos formas:
+
+      plana   : {"productos": [ {...} ]}
+      anidada : {"categorias": {<categoria>: {<subcategoria>: {
+                    "descripcion": ..., "extras": {...}, "items": [ {...} ]}}}}
+
+    La descripción y los extras de la subcategoría se heredan a cada item, para
+    que una sola coincidencia le dé al modelo todo lo que necesita cotizar.
+    """
+    if cat.get("productos"):
+        return [dict(p) for p in cat["productos"]]
+
+    out: list[dict] = []
+    for categoria, subs in (cat.get("categorias") or {}).items():
+        if not isinstance(subs, dict):
+            continue
+        for sub, body in subs.items():
+            if not isinstance(body, dict):
+                continue
+            desc_grupo = body.get("descripcion")
+            extras = body.get("extras")
+            sinonimos = body.get("sinonimos")
+            for item in body.get("items") or []:
+                if not isinstance(item, dict):
+                    continue
+                p = dict(item)
+                p["categoria"] = categoria.replace("_", " ")
+                p["subcategoria"] = sub.replace("_", " ")
+                if sinonimos:
+                    # Solo para búsqueda: la subcategoría puede llamarse "coffee"
+                    # y el cliente escribir "¿qué cafés tienen?".
+                    p["_sinonimos"] = sinonimos
+                if desc_grupo:
+                    # No pisamos la descripción propia del item.
+                    p["descripcion_grupo"] = desc_grupo
+                if extras:
+                    p["extras"] = extras
+                out.append(p)
+    return out
+
+
 def tool_buscar_catalogo(client: Client, consulta: str) -> dict:
     cat = client.catalogo or {}
-    productos = cat.get("productos", [])
+    productos = client.productos
     tokens = [_norm(t) for t in (consulta or "").split() if t.strip()]
-    matches: list[dict] = []
 
     def hay(p: dict) -> str:
-        campos = [str(p.get(k, "")) for k in ("nombre", "categoria", "sku", "descripcion")]
-        campos += [str(x) for x in (p.get("opciones") or []) + (p.get("tamanos") or []) + (p.get("extras") or [])]
+        campos = [
+            str(p.get(k, ""))
+            for k in ("nombre", "categoria", "subcategoria", "sku",
+                      "descripcion", "descripcion_grupo")
+        ]
+        extras = p.get("extras")
+        if isinstance(extras, dict):
+            campos += list(extras.keys())
+        elif isinstance(extras, list):
+            campos += [str(x) for x in extras]
+        campos += [
+            str(x) for x in
+            (p.get("opciones") or []) + (p.get("tamanos") or []) + (p.get("_sinonimos") or [])
+        ]
         return _norm(" ".join(campos))
 
     def coincide(tok: str, texto: str) -> bool:
         return any(v in texto for v in _variantes(tok))
 
-    for p in productos:
-        texto = hay(p)
-        if not tokens or all(coincide(t, texto) for t in tokens):
-            matches.append(p)
-        if len(matches) >= 12:
-            break
-    # fallback: si el AND por tokens no encontró nada, prueba OR laxo
-    if not matches and tokens:
-        for p in productos:
-            texto = hay(p)
-            if any(coincide(t, texto) for t in tokens):
-                matches.append(p)
-            if len(matches) >= 12:
-                break
+    if not tokens:
+        matches = list(productos)
+    else:
+        matches = [p for p in productos if all(coincide(t, hay(p)) for t in tokens)]
+        # fallback: si el AND por tokens no encontró nada, prueba OR laxo
+        if not matches:
+            matches = [p for p in productos if any(coincide(t, hay(p)) for t in tokens)]
 
+        # Relevancia: lo que empata en el NOMBRE va primero. Sin esto, "pannini
+        # arrachera" puede devolver antes un platillo que solo menciona
+        # "arrachera" en su descripción, y el modelo cotiza el equivocado.
+        def rango(p: dict) -> tuple[int, int]:
+            nombre = _norm(p.get("nombre", ""))
+            en_nombre = sum(1 for t in tokens if coincide(t, nombre))
+            return (-en_nombre, 0 if en_nombre == len(tokens) else 1)
+
+        matches.sort(key=rango)
+
+    total = len(matches)
+    recortado = total > MAX_CATALOGO_RESULTS
     out = {
         "negocio": cat.get("negocio", client.nombre),
         "moneda": cat.get("moneda", "MXN"),
-        "coincidencias": matches,
-        "total_coincidencias": len(matches),
+        # Los campos con "_" son solo de búsqueda: no se le mandan al modelo.
+        "coincidencias": [
+            {k: v for k, v in p.items() if not k.startswith("_")}
+            for p in matches[:MAX_CATALOGO_RESULTS]
+        ],
+        "total_coincidencias": total,
+        "productos_en_carta": len(productos),
     }
-    # Metadatos opcionales del catálogo (varían por cliente).
-    for k in ("envios", "pagos", "info", "extras", "estado_menu", "notas_precios", "horario_humano"):
+    if recortado:
+        out["aviso"] = (
+            f"Se muestran {MAX_CATALOGO_RESULTS} de {total} coincidencias. "
+            "Afina la búsqueda si necesitas el resto."
+        )
+    for k in CATALOGO_INFO_KEYS:
         if k in cat:
             out[k] = cat[k]
     return out
@@ -463,17 +620,25 @@ def tool_registrar_pedido(client: Client, phone: str, clasificacion: str, resume
     return {"folio": folio, "clasificacion": clasificacion, "total": total_val}
 
 
+def aviso_escalamiento(client: Client, phone: str, motivo: str) -> str:
+    """🔔 <negocio> — <fecha/hora CDMX> — escalado de <teléfono>: <motivo>"""
+    return (
+        f"🔔 {client.nombre} — {ahora_local(client)} — "
+        f"escalado de +{phone}: {motivo}"
+    )
+
+
 async def tool_escalar_humano(client: Client, phone: str, motivo: str) -> dict:
     log_lead(client.clave, phone, "escalado", "lead_caliente", motivo, None, None)
-    modo = f" ({client.modo.upper()})" if client.modo else ""
-    aviso = (
-        f"🚨 Escalamiento {client.nombre}{modo}\n"
-        f"Cliente: +{phone}\n"
-        f"Motivo: {motivo}"
-    )
+    aviso = aviso_escalamiento(client, phone, motivo)
     entregado = False
     if client.human_notify_wa:
         entregado = await send_whatsapp_text(client, client.human_notify_wa, aviso)
+        if not entregado and client.human_notify_wa_alt:
+            log.warning("escalado: reintentando aviso con human_notify_wa_alt")
+            entregado = await send_whatsapp_text(client, client.human_notify_wa_alt, aviso)
+    if not entregado:
+        log.error("escalado de +%s NO se pudo notificar al equipo (%s)", phone, client.clave)
     return {"escalado": True, "notificado_a_humano": entregado, "motivo": motivo}
 
 
