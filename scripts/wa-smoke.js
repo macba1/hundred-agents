@@ -393,6 +393,23 @@ async function main() {
     assert(r.body.includes('token='), 'las pestañas perdieron el token');
   });
 
+  console.log('\n=== 10a) Ticket sin registrar_pedido se corrige solo ===');
+  await check('un ticket inventado fuerza el registro real', async () => {
+    // El modelo llegó a mandar "Pedido — folio" vacío sin llamar a la tool: el
+    // cliente se iba con un pedido que no existía.
+    const FALSO = TEST('077');
+    guion = [
+      texto('☕ Pedido Sanmi Café — folio\n• Chilaquiles — $75\nTotal: $75'),
+      toolCall('registrar_pedido', { clasificacion: 'pedido', resumen: '1 Chilaquiles Verdes', total: 75, nombre_cliente: 'Ana' }),
+      texto('☕ Pedido Sanmi Café — folio SNM-XXXX\n• Chilaquiles Verdes — $75\nTotal: $75'),
+    ];
+    const r = makeRes();
+    await webhook(postReq(wh(textMsg(FALSO, 'confírmalo'))), r);
+    const p = await store.getPerfil('sanmi', FALSO);
+    assert(p && p.ultimo_pedido && p.ultimo_pedido.folio, 'no se forzó el registro');
+    console.log('  🛟 folio real forzado:', p.ultimo_pedido.folio);
+  });
+
   console.log('\n=== 10b) Perfil del cliente y reset de sesión ===');
   const adminPre = require(path.join(ROOT, 'api/wa/admin'));
   await check('el pedido guardó nombre y último pedido', async () => {
