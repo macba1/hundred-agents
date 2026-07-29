@@ -39,7 +39,7 @@ module.exports = async function handler(req, res) {
       productos_catalogo: c.productos.length,
       prompt_chars: c.prompt.length,
       modo_demo: c.modo_demo,
-      human_notify_wa: !!c.human_notify_wa,
+      notificar_escalados_a: c.human_notify_wa.length,
     }));
     // El prompt y el catálogo son archivos: si el bundle no los subió, aquí sale.
     cargaOk = clientes.length > 0 &&

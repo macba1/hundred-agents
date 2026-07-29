@@ -303,10 +303,16 @@ async function main() {
   res = makeRes();
   await webhook(postReq(wh(textMsg(ESC, 'quiero factura'))), res);
   await check('aviso al equipo con formato y hora CDMX', async () => {
-    const aviso = SENT.find((s) => s.to === SANMI.human_notify_wa);
+    const aviso = SENT.find((s) => SANMI.human_notify_wa.includes(s.to));
     assert(aviso, 'no salió aviso a human_notify_wa');
     console.log('  📲', aviso.text);
     assert(/^🔔 Sanmi Café — \d{2}\/\d{2}\/\d{4} \d{2}:\d{2} \(CDMX\) — escalado de \+/.test(aviso.text), aviso.text);
+  });
+  await check('el aviso sale a TODOS los destinos configurados', async () => {
+    // Con varios probadores del staff, un solo envío no basta.
+    const avisos = SENT.filter((s) => SANMI.human_notify_wa.includes(s.to));
+    assert.strictEqual(avisos.length, SANMI.human_notify_wa.length,
+      `${avisos.length} avisos para ${SANMI.human_notify_wa.length} destinos`);
   });
   await check('escalado visible en leads', async () => {
     const rows = await store.listLeads('sanmi', ['sanmi']);
