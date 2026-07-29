@@ -169,6 +169,40 @@ escriben a cualquier destinatario.
 
 ---
 
+## Onboarding de probadores del staff
+
+Mientras Sanmi use el **número demo de Meta**, este solo puede escribirle a
+destinatarios dados de alta a mano. Por cada persona del staff hay **dos cosas**,
+y son independientes:
+
+### A. Para que pueda CONVERSAR con el agente (obligatorio)
+Su número tiene que estar en la lista *To* de Meta. Sin esto, el agente recibe su
+mensaje pero **la respuesta rebota** con `(#131030) Recipient phone number not in
+allowed list`.
+
+> Abrir **https://developers.facebook.com/apps/1383723313727744/whatsapp-business/wa-dev-console/**
+> → sección **To** → *Manage phone number list* → **Add phone number** → escribir
+> el número con lada país (`+52 …`) → confirmar el código que le llega por WhatsApp
+> a esa persona.
+
+Meta permite hasta 5 destinatarios de prueba. Si el staff es más grande, hay que
+migrar al número real de Sanmi (ver arriba), donde no existe esta restricción.
+
+### B. Para que RECIBA los escalamientos (opcional)
+`human_notify_wa` acepta un número o una lista. Todos los de la lista reciben el
+aviso:
+
+```jsonc
+// config.json
+"human_notify_wa": ["16503849019", "5213471234567", "5213479876543"]
+```
+
+Ojo: un número solo recibe el escalamiento si además está en la lista *To* del
+paso A. Si no, el envío rebota y el log lo marca con `NO se pudo notificar`.
+
+Tras editar el `config.json` hay que **redesplegar** (los catálogos y configs
+viajan en el bundle).
+
 ## Probar
 
 ```bash
