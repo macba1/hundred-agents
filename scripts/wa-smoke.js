@@ -29,7 +29,11 @@ const fakeRedis = {
     mem.kv.set(k, v);
     return 'OK';
   },
-  async del(k) { mem.kv.delete(k); mem.lists.delete(k); },
+  async del(k) {
+    // Redis devuelve cuántas claves borró; el store lo usa para reportar.
+    const n = (mem.kv.delete(k) ? 1 : 0) + (mem.lists.delete(k) ? 1 : 0);
+    return n > 0 ? 1 : 0;
+  },
   async incr(k) {
     const n = Number(mem.kv.get(k) || 0) + 1;
     mem.kv.set(k, String(n));
@@ -262,7 +266,7 @@ async function main() {
       const data = JSON.parse(tool.content);
       TOOLS_USED.push(['buscar_catalogo', data.total_coincidencias]);
       assert(data.coincidencias[0].nombre === 'Pannini Arrachera', 'catálogo equivocado');
-      return toolCall('registrar_pedido', { clasificacion: 'pedido', resumen: '1 Pannini Arrachera + 1 Americano, Javier Mina 27', total: 129, fuera_de_carta: ['pastel de zanahoria'] });
+      return toolCall('registrar_pedido', { clasificacion: 'pedido', resumen: '1 Pannini Arrachera + 1 Americano Sencillo, Javier Mina 27', total: 129, nombre_cliente: 'Javier', fuera_de_carta: ['pastel de zanahoria'] });
     },
     texto('☕ Pedido Sanmi Café — folio SNM-0001\nTotal: $129\n\n⚠️ Estamos en periodo de pruebas: este pedido es de práctica y no se preparará.'),
   ];
@@ -387,6 +391,38 @@ async function main() {
     assert(r.body.includes(FOLIO), 'no aparece el folio ' + FOLIO);
     assert(r.body.includes('Sanmi Café'), 'no aparece el cliente');
     assert(r.body.includes('token='), 'las pestañas perdieron el token');
+  });
+
+  console.log('\n=== 10b) Perfil del cliente y reset de sesión ===');
+  const adminPre = require(path.join(ROOT, 'api/wa/admin'));
+  await check('el pedido guardó nombre y último pedido', async () => {
+    const p = await store.getPerfil('sanmi', PED);
+    assert(p, 'no se guardó perfil');
+    assert.strictEqual(p.nombre, 'Javier');
+    assert.strictEqual(p.pedidos, 1);
+    assert(p.ultimo_pedido && p.ultimo_pedido.folio, 'sin último pedido');
+    console.log('  👤', JSON.stringify({ nombre: p.nombre, pedidos: p.pedidos, folio: p.ultimo_pedido.folio, total: p.ultimo_pedido.total }));
+  });
+  await check('reset_session borra la charla y conserva el perfil', async () => {
+    const r = makeRes();
+    await adminPre({ method: 'POST', headers: {}, query: { action: 'reset_session', client: 'sanmi', phone: PED, token: process.env.PANEL_TOKEN } }, r);
+    assert.strictEqual(r.statusCode, 200);
+    console.log('  🔄', JSON.stringify(r.body));
+    const s2 = await store.getSession('sanmi', PED);
+    assert.strictEqual(s2.history.length, 0, 'la sesión no se cerró');
+    const p2 = await store.getPerfil('sanmi', PED);
+    assert(p2 && p2.nombre === 'Javier', 'se perdió el perfil');
+  });
+  await check('al volver, el prompt lo trata como recurrente', async () => {
+    const p = await store.getPerfil('sanmi', PED);
+    const sys = clientsLib.systemPrompt(SANMI, { primerMensaje: true, perfil: p });
+    assert(/CLIENTE QUE YA TE HA ESCRITO ANTES/.test(sys), 'falta el bloque de recurrente');
+    assert(sys.includes('Javier'), 'el prompt no lleva su nombre');
+    assert(/re-verificar cada precio/.test(sys), 'no pide re-verificar precios');
+  });
+  await check('un cliente nuevo NO recibe ese bloque', async () => {
+    const sys = clientsLib.systemPrompt(SANMI, { primerMensaje: true, perfil: null });
+    assert(!/CLIENTE QUE YA TE HA ESCRITO ANTES/.test(sys));
   });
 
   console.log('\n=== 11b) Purga de datos de prueba ===');

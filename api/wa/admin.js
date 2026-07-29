@@ -1,5 +1,6 @@
 /* ============================================================
    POST /api/wa/admin?action=purge&client=<clave>&scope=test|all
+   POST /api/wa/admin?action=reset_session&client=<clave>&phone=<tel>
 
    Purga datos del agente en Redis. Protegido con PANEL_TOKEN.
 
@@ -7,6 +8,9 @@
    scope=all   deja el cliente en cero: leads, folios, sesiones y cuotas.
                Es destructivo e irreversible, así que además exige
                confirm=<clave del cliente>.
+
+   reset_session cierra la conversación de un teléfono SIN borrar su perfil,
+   para poder probar el saludo de cliente recurrente sin esperar el TTL de 48h.
 
    POST a propósito: un GET podría dispararse desde el navegador, un
    prefetch o un bot de enlaces.
@@ -37,11 +41,30 @@ module.exports = async function handler(req, res) {
   if (!sameToken(got, want)) return res.status(403).json({ error: 'forbidden' });
 
   const q = req.query || {};
-  if (q.action !== 'purge') return res.status(400).json({ error: 'action_desconocida' });
-
   const clave = String(q.client || '');
   const c = clientsLib.get(clave);
   if (!c) return res.status(400).json({ error: 'client_desconocido', clave });
+
+  /* ---- reset_session: cierra la charla, conserva el perfil ---- */
+  if (q.action === 'reset_session') {
+    const phone = String(q.phone || '').replace(/[^0-9]/g, '');
+    if (!phone) return res.status(400).json({ error: 'falta_phone' });
+    try {
+      const r = await store.resetSession(clave, phone);
+      const perfil = await store.getPerfil(clave, phone);
+      console.warn('[wa][admin] reset_session', clave, phone, JSON.stringify(r));
+      return res.status(200).json({
+        ok: true, client: clave, phone, ...r,
+        perfil: perfil ? { nombre: perfil.nombre, pedidos: perfil.pedidos,
+          ultimo_pedido: perfil.ultimo_pedido && perfil.ultimo_pedido.folio } : null,
+      });
+    } catch (err) {
+      console.error('[wa][admin] reset_session falló:', err.stack || err.message);
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
+  if (q.action !== 'purge') return res.status(400).json({ error: 'action_desconocida' });
 
   const scope = q.scope === 'all' ? 'all' : 'test';
   if (scope === 'all' && q.confirm !== clave) {
