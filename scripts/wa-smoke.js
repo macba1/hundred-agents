@@ -407,7 +407,7 @@ async function main() {
   });
   await check('vercel.json declara maxDuration e includeFiles', async () => {
     const v = require(path.join(ROOT, 'vercel.json'));
-    assert.strictEqual(v.functions['api/wa/webhook.js'].maxDuration, 60);
+    assert(v.functions['api/wa/webhook.js'].maxDuration >= 120, 'audio + tools necesita margen');
     assert(v.functions['api/wa/webhook.js'].includeFiles.includes('lib/wa/clients'));
   });
   await check('vercel.json conserva el header del PDF de coparmex', async () => {

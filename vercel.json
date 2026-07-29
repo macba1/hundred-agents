@@ -13,7 +13,7 @@
   ],
   "functions": {
     "api/wa/webhook.js": {
-      "maxDuration": 60,
+      "maxDuration": 120,
       "includeFiles": "lib/wa/clients/**"
     },
     "api/wa/leads.js": {
