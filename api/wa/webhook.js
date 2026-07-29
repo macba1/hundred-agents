@@ -20,6 +20,10 @@ const clientsLib = require('../../lib/wa/clients');
 const store = require('../../lib/wa/store');
 const wa = require('../../lib/wa/whatsapp');
 const agent = require('../../lib/wa/agent');
+const inbound = require('../../lib/wa/inbound');
+
+// Tope de respuestas por teléfono y hora. Un cliente real no necesita más.
+const MAX_RESPUESTAS_HORA = Number(process.env.WA_MAX_RESPUESTAS_HORA || 25);
 
 /* Leído en cada request, no al cargar el módulo: una constante de nivel de
    módulo se congela con el primer cold start y no se puede ejercitar. */
@@ -99,13 +103,26 @@ async function handler(req, res) {
       for (const change of entry.changes || []) {
         const value = change.value || {};
         const pnid = (value.metadata || {}).phone_number_id;
+        const campo = change.field || '?';
 
-        for (const st of value.statuses || []) {
-          console.log('[wa] status', st.id, '->', st.status);
+        // Los acuses de entrega/lectura son de NUESTROS propios envíos. Nunca
+        // generan respuesta. Se registran y se acaba ahí.
+        if (Array.isArray(value.statuses) && value.statuses.length) {
+          for (const st of value.statuses) {
+            console.log('[status-ignored] wamid=%s estado=%s destinatario=%s',
+              st.id, st.status, st.recipient_id || '?');
+          }
         }
 
-        const mensajes = value.messages || [];
-        if (!mensajes.length) continue;
+        const mensajes = Array.isArray(value.messages) ? value.messages : [];
+        if (!mensajes.length) {
+          // Sin messages no hay nada que atender: ni reacciones, ni cambios de
+          // perfil, ni errores de plantilla, ni campos que Meta añada después.
+          const otras = Object.keys(value).filter((k) => k !== 'messaging_product' && k !== 'metadata');
+          console.log('[status-ignored] payload sin messages · field=%s claves=%s',
+            campo, JSON.stringify(otras));
+          continue;
+        }
 
         const client = clientsLib.resolve(pnid);
         if (!client) {
@@ -114,13 +131,36 @@ async function handler(req, res) {
         }
 
         for (const m of mensajes) {
-          // Dedupe before any work: Meta retries, and a retry must not
-          // produce a second reply or a second lead.
-          if (m.id && await store.alreadySeen(m.id)) {
+          const cls = inbound.clasificar(m);
+          // Se registra SIEMPRE qué llegó: cuando el agente contestó sin que
+          // nadie escribiera, no había forma de saber qué lo disparó.
+          console.log('[wa] msg id=%s type=%s from=%s ts=%s accion=%s%s',
+            m.id || '?', cls.tipo, m.from || '?', m.timestamp || '?', cls.accion,
+            cls.motivo ? ' motivo=' + cls.motivo : '');
+
+          if (inbound.esEcho(m, value, client)) {
+            console.warn('[wa] ECO ignorado: from coincide con el número del negocio (%s)', m.from);
+            continue;
+          }
+
+          if (cls.accion === 'ignorar') continue; // 200 + log, sin OpenAI ni envío
+
+          // Dedupe antes de cualquier trabajo: Meta reintenta, y un reintento
+          // no debe producir una segunda respuesta ni un segundo lead.
+          if (await store.alreadySeen(m.id)) {
             console.log('[wa] dedup:', m.id, 'ya visto');
             continue;
           }
-          pendientes.push(agent.handleMessage(client, m));
+
+          // Cortacircuitos: si algo dispara mensajes en bucle, aquí se corta.
+          const n = await store.bumpRespuesta(client.clave, m.from);
+          if (n > MAX_RESPUESTAS_HORA) {
+            console.error('[wa] CORTACIRCUITOS: %s lleva %s respuestas esta hora (máx %s). No se contesta.',
+              m.from, n, MAX_RESPUESTAS_HORA);
+            continue;
+          }
+
+          pendientes.push(agent.handleMessage(client, m, cls));
         }
       }
     }

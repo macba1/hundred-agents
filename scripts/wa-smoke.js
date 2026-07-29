@@ -305,6 +305,82 @@ async function main() {
     assert.strictEqual(SENT.length, antes, 'el dedupe falló');
   });
 
+  console.log('\n=== 6b) Filtrado de entrada (falla-cerrado) ===');
+  const inbound = require(path.join(ROOT, 'lib/wa/inbound'));
+
+  function whCrudo(value) {
+    return { object: 'whatsapp_business_account', entry: [{ changes: [{ field: 'messages', value }] }] };
+  }
+  const META = { display_phone_number: '15551506096', phone_number_id: PNID };
+
+  await check('un payload SOLO de statuses no contesta ni llama a OpenAI', async () => {
+    const antes = SENT.length; const llamadas = guion.length;
+    guion = [texto('esto no debería usarse')];
+    const r = makeRes();
+    await webhook(postReq(whCrudo({ messaging_product: 'whatsapp', metadata: META,
+      statuses: [{ id: 'wamid.S1', status: 'delivered', recipient_id: '16503849019' }] })), r);
+    assert.strictEqual(r.statusCode, 200);
+    assert.strictEqual(SENT.length, antes, 'salió un mensaje por un status');
+    assert.strictEqual(guion.length, 1, 'se llamó a OpenAI por un status');
+  });
+
+  await check('una reacción no genera respuesta', async () => {
+    const antes = SENT.length;
+    const r = makeRes();
+    await webhook(postReq(whCrudo({ messaging_product: 'whatsapp', metadata: META,
+      messages: [{ id: 'wamid.RE1', from: TEST('501'), type: 'reaction',
+        reaction: { message_id: 'wamid.X', emoji: '👍' } }] })), r);
+    assert.strictEqual(SENT.length, antes, 'contestó a una reacción');
+  });
+
+  await check('un texto vacío no genera respuesta', async () => {
+    const antes = SENT.length;
+    const r = makeRes();
+    await webhook(postReq(whCrudo({ messaging_product: 'whatsapp', metadata: META,
+      messages: [{ id: 'wamid.VAC1', from: TEST('502'), type: 'text', text: { body: '   ' } }] })), r);
+    assert.strictEqual(SENT.length, antes, 'contestó a un texto vacío');
+  });
+
+  await check('un eco del propio número del negocio se ignora', async () => {
+    const antes = SENT.length;
+    const r = makeRes();
+    await webhook(postReq(whCrudo({ messaging_product: 'whatsapp', metadata: META,
+      messages: [{ id: 'wamid.ECO1', from: '15551506096', type: 'text', text: { body: 'hola' } }] })), r);
+    assert.strictEqual(SENT.length, antes, 'contestó a su propio eco (bucle)');
+  });
+
+  await check('un tipo desconocido futuro se ignora en silencio', async () => {
+    const antes = SENT.length;
+    const r = makeRes();
+    await webhook(postReq(whCrudo({ messaging_product: 'whatsapp', metadata: META,
+      messages: [{ id: 'wamid.FUT1', from: TEST('503'), type: 'algo_que_meta_invente' }] })), r);
+    assert.strictEqual(SENT.length, antes, 'contestó a un tipo desconocido');
+  });
+
+  await check('un sticker sí recibe la nota corta, sin OpenAI', async () => {
+    const antes = SENT.length; guion = [];
+    const r = makeRes();
+    await webhook(postReq(whCrudo({ messaging_product: 'whatsapp', metadata: META,
+      messages: [{ id: 'wamid.ST1', from: TEST('504'), type: 'sticker', sticker: { id: 's1' } }] })), r);
+    assert.strictEqual(SENT.length, antes + 1, 'no contestó al sticker');
+    assert(/texto/i.test(SENT[SENT.length - 1].text));
+  });
+
+  await check('el cortacircuitos corta un bucle de respuestas', async () => {
+    const BUCLE = TEST('505');
+    let enviados = 0;
+    for (let i = 0; i < 30; i += 1) {
+      guion = [texto('ok')];
+      const antes = SENT.length;
+      const r = makeRes();
+      await webhook(postReq(whCrudo({ messaging_product: 'whatsapp', metadata: META,
+        messages: [{ id: `wamid.L${i}`, from: BUCLE, type: 'text', text: { body: 'hola' } }] })), r);
+      if (SENT.length > antes) enviados += 1;
+    }
+    console.log('  🚧 de 30 mensajes seguidos se contestaron', enviados);
+    assert(enviados <= 25, `se contestaron ${enviados}, el tope es 25`);
+  });
+
   console.log('\n=== 7) Firma inválida en producción ===');
   await check('VERCEL_ENV=production rechaza firma mala con 401', async () => {
     process.env.VERCEL_ENV = 'production';
