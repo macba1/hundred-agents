@@ -424,6 +424,13 @@ async function main() {
     assert(!/manda el saludo con las 3 opciones tal cual/.test(sys),
       'sigue presente la instrucción genérica que anula el saludo personalizado');
   });
+  await check('el prompt no contiene líneas de pedido copiables', async () => {
+    // Un ejemplo con platillo y precio se copiaba tal cual cuando el cliente
+    // pedía "lo mismo de la última vez".
+    const sys = clientsLib.systemPrompt(SANMI, { primerMensaje: true, perfil: null });
+    const copiables = sys.split('\n').filter((l) => /^[•-] .*—\s*\$\d/.test(l.trim()));
+    assert.strictEqual(copiables.length, 0, 'líneas copiables: ' + copiables.join(' | '));
+  });
   await check('un cliente nuevo NO recibe ese bloque', async () => {
     const sys = clientsLib.systemPrompt(SANMI, { primerMensaje: true, perfil: null });
     assert(!/CLIENTE QUE YA TE HA ESCRITO ANTES/.test(sys));

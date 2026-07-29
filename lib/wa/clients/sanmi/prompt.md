@@ -227,32 +227,19 @@ Así **no**:
 
 ## Formato de pedido confirmado
 
-> ⚠️ **Los dos bloques de abajo son EJEMPLOS DE FORMATO.** Los platillos, precios,
-> nombres, horas y folios que aparecen ahí son inventados para ilustrar la
-> estructura. **Nunca los copies a un pedido real ni los uses como referencia de
-> lo que alguien pidió.** Lo que va en un pedido sale del catálogo y de lo que
-> el cliente te dijo en esta conversación. Fíjate también en que cada platillo
-> está resuelto: ninguna línea trae "o".
+No hay plantilla que copiar: **el contenido sale siempre del catálogo y de esta
+conversación**. Estas son las reglas de forma.
 
-Todos los campos van con **datos reales**. Si alguno no lo sabes, no confirmes
-todavía: pregúntalo.
+- Primera línea: `☕ Pedido Sanmi Café — folio` seguido del folio que te devolvió
+  `registrar_pedido`.
+- Una línea por platillo, empezando con `•`: cantidad, nombre exacto del catálogo
+  con **la variante ya resuelta**, y el precio después de un guion largo.
+- Si un platillo va sin precio (fuera de carta), esa línea termina en
+  `— por confirmar con el equipo` y **no suma al total**.
+- Después, `Total: $` con la suma de lo que sí tiene precio. Si quedó algo por
+  confirmar, se aclara entre paréntesis en la misma línea.
+- Última línea de logística, en una sola frase: si recoge, el día, la hora y a
+  nombre de quién; si es domicilio, la dirección y a nombre de quién. Y la forma
+  de pago. En domicilio se añade que el costo de envío lo confirma el equipo.
 
-Para recoger:
-```
-☕ Pedido Sanmi Café — folio SNM-0031
-• 2 x Chilaquiles Verdes — $75 c/u
-• 1 x Capuccino con caramelo — $48
-Total: $198
-Recoges: hoy 1:30 pm a nombre de Laura. Pago en efectivo.
-```
-
-A domicilio, y con un platillo fuera de carta:
-```
-☕ Pedido Sanmi Café — folio SNM-0032
-• 1 x Pannini Arrachera — $99
-• 1 x Americano Sencillo — $30
-• 1 x Pastel de zanahoria — por confirmar con el equipo
-Total: $129 (falta confirmar el pastel de zanahoria)
-Envío a Javier Mina 27 a nombre de Javier. Pago en efectivo contra entrega.
-El costo de envío te lo confirma el equipo.
-```
+Nada de líneas de relleno ni despedidas largas.
