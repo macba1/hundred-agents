@@ -376,12 +376,16 @@ async function main() {
   });
 
   console.log('\n=== 13) Rutas existentes del sitio (no romper nada) ===');
+  // Esta lista existe porque una rama creada desde un branch desactualizado
+  // borró api/coparmex/* al desplegar. Si un archivo de producción falta, aquí
+  // truena antes de llegar a Vercel.
   const existentes = [
     'api/chat.js', 'api/lead.js',
+    'api/coparmex/lead.js', 'api/coparmex/leads.js', 'api/coparmex/sync-notion.js',
     'api/discovery/start.js', 'api/discovery/message.js', 'api/discovery/finalize.js',
     'api/discovery/state.js', 'api/discovery/admin.js', 'api/discovery/health.js',
     'api/discovery/recompile.js',
-    'lib/notion.js', 'lib/discovery/store.js', 'middleware.js',
+    'lib/notion.js', 'lib/coparmex.js', 'lib/discovery/store.js', 'middleware.js',
   ];
   for (const f of existentes) {
     await check(`carga ${f}`, async () => {
@@ -405,6 +409,17 @@ async function main() {
     const v = require(path.join(ROOT, 'vercel.json'));
     assert.strictEqual(v.functions['api/wa/webhook.js'].maxDuration, 60);
     assert(v.functions['api/wa/webhook.js'].includeFiles.includes('lib/wa/clients'));
+  });
+  await check('vercel.json conserva el header del PDF de coparmex', async () => {
+    const v = require(path.join(ROOT, 'vercel.json'));
+    const h = (v.headers || []).find((x) => x.source.includes('coparmex'));
+    assert(h, 'se perdió el Content-Disposition del PDF de coparmex');
+  });
+  await check('la rama no borra nada que master tenga', async () => {
+    const { execSync } = require('child_process');
+    const out = execSync('git diff --name-status master...HEAD', { cwd: ROOT }).toString();
+    const borrados = out.split('\n').filter((l) => l.startsWith('D\t'));
+    assert.strictEqual(borrados.length, 0, 'borra: ' + borrados.join(', '));
   });
 
   /* ---------------------------------------------------------------- */
