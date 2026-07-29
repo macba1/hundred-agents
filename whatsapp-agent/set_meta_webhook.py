@@ -6,8 +6,9 @@ Meta exige un *App access token* (app_id|app_secret) para tocar
 META_APP_SECRET en .env (solo para esto, no se usa en runtime).
 
 Uso:
-    python set_meta_webhook.py https://sanmi-whatsapp-agent.fly.dev/webhook
+    python set_meta_webhook.py              # usa la URL de producción por defecto
     python set_meta_webhook.py --ver        # solo muestra la config actual
+    python set_meta_webhook.py https://otro-host/api/wa/webhook
 """
 import os
 import sys
@@ -18,6 +19,7 @@ import httpx
 
 BASE_DIR = Path(__file__).resolve().parent
 GRAPH = "https://graph.facebook.com/v20.0"
+DEFAULT_CALLBACK = "https://www.thehagentic.com/api/wa/webhook"
 
 
 def load_env() -> dict:
@@ -63,9 +65,8 @@ def main() -> None:
         return
 
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    if not args:
-        sys.exit("Uso: python set_meta_webhook.py https://<host>/webhook")
-    callback = args[0]
+    # La versión viva del agente son las funciones de Vercel (ver INFRA.md).
+    callback = args[0] if args else DEFAULT_CALLBACK
     if not callback.startswith("https://"):
         sys.exit("❌ El callback debe ser https://")
 
