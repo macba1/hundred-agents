@@ -1,5 +1,16 @@
 {
   "rewrites": [],
+  "headers": [
+    {
+      "source": "/coparmex/presentacion.pdf",
+      "headers": [
+        {
+          "key": "Content-Disposition",
+          "value": "attachment; filename=\"Hundred-Agents-Coparmex.pdf\""
+        }
+      ]
+    }
+  ],
   "functions": {
     "api/wa/webhook.js": {
       "maxDuration": 60,

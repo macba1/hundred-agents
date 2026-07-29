@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hundred Agents — Coparmex San Miguel el Alto</title>
+<meta name="robots" content="noindex">
+<style>
+  :root{
+    --bg:#0b0b0d; --accent:#ff4e1c; --fg:#f4f4f5; --muted:#9a9aa2;
+    --card:#141417; --line:#242429; --ok:#3ecf8e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%}
+  a{color:var(--accent)}
+  .wrap{max-width:900px;margin:0 auto;padding:20px 16px 48px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:bold;letter-spacing:.5px}
+  .brand .dot{width:12px;height:12px;border-radius:50%;background:var(--accent);display:inline-block}
+  .brand small{color:var(--muted);font-weight:normal}
+  h1{font-size:26px;line-height:1.25;margin:18px 0 8px}
+  h1 span{color:var(--accent)}
+  .sub{color:var(--muted);font-size:15px;margin-bottom:24px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+  /* form */
+  label{display:block;font-size:13px;color:var(--muted);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+  input[type=text],input[type=email]{width:100%;padding:14px;border-radius:12px;border:1px solid var(--line);
+    background:#0f0f12;color:var(--fg);font-size:16px;font-family:inherit}
+  input:focus{outline:2px solid var(--accent);border-color:transparent}
+  .consent{display:flex;align-items:flex-start;gap:10px;margin:16px 0 4px;font-size:14px;color:var(--muted)}
+  .consent input{margin-top:3px;width:18px;height:18px;accent-color:var(--accent)}
+  button{cursor:pointer;font-family:inherit}
+  .btn{width:100%;margin-top:18px;padding:15px;border:none;border-radius:12px;background:var(--accent);
+    color:#0b0b0d;font-size:17px;font-weight:bold}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .err{color:#ff6b6b;font-size:13px;margin-top:8px;min-height:16px}
+  .hidden{display:none!important}
+  /* pdf viewer */
+  #pdfCard{padding:12px}
+  .pdfbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+  .pdfbar .pg{color:var(--muted);font-size:13px}
+  .navbtn{background:#0f0f12;border:1px solid var(--line);color:var(--fg);border-radius:10px;
+    padding:8px 14px;font-size:15px}
+  .navbtn:disabled{opacity:.35}
+  .canvaswrap{width:100%;overflow:auto;text-align:center;background:#000;border-radius:10px}
+  #pdfCanvas{max-width:100%;height:auto;display:inline-block}
+  .pdfmsg{color:var(--muted);font-size:14px;text-align:center;padding:40px 10px}
+  .dl{display:block;text-align:center;margin-top:12px;padding:11px;border:1px solid var(--line);
+    border-radius:10px;color:var(--fg);text-decoration:none;font-size:14px;background:#0f0f12}
+  .dl:hover{border-color:var(--accent)}
+  .foot{color:var(--muted);font-size:12px;text-align:center;margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><span class="dot"></span>Hundred Agents <small>· Coparmex San Miguel el Alto</small></div>
+
+  <!-- ===== ESTADO A: bienvenida + registro ===== -->
+  <section id="stateA">
+    <h1>Gracias por acompañarnos en <span>Coparmex San Miguel el Alto</span></h1>
+    <div class="sub">Déjanos tus datos para ver la presentación y platicar con nuestro asistente.</div>
+    <div class="card">
+      <form id="leadForm" novalidate>
+        <label for="name">Nombre</label>
+        <input id="name" type="text" autocomplete="name" placeholder="Tu nombre" required>
+        <label for="email">Correo</label>
+        <input id="email" type="email" autocomplete="email" inputmode="email" placeholder="tucorreo@empresa.com" required>
+        <div class="consent">
+          <input id="consent" type="checkbox" checked>
+          <label for="consent" style="margin:0;text-transform:none;letter-spacing:0;color:var(--muted)">
+            Acepto recibir información de Hundred Agents.
+          </label>
+        </div>
+        <div class="err" id="formErr"></div>
+        <button class="btn" id="submitBtn" type="submit">Ver presentación</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== ESTADO B: presentación + agente ===== -->
+  <section id="stateB" class="hidden">
+    <h1 style="font-size:22px">La presentación</h1>
+    <div class="sub" id="hello"></div>
+
+    <div class="card" id="pdfCard">
+      <div class="pdfbar">
+        <button class="navbtn" id="prev" aria-label="Anterior">‹</button>
+        <span class="pg" id="pageInfo">—</span>
+        <button class="navbtn" id="next" aria-label="Siguiente">›</button>
+      </div>
+      <div class="canvaswrap"><canvas id="pdfCanvas"></canvas></div>
+      <div class="pdfmsg hidden" id="pdfMsg"></div>
+      <!-- Fallback siempre visible: aunque pdf.js falle en un móvil viejo,
+           la presentación se puede abrir/descargar directo. -->
+      <a class="dl" id="dlPdf" href="/coparmex/presentacion.pdf" target="_blank" rel="noopener" download>⬇ Descargar presentación (PDF)</a>
+    </div>
+  </section>
+
+  <div class="foot">Hundred Agents · thehagentic.com</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+(function(){
+  var LS_KEY = 'coparmex_lead_v1';
+  var PDF_URL = '/coparmex/presentacion.pdf';
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ---------- estado / registro ---------- */
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch(e){}
+
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  function showB(){
+    $('stateA').classList.add('hidden');
+    $('stateB').classList.remove('hidden');
+    var nm = (user && user.name) ? user.name : '';
+    $('hello').innerHTML = 'Gracias' + (nm ? ' ' + esc(nm) : '') +
+      ', aquí tienes la presentación completa. Cualquier consulta: ' +
+      '<a href="mailto:ruth.anaya@thehagentic.com">ruth.anaya@thehagentic.com</a>';
+    initPdf();
+  }
+
+  function validEmail(s){ return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(s||'').trim()); }
+
+  $('leadForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var name = $('name').value.trim();
+    var email = $('email').value.trim();
+    var consent = $('consent').checked;
+    var err = $('formErr');
+    err.textContent = '';
+    if (!name){ err.textContent = 'Escribe tu nombre.'; return; }
+    if (!validEmail(email)){ err.textContent = 'Escribe un correo válido.'; return; }
+
+    var btn = $('submitBtn');
+    btn.disabled = true; btn.textContent = 'Un momento…';
+
+    fetch('/api/coparmex/lead', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ name:name, email:email, consent:consent })
+    }).then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ return {ok:r.ok, j:j}; }); })
+      .then(function(res){
+        if (!res.ok || !res.j.ok){
+          err.textContent = res.j && res.j.error === 'bad_email' ? 'Correo inválido.' : 'No pudimos guardar tus datos. Intenta de nuevo.';
+          btn.disabled = false; btn.textContent = 'Ver presentación';
+          return;
+        }
+        user = { name:name, email:email };
+        try { localStorage.setItem(LS_KEY, JSON.stringify(user)); } catch(e){}
+        showB();
+      })
+      .catch(function(){
+        err.textContent = 'Problema de conexión. Intenta de nuevo.';
+        btn.disabled = false; btn.textContent = 'Ver presentación';
+      });
+  });
+
+  /* ---------- PDF (pdf.js) ---------- */
+  var pdfDoc = null, pageNum = 1, rendering = false, pending = null;
+  function initPdf(){
+    if (!window.pdfjsLib){ pdfFail('No se pudo cargar el visor. Recarga la página.'); return; }
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    pdfjsLib.getDocument(PDF_URL).promise.then(function(doc){
+      pdfDoc = doc; $('pageInfo').textContent = '1 / ' + doc.numPages;
+      renderPage(1);
+    }).catch(function(){
+      pdfFail('La presentación aún no está disponible. Vuelve a intentar en un momento.');
+    });
+  }
+  function pdfFail(m){
+    $('pdfCanvas').classList.add('hidden');
+    var el = $('pdfMsg'); el.textContent = m; el.classList.remove('hidden');
+    $('prev').disabled = true; $('next').disabled = true;
+  }
+  function renderPage(n){
+    if (!pdfDoc) return;
+    rendering = true;
+    pdfDoc.getPage(n).then(function(page){
+      var canvas = $('pdfCanvas'), ctx = canvas.getContext('2d');
+      var wrapW = canvas.parentElement.clientWidth || 320;
+      var base = page.getViewport({ scale:1 });
+      var scale = Math.min(wrapW / base.width, 2.5) * (window.devicePixelRatio || 1);
+      var vp = page.getViewport({ scale:scale });
+      canvas.width = vp.width; canvas.height = vp.height;
+      canvas.style.width = Math.min(base.width * (wrapW/base.width), wrapW) + 'px';
+      return page.render({ canvasContext:ctx, viewport:vp }).promise;
+    }).then(function(){
+      rendering = false;
+      $('pageInfo').textContent = n + ' / ' + pdfDoc.numPages;
+      $('prev').disabled = n <= 1; $('next').disabled = n >= pdfDoc.numPages;
+      if (pending !== null){ var p = pending; pending = null; renderPage(p); }
+    }).catch(function(){ rendering = false; });
+  }
+  function go(n){
+    if (!pdfDoc || n < 1 || n > pdfDoc.numPages) return;
+    pageNum = n;
+    if (rendering){ pending = n; } else { renderPage(n); }
+  }
+  $('prev').addEventListener('click', function(){ go(pageNum - 1); });
+  $('next').addEventListener('click', function(){ go(pageNum + 1); });
+  window.addEventListener('resize', function(){ if (pdfDoc) renderPage(pageNum); });
+
+  /* ---------- arranque ---------- */
+  if (user && user.name && user.email){ showB(); }
+})();
+</script>
+</body>
+</html>
