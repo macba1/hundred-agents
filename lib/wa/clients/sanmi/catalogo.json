@@ -1,0 +1,669 @@
+{
+  "negocio": "Sanmi Café",
+  "ubicacion": "San Miguel el Alto, Jalisco",
+  "moneda": "MXN",
+  "direccion": "C. Santuario 8, Centro, 47140 San Miguel el Alto, Jalisco (junto a la Parroquia)",
+  "horarios": {
+    "lunes": "8:30-12:30 y 17:00-22:15",
+    "martes": "8:30-12:30 y 17:00-22:15",
+    "miercoles": "8:30-12:30 y 17:00-22:15",
+    "jueves": "CERRADO — día de descanso",
+    "viernes": "8:30-12:30 y 17:00-22:15",
+    "sabado": "8:30-12:30 y 17:00-22:15",
+    "domingo": "8:30-12:30 y 17:00-22:15",
+    "nota": "Horario partido: cierran de 12:30 a 17:00. Los jueves NO abren (día de descanso); el siguiente día que abren es el viernes a las 8:30."
+  },
+  "domicilio": "Sí hay servicio a domicilio dentro de San Miguel el Alto. VERIFICAR: el costo de envío está pendiente de confirmar con el equipo; si el cliente pregunta cuánto cobran de envío, dile que el equipo se lo confirma al recibir el pedido y no inventes una cifra.",
+  "pagos": "Efectivo y transferencia. En pedidos a domicilio, efectivo contra entrega.",
+  "notas_generales": [
+    "No se aceptan cuentas por separado",
+    "Todos los platillos se preparan al momento",
+    "Pregunta por el postre del día"
+  ],
+  "categorias": {
+    "desayunos": {
+      "el_panwich": {
+        "descripcion": "Pan artesanal tipo sándwich con mayonesa, morrón, cebolla asada y queso. Acompañado con papas o ensalada.",
+        "items": [
+          {
+            "nombre": "Panwich Jamón",
+            "precio": 50
+          },
+          {
+            "nombre": "Panwich Chorizo",
+            "precio": 50
+          },
+          {
+            "nombre": "Panwich Pollo asado",
+            "precio": 57
+          },
+          {
+            "nombre": "Panwich Pollo BBQ, Búffalo o Chipotle",
+            "precio": 62
+          },
+          {
+            "nombre": "Panwich Italiano",
+            "precio": 62,
+            "descripcion": "Salami, peperoni y jamón"
+          },
+          {
+            "nombre": "Panwich Arrachera",
+            "precio": 67
+          },
+          {
+            "nombre": "Panwich SanMi",
+            "precio": 67,
+            "descripcion": "Arrachera, pollo y jamón"
+          }
+        ],
+        "sinonimos": [
+          "panwich",
+          "sándwich",
+          "sandwich",
+          "torta",
+          "pan artesanal"
+        ]
+      },
+      "chilaquiles": {
+        "descripcion": "Todos acompañados de huevo revuelto y frijoles con queso.",
+        "items": [
+          {
+            "nombre": "Chilaquiles Verdes o Rojos",
+            "precio": 75
+          },
+          {
+            "nombre": "Chilaquiles Chipotle o Poblanos",
+            "precio": 85
+          }
+        ],
+        "extras": {
+          "Pollo o Chorizo": 25,
+          "Arrachera": 30,
+          "Huevo extra": 15
+        },
+        "sinonimos": [
+          "chilaquil",
+          "chilaquiles"
+        ]
+      },
+      "huevos": {
+        "items": [
+          {
+            "nombre": "Huevos revueltos al gusto",
+            "precio": 70,
+            "descripcion": "Jamón, chorizo o mexicana. Con chilaquiles verdes o rojos y frijoles."
+          },
+          {
+            "nombre": "Huevos Light",
+            "precio": 75,
+            "descripcion": "Claras, espinacas, cebolla, jitomate, champiñones, con ensalada."
+          },
+          {
+            "nombre": "Omelette al gusto",
+            "precio": 75,
+            "descripcion": "3 ingredientes a elegir: espinacas, morrón, champiñón, jitomate, cebolla, jamón o chorizo. Con chilaquiles y frijoles."
+          },
+          {
+            "nombre": "Divorciados",
+            "precio": 76,
+            "descripcion": "Con chilaquiles verdes o rojos y frijoles."
+          }
+        ],
+        "extras": {
+          "Guarnición poblano o chipotle": 12
+        },
+        "sinonimos": [
+          "huevo",
+          "desayuno",
+          "omelette"
+        ]
+      },
+      "las_suegras": {
+        "descripcion": "Sincronizadas de tortilla de maíz frita, rellenas de queso, morrón, cebolla asada y proteína, con ensalada y salsa casera.",
+        "items": [
+          {
+            "nombre": "Suegra Jamón",
+            "precio": 65
+          },
+          {
+            "nombre": "Suegra Chorizo",
+            "precio": 65
+          },
+          {
+            "nombre": "Suegra Pollo",
+            "precio": 72
+          },
+          {
+            "nombre": "Suegra Arrachera",
+            "precio": 74
+          },
+          {
+            "nombre": "Suegra SanMi",
+            "precio": 74
+          }
+        ],
+        "sinonimos": [
+          "suegra",
+          "suegras",
+          "sincronizada",
+          "sincronizadas"
+        ]
+      },
+      "mollequiles": {
+        "descripcion": "Tradicional mollete con una capa de chilaquiles.",
+        "items": [
+          {
+            "nombre": "Mollequiles Verdes o Rojos",
+            "precio": 65
+          },
+          {
+            "nombre": "Mollequiles Chipotle o Poblanos",
+            "precio": 75
+          }
+        ],
+        "extras": {
+          "Pollo o Chorizo": 25,
+          "Arrachera": 30,
+          "Huevo extra": 15
+        },
+        "sinonimos": [
+          "mollequil",
+          "mollete con chilaquiles"
+        ]
+      },
+      "molletes": {
+        "items": [
+          {
+            "nombre": "Molletes Clásicos",
+            "precio": 60
+          },
+          {
+            "nombre": "Molletes Jamón",
+            "precio": 65
+          },
+          {
+            "nombre": "Molletes Chorizo",
+            "precio": 65
+          },
+          {
+            "nombre": "Molletes Pollo",
+            "precio": 72
+          },
+          {
+            "nombre": "Molletes Arrachera",
+            "precio": 74
+          },
+          {
+            "nombre": "Molletes SanMi",
+            "precio": 74
+          }
+        ],
+        "sinonimos": [
+          "mollete"
+        ]
+      },
+      "para_endulzar": {
+        "descripcion": "Disponible en pan francés, crepa o waffle.",
+        "items": [
+          {
+            "nombre": "Cajeta",
+            "precio": 54,
+            "descripcion": "Bañado en cajeta con toque de philadelphia y nuez."
+          },
+          {
+            "nombre": "Frutas",
+            "precio": 65,
+            "descripcion": "Melón, papaya, plátano, manzana y fresa con lecherita."
+          },
+          {
+            "nombre": "Nutella",
+            "precio": 65,
+            "descripcion": "Nutella con plátano y nuez."
+          },
+          {
+            "nombre": "Fresa Nutella",
+            "precio": 66,
+            "descripcion": "Nutella con fresas naturales."
+          },
+          {
+            "nombre": "Pan francés Clásico",
+            "precio": 52,
+            "descripcion": "3 pan de caja con azúcar, canela y maple."
+          },
+          {
+            "nombre": "Plato de Frutas",
+            "precio": 50
+          }
+        ],
+        "extras": {
+          "Bolita de nieve": 12,
+          "Queso cottage": 15
+        },
+        "sinonimos": [
+          "postre",
+          "dulce",
+          "pan francés",
+          "waffle",
+          "crepa dulce",
+          "hotcake"
+        ]
+      }
+    },
+    "bebidas": {
+      "coffee": {
+        "items": [
+          {
+            "nombre": "Espresso",
+            "precio": 30
+          },
+          {
+            "nombre": "Americano Sencillo",
+            "precio": 30
+          },
+          {
+            "nombre": "Americano Doble",
+            "precio": 38
+          },
+          {
+            "nombre": "Latte o Capuccino",
+            "precio": 40,
+            "descripcion": "Con sabor +8: caramelo, vainilla francesa, crema irlandesa, coco, avellana, moka, cajeta, rompope."
+          },
+          {
+            "nombre": "Latte o Capuccino Baileys",
+            "precio": 57
+          }
+        ],
+        "extras": {
+          "Sabor": 8,
+          "Hacer la bebida fría": 6,
+          "Leche deslactosada, avena o almendra": 10
+        },
+        "sinonimos": [
+          "café",
+          "cafés",
+          "cafe caliente",
+          "bebida caliente",
+          "espresso",
+          "capuchino",
+          "capuccino"
+        ]
+      },
+      "non_coffee": {
+        "items": [
+          {
+            "nombre": "Té",
+            "precio": 28,
+            "descripcion": "Manzanilla, verde, menta, durazno, frambuesa, limón-jengibre, mango-maracuyá."
+          },
+          {
+            "nombre": "Tisana",
+            "precio": 48,
+            "descripcion": "Frutas de la pasión, guayaba, manzana, fresa-kiwi."
+          },
+          {
+            "nombre": "Chai",
+            "precio": 52,
+            "descripcion": "Verde o vainilla."
+          },
+          {
+            "nombre": "Matcha latte",
+            "precio": 52
+          },
+          {
+            "nombre": "Taro latte",
+            "precio": 52
+          },
+          {
+            "nombre": "Chocolate",
+            "precio": 38
+          }
+        ],
+        "extras": {
+          "Hacer la bebida fría": 6,
+          "Leche deslactosada, avena o almendra": 10
+        },
+        "sinonimos": [
+          "sin café",
+          "té",
+          "tés",
+          "infusión",
+          "chocolate",
+          "bebida caliente",
+          "matcha",
+          "chai"
+        ]
+      },
+      "frias": {
+        "items": [
+          {
+            "nombre": "Frappe Clásico (con café)",
+            "precio": 50,
+            "descripcion": "Con sabor (sin café) +6: caramelo, vainilla francesa, crema irlandesa, coco, avellana, moka, cajeta, rompope, mazapán."
+          },
+          {
+            "nombre": "Baileys Frappe",
+            "precio": 68
+          },
+          {
+            "nombre": "Chai Frappe",
+            "precio": 63,
+            "descripcion": "Verde o vainilla."
+          },
+          {
+            "nombre": "Matcha Frappe",
+            "precio": 63
+          },
+          {
+            "nombre": "Oreo Frappe",
+            "precio": 63
+          },
+          {
+            "nombre": "Tisana Frappe",
+            "precio": 60
+          },
+          {
+            "nombre": "Sodas Italianas",
+            "precio": 40,
+            "descripcion": "Mora, manzana verde, mango, uva o fresa."
+          },
+          {
+            "nombre": "Smoothie",
+            "precio": 42,
+            "descripcion": "Mango, piña colada, mora, manzana verde, uva, fresa. Chamoy y tajín +5."
+          },
+          {
+            "nombre": "Malteada",
+            "precio": 58,
+            "descripcion": "Vainilla, chocolate, pay, fresa y Oreo."
+          },
+          {
+            "nombre": "Jugo",
+            "precio": 36,
+            "descripcion": "Naranja o zanahoria."
+          },
+          {
+            "nombre": "Jugo Verde",
+            "precio": 40
+          },
+          {
+            "nombre": "Chocomilk",
+            "precio": 38
+          },
+          {
+            "nombre": "Licuado",
+            "precio": 40,
+            "descripcion": "Fresa, plátano, papaya o manzana. Nuez o avena +6."
+          },
+          {
+            "nombre": "Agua fresca",
+            "precio": 32,
+            "descripcion": "Melón, papaya, fresa, limón."
+          },
+          {
+            "nombre": "Rusa",
+            "precio": 35,
+            "descripcion": "Mineral o toronja."
+          },
+          {
+            "nombre": "Limonada o naranjada",
+            "precio": 35
+          },
+          {
+            "nombre": "Micheagua",
+            "precio": 38
+          },
+          {
+            "nombre": "Refresco",
+            "precio": 30
+          },
+          {
+            "nombre": "Botella de agua natural",
+            "precio": 15
+          }
+        ],
+        "sinonimos": [
+          "bebida fría",
+          "bebidas frías",
+          "frappé",
+          "frappe",
+          "malteada",
+          "smoothie",
+          "refresco",
+          "jugo",
+          "limonada"
+        ]
+      },
+      "con_alcohol": {
+        "items": [
+          {
+            "nombre": "Corona o Victoria",
+            "precio": 36
+          },
+          {
+            "nombre": "Stella o Michelob Ultra",
+            "precio": 44
+          },
+          {
+            "nombre": "Michelada Corona o Victoria",
+            "precio": 48
+          },
+          {
+            "nombre": "Michelada Stella o Ultra",
+            "precio": 54
+          },
+          {
+            "nombre": "Mimosa",
+            "precio": 60
+          },
+          {
+            "nombre": "Clericó",
+            "precio": 68
+          },
+          {
+            "nombre": "Copa de vino tinto",
+            "precio": 65
+          },
+          {
+            "nombre": "Baileys en las rocas",
+            "precio": 75
+          },
+          {
+            "nombre": "Carajillo o Canijilla",
+            "precio": 100
+          }
+        ],
+        "sinonimos": [
+          "alcohol",
+          "bebida alcohólica",
+          "coctel",
+          "cócteles",
+          "copa",
+          "cerveza",
+          "carajillo"
+        ]
+      }
+    },
+    "favoritos": {
+      "ensaladas": {
+        "items": [
+          {
+            "nombre": "Ensalada SanMi",
+            "precio": 60,
+            "descripcion": "Mix de lechugas, jitomate, morrón, cebolla asada, aguacate, croutones, aderezo ranch."
+          },
+          {
+            "nombre": "Ensalada de Frutas",
+            "precio": 60,
+            "descripcion": "Mix de lechugas, jícama, manzana, pepino, fresa, nuez y pasas, aderezo mostaza-miel."
+          }
+        ],
+        "extras": {
+          "Jamón o Panela": 35,
+          "Atún": 38,
+          "Pollo": 40,
+          "Arrachera": 45
+        },
+        "sinonimos": [
+          "ensalada",
+          "light",
+          "saludable"
+        ]
+      },
+      "pizzas_individuales": {
+        "items": [
+          {
+            "nombre": "Pizza Margarita",
+            "precio": 85,
+            "descripcion": "Jitomate, albahaca y mozzarella."
+          },
+          {
+            "nombre": "Pizza Italiana",
+            "precio": 90,
+            "descripcion": "Jamón, salami, pepperoni, morrón y mozzarella."
+          },
+          {
+            "nombre": "Pizza Mexicana",
+            "precio": 96,
+            "descripcion": "Chorizo, arrachera, cebolla morada, chile cuaresmeño, jitomate y mozzarella."
+          },
+          {
+            "nombre": "Pizza Española",
+            "precio": 99,
+            "descripcion": "Jamón serrano, champiñón, queso crema y mozzarella."
+          }
+        ],
+        "sinonimos": [
+          "pizza",
+          "pizzas"
+        ]
+      },
+      "crepas_saladas": {
+        "items": [
+          {
+            "nombre": "Crepa Jamón",
+            "precio": 65,
+            "descripcion": "Jamón y queso, salsa cremosa al chipotle."
+          },
+          {
+            "nombre": "Crepa Italiana",
+            "precio": 68,
+            "descripcion": "Jamón, salami, peperoni, mozzarella, morrón y salsa de tomate."
+          },
+          {
+            "nombre": "Crepa Hawaiana",
+            "precio": 68,
+            "descripcion": "Jamón, piña y queso, salsa cremosa al chipotle."
+          },
+          {
+            "nombre": "Crepa Champiñón",
+            "precio": 75,
+            "descripcion": "Queso, pollo, champiñón y cebolla salteados en crema de champiñón."
+          },
+          {
+            "nombre": "Crepa Poblana",
+            "precio": 75,
+            "descripcion": "Rajas poblanas, pollo, elote y queso, salsa de la casa."
+          }
+        ],
+        "sinonimos": [
+          "crepa",
+          "crepas",
+          "crepa salada"
+        ]
+      },
+      "panninis": {
+        "descripcion": "Todos servidos con papas o ensalada.",
+        "items": [
+          {
+            "nombre": "Pannini Vegetariano",
+            "precio": 75,
+            "descripcion": "Espinacas, champiñones, cebolla, jitomate y quesos."
+          },
+          {
+            "nombre": "Pannini Jamón",
+            "precio": 78
+          },
+          {
+            "nombre": "Pannini Atún",
+            "precio": 88
+          },
+          {
+            "nombre": "Pannini Pollo asado",
+            "precio": 88
+          },
+          {
+            "nombre": "Pannini Pollo BBQ, Búffalo o Chipotle",
+            "precio": 90
+          },
+          {
+            "nombre": "Pannini Italiano",
+            "precio": 90
+          },
+          {
+            "nombre": "Pannini Arrachera",
+            "precio": 99
+          },
+          {
+            "nombre": "Pannini SanMi",
+            "precio": 99,
+            "descripcion": "Arrachera, pollo y jamón con morrón, cebolla asada, mayonesa y mix de quesos."
+          }
+        ],
+        "sinonimos": [
+          "pannini",
+          "panini",
+          "paninis",
+          "panninis",
+          "sándwich caliente"
+        ]
+      },
+      "burgers": {
+        "descripcion": "Todas servidas con papas o ensalada.",
+        "items": [
+          {
+            "nombre": "Burger de Pollo asado",
+            "precio": 88
+          },
+          {
+            "nombre": "Burger Pollo BBQ o Búffalo",
+            "precio": 90
+          },
+          {
+            "nombre": "Burger Arrachera",
+            "precio": 99
+          }
+        ],
+        "sinonimos": [
+          "hamburguesa",
+          "hamburguesas",
+          "burger"
+        ]
+      },
+      "especiales": {
+        "items": [
+          {
+            "nombre": "Taco de arrachera (pieza)",
+            "precio": 36
+          },
+          {
+            "nombre": "Botana Ranchera",
+            "precio": 110,
+            "descripcion": "Totopos bañados de frijoles, con arrachera, pico de gallo y queso."
+          },
+          {
+            "nombre": "1/2 Botana Ranchera",
+            "precio": 85
+          }
+        ],
+        "sinonimos": [
+          "especial",
+          "especialidad",
+          "de la casa"
+        ]
+      }
+    }
+  },
+  "tel_llamadas": "+52 347 788 2003 (solo llamadas)",
+  "tel_whatsapp": "+52 347 105 3350"
+}

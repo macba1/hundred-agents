@@ -1,0 +1,15 @@
+{
+  "clave": "demo-dulces",
+  "nombre": "Dulces del Alto (DEMO)",
+  "activo": false,
+  "_activo_nota": "INACTIVO: Sanmi Café tomó prestado el número demo de Meta. Para reactivar, pon activo=true aquí y activo=false en clients/sanmi/config.json (dos clientes activos con el mismo phone_number_id hacen fallar el arranque a propósito).",
+  "phone_number_id": "1211779025353605",
+  "human_notify_wa": "",
+  "max_turns": 14,
+  "memoria_mensajes": 24,
+  "folio_prefix": "DA",
+  "modo": "demo",
+  "acento_panel": "#ff4e1c",
+  "datos": {},
+  "mensaje_cierre": "¡Gracias por probar la demo de Dulces del Alto! 🍬 Aquí termina este recorrido de muestra. Si quieres seguir, escríbenos de nuevo."
+}

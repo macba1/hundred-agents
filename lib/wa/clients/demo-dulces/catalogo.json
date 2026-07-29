@@ -1,0 +1,16 @@
+{"negocio":"Dulces del Alto (DEMO)","moneda":"MXN","productos":[
+{"sku":"CAJ-250","nombre":"Cajeta de leche quemada 250g (frasco)","categoria":"cajeta","precio_menudeo":58,"precio_mayoreo":42,"cantidad_mayoreo":24,"stock":480,"presentacion":"caja de 24 frascos"},
+{"sku":"CAJ-1KG","nombre":"Cajeta de leche 1kg (cubeta)","categoria":"cajeta","precio_menudeo":165,"precio_mayoreo":128,"cantidad_mayoreo":12,"stock":96,"presentacion":"caja de 12 cubetas"},
+{"sku":"JAM-CLA","nombre":"Jamoncillo de leche clásico 60g","categoria":"jamoncillo","precio_menudeo":14,"precio_mayoreo":8.5,"cantidad_mayoreo":100,"stock":3500,"presentacion":"bolsa de 50 pzas"},
+{"sku":"JAM-NUE","nombre":"Jamoncillo con nuez 60g","categoria":"jamoncillo","precio_menudeo":18,"precio_mayoreo":11,"cantidad_mayoreo":100,"stock":2200,"presentacion":"bolsa de 50 pzas"},
+{"sku":"COC-TRA","nombre":"Cocada tradicional horneada 80g","categoria":"cocada","precio_menudeo":16,"precio_mayoreo":10,"cantidad_mayoreo":100,"stock":1800,"presentacion":"charola de 40 pzas"},
+{"sku":"COC-ROM","nombre":"Cocada con rompope 80g","categoria":"cocada","precio_menudeo":19,"precio_mayoreo":12.5,"cantidad_mayoreo":100,"stock":0,"presentacion":"charola de 40 pzas","nota":"agotada, resurtido en 5 días"},
+{"sku":"NAT-VAS","nombre":"Natilla de leche en vasito 120g","categoria":"natilla","precio_menudeo":22,"precio_mayoreo":15,"cantidad_mayoreo":60,"stock":900,"presentacion":"caja de 30 vasitos"},
+{"sku":"ATE-GUA","nombre":"Rollito de guayaba 200g","categoria":"ate","precio_menudeo":35,"precio_mayoreo":26,"cantidad_mayoreo":50,"stock":640,"presentacion":"caja de 25 pzas"},
+{"sku":"PAL-CAC","nombre":"Palanqueta de cacahuate 90g","categoria":"palanqueta","precio_menudeo":15,"precio_mayoreo":9,"cantidad_mayoreo":100,"stock":2600,"presentacion":"bolsa de 50 pzas"},
+{"sku":"OBL-CAJ","nombre":"Obleas con cajeta 30g (paq. 5)","categoria":"oblea","precio_menudeo":20,"precio_mayoreo":13,"cantidad_mayoreo":100,"stock":1500,"presentacion":"caja de 60 paquetes"},
+{"sku":"TAM-ENC","nombre":"Ate de tamarindo enchilado 100g","categoria":"tamarindo","precio_menudeo":17,"precio_mayoreo":10.5,"cantidad_mayoreo":100,"stock":2100,"presentacion":"bolsa de 50 pzas"},
+{"sku":"SUR-REG","nombre":"Caja surtida regalo (12 dulces típicos)","categoria":"surtido","precio_menudeo":189,"precio_mayoreo":145,"cantidad_mayoreo":20,"stock":260,"presentacion":"caja individual"}],
+"envios":{"local_gratis_desde":1500,"region_altos":"1-2 días hábiles","nacional":"3-5 días hábiles por paquetería","minimo_mayoreo_foraneo":3000},
+"pagos":["transferencia","depósito","efectivo contra entrega solo local"],
+"horario_humano":"Lun-Vie 9:00-18:00, Sáb 9:00-14:00"}

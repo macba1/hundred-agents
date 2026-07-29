@@ -1,4 +1,24 @@
-# Agente de WhatsApp multi-cliente
+# Agente de WhatsApp multi-cliente — ⚠️ DEPRECADO
+
+> **La versión viva es `api/wa/` (Vercel + Redis).** Ver [`INFRA.md`](../INFRA.md).
+>
+> Este servicio Python ya **no se despliega**. Se conserva por dos razones:
+> es la referencia de la lógica del agente, y sus pruebas (`smoke_test.py`,
+> `test_sanmi_real.py`, `test_horarios.py`) siguen sirviendo para validar
+> prompts y catálogos contra OpenAI real sin tocar producción.
+>
+> **Los datos de cliente vivos están en `lib/wa/clients/`.** Los de aquí
+> (`whatsapp-agent/clients/`) son la copia histórica: si editas un catálogo o un
+> prompt, edítalo en `lib/wa/clients/`.
+>
+> | Antes (Python) | Ahora (Vercel) |
+> |---|---|
+> | `uvicorn main:app` | `api/wa/webhook.js` |
+> | SQLite `demo.db` | Redis (`REDIS_URL`), `lib/wa/store.js` |
+> | `/webhook` | `https://www.thehagentic.com/api/wa/webhook` |
+> | `/leads?token=` | `/api/wa/leads?token=` |
+> | `/health` | `/api/wa/health` |
+> | túnel cloudflared | dominio de producción, 24/7 |
 
 Servicio **autónomo** (Python + FastAPI). No toca el resto del repo (Node/Vercel).
 Agente de WhatsApp con OpenAI `gpt-4o` (function calling + visión + transcripción
