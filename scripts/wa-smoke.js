@@ -227,7 +227,7 @@ async function main() {
   await check('info del negocio viaja con el catálogo', async () => {
     const r = catalog.buscar(SANMI, 'americano');
     assert(r.horarios && r.direccion && r.tel_llamadas);
-    assert.strictEqual(r.horarios.jueves, 'CERRADO — día de descanso');
+    assert(/^CERRADO/.test(r.horarios.jueves), 'el jueves debe salir como cerrado');
   });
 
   console.log('\n=== 3) Firma X-Hub-Signature-256 ===');
@@ -433,7 +433,7 @@ async function main() {
   await check('al volver, el prompt lo trata como recurrente', async () => {
     const p = await store.getPerfil('sanmi', PED);
     const sys = clientsLib.systemPrompt(SANMI, { primerMensaje: true, perfil: p });
-    assert(/CLIENTE QUE YA TE HA ESCRITO ANTES/.test(sys), 'falta el bloque de recurrente');
+    assert(/CLIENTE CONOCIDO/.test(sys), 'falta el bloque de cliente conocido');
     assert(sys.includes('Javier'), 'el prompt no lleva su nombre');
     assert(/re-verificar cada precio/.test(sys), 'no pide re-verificar precios');
     // El saludo genérico decía "manda las 3 opciones tal cual" y ganaba a este
@@ -448,9 +448,17 @@ async function main() {
     const copiables = sys.split('\n').filter((l) => /^[•-] .*—\s*\$\d/.test(l.trim()));
     assert.strictEqual(copiables.length, 0, 'líneas copiables: ' + copiables.join(' | '));
   });
+  await check('el último pedido sigue disponible en turnos posteriores', async () => {
+    // Cargarlo solo en el primer mensaje dejaba al modelo sin saber qué era
+    // "lo mismo" justo en el turno en que el cliente lo pedía.
+    const p = await store.getPerfil('sanmi', PED);
+    const turno2 = clientsLib.systemPrompt(SANMI, { primerMensaje: false, perfil: p });
+    assert(/CLIENTE CONOCIDO/.test(turno2), 'el perfil desaparece tras el primer turno');
+    assert(turno2.includes(p.ultimo_pedido.resumen.split('\n')[0]), 'falta el último pedido');
+  });
   await check('un cliente nuevo NO recibe ese bloque', async () => {
     const sys = clientsLib.systemPrompt(SANMI, { primerMensaje: true, perfil: null });
-    assert(!/CLIENTE QUE YA TE HA ESCRITO ANTES/.test(sys));
+    assert(!/CLIENTE CONOCIDO/.test(sys));
   });
 
   console.log('\n=== 11b) Purga de datos de prueba ===');

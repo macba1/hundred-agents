@@ -4,14 +4,14 @@
   "moneda": "MXN",
   "direccion": "C. Santuario 8, Centro, 47140 San Miguel el Alto, Jalisco (junto a la Parroquia)",
   "horarios": {
-    "lunes": "8:30-12:30 y 17:00-22:15",
-    "martes": "8:30-12:30 y 17:00-22:15",
-    "miercoles": "8:30-12:30 y 17:00-22:15",
-    "jueves": "CERRADO — día de descanso",
-    "viernes": "8:30-12:30 y 17:00-22:15",
-    "sabado": "8:30-12:30 y 17:00-22:15",
-    "domingo": "8:30-12:30 y 17:00-22:15",
-    "nota": "Horario partido: cierran de 12:30 a 17:00. Los jueves NO abren (día de descanso); el siguiente día que abren es el viernes a las 8:30."
+    "lunes": "ABIERTO 8:30-12:30 y ABIERTO 17:00-22:15 (cerrado solo entre 12:30 y 17:00)",
+    "martes": "ABIERTO 8:30-12:30 y ABIERTO 17:00-22:15 (cerrado solo entre 12:30 y 17:00)",
+    "miercoles": "ABIERTO 8:30-12:30 y ABIERTO 17:00-22:15 (cerrado solo entre 12:30 y 17:00)",
+    "jueves": "CERRADO todo el día — día de descanso",
+    "viernes": "ABIERTO 8:30-12:30 y ABIERTO 17:00-22:15 (cerrado solo entre 12:30 y 17:00)",
+    "sabado": "ABIERTO 8:30-12:30 y ABIERTO 17:00-22:15 (cerrado solo entre 12:30 y 17:00)",
+    "domingo": "ABIERTO 8:30-12:30 y ABIERTO 17:00-22:15 (cerrado solo entre 12:30 y 17:00)",
+    "nota": "Son DOS ventanas de servicio al día: mañana 8:30-12:30 y tarde-noche 17:00-22:15. Cualquier hora dentro de esas dos ventanas está ABIERTO (las 9:00, las 10:00 y las 11:00 de la mañana están abiertas). Solo se cierra entre 12:30 y 17:00, y los jueves todo el día."
   },
   "domicilio": "Sí hay servicio a domicilio en San Miguel el Alto. Una calle y número sin más datos SE ASUME que es de aquí: acepta el envío sin preguntar por la zona. Solo si el cliente nombra otra población (San Julián, Jalos, Valle, Arandas, una ranchería) se le ofrece recoger. VERIFICAR: el costo de envío sigue pendiente; si preguntan cuánto es, di que el equipo se lo confirma al recibir el pedido y no inventes una cifra.",
   "pagos": "Efectivo y transferencia. En pedidos a domicilio, efectivo contra entrega.",
