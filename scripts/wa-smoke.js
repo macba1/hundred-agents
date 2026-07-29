@@ -435,7 +435,7 @@ async function main() {
     const sys = clientsLib.systemPrompt(SANMI, { primerMensaje: true, perfil: p });
     assert(/CLIENTE CONOCIDO/.test(sys), 'falta el bloque de cliente conocido');
     assert(sys.includes('Javier'), 'el prompt no lleva su nombre');
-    assert(/re-verificar cada precio/.test(sys), 'no pide re-verificar precios');
+    assert(/re-verificar el precio/.test(sys), 'no pide re-verificar precios');
     // El saludo genérico decía "manda las 3 opciones tal cual" y ganaba a este
     // bloque: las dos instrucciones no pueden convivir.
     assert(!/manda el saludo con las 3 opciones tal cual/.test(sys),
