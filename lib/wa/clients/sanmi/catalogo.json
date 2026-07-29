@@ -13,7 +13,7 @@
     "domingo": "8:30-12:30 y 17:00-22:15",
     "nota": "Horario partido: cierran de 12:30 a 17:00. Los jueves NO abren (día de descanso); el siguiente día que abren es el viernes a las 8:30."
   },
-  "domicilio": "Sí hay servicio a domicilio dentro de San Miguel el Alto. VERIFICAR: el costo de envío está pendiente de confirmar con el equipo; si el cliente pregunta cuánto cobran de envío, dile que el equipo se lo confirma al recibir el pedido y no inventes una cifra.",
+  "domicilio": "Sí hay servicio a domicilio en San Miguel el Alto. Una calle y número sin más datos SE ASUME que es de aquí: acepta el envío sin preguntar por la zona. Solo si el cliente nombra otra población (San Julián, Jalos, Valle, Arandas, una ranchería) se le ofrece recoger. VERIFICAR: el costo de envío sigue pendiente; si preguntan cuánto es, di que el equipo se lo confirma al recibir el pedido y no inventes una cifra.",
   "pagos": "Efectivo y transferencia. En pedidos a domicilio, efectivo contra entrega.",
   "notas_generales": [
     "No se aceptan cuentas por separado",
