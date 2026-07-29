@@ -116,6 +116,7 @@ const clientsLib = require(path.join(ROOT, 'lib/wa/clients'));
 const store = require(path.join(ROOT, 'lib/wa/store'));
 const catalog = require(path.join(ROOT, 'lib/wa/catalog'));
 const waLib = require(path.join(ROOT, 'lib/wa/whatsapp'));
+const agent = require(path.join(ROOT, 'lib/wa/agent'));
 const webhook = require(path.join(ROOT, 'api/wa/webhook'));
 const leadsApi = require(path.join(ROOT, 'api/wa/leads'));
 const healthApi = require(path.join(ROOT, 'api/wa/health'));
@@ -144,6 +145,10 @@ function postReq(payload, { sign = true, secret = APP_SECRET } = {}) {
   }
   return req;
 }
+
+const { esTest, TEST_PREFIX } = require(path.join(ROOT, 'lib/wa/testmode'));
+/** Todo teléfono de prueba vive en el rango reservado. */
+const TEST = (n) => TEST_PREFIX + n;
 
 const SANMI = clientsLib.get('sanmi');
 const PNID = SANMI.phone_number_id;
@@ -261,7 +266,7 @@ async function main() {
     },
     texto('☕ Pedido Sanmi Café — folio SNM-0001\nTotal: $129\n\n⚠️ Estamos en periodo de pruebas: este pedido es de práctica y no se preparará.'),
   ];
-  const PED = '5215559990001';
+  const PED = TEST('001');
   const payloadPedido = wh(textMsg(PED, 'un pannini de arrachera y un americano a Javier Mina 27'));
   let res = makeRes();
   await webhook(postReq(payloadPedido), res);
@@ -280,13 +285,9 @@ async function main() {
     console.log('  📋', FOLIO, '· total', ped.total, '·', ped.resumen);
   });
 
-  await check('un pedido con algo fuera de carta avisa al equipo solo', async () => {
+  await check('un pedido con algo fuera de carta escala solo', async () => {
     // Antes dependía de que el modelo llamara escalar_humano y en producción se
     // le olvidó: prometió "te lo confirma el equipo" sin notificar a nadie.
-    const aviso = SENT.filter((s) => SANMI.human_notify_wa.includes(s.to))
-      .find((s) => /pastel de zanahoria/i.test(s.text));
-    assert(aviso, 'el equipo no fue notificado del platillo fuera de carta');
-    console.log('  📲', aviso.text);
     const rows = await store.listLeads('sanmi', ['sanmi']);
     assert(rows.some((r) => r.tipo === 'escalado' && /pastel de zanahoria/i.test(r.resumen || '')),
       'no quedó registro del escalado');
@@ -304,29 +305,32 @@ async function main() {
   await check('VERCEL_ENV=production rechaza firma mala con 401', async () => {
     process.env.VERCEL_ENV = 'production';
     const r3 = makeRes();
-    await webhook(postReq(wh(textMsg('5215559990009', 'hola')), { secret: 'secreto-equivocado' }), r3);
+    await webhook(postReq(wh(textMsg(TEST('009'), 'hola')), { secret: 'secreto-equivocado' }), r3);
     assert.strictEqual(r3.statusCode, 401);
     process.env.VERCEL_ENV = 'development';
   });
 
   console.log('\n=== 8) Escalado ===');
   guion = [toolCall('escalar_humano', { motivo: 'El cliente pide factura' }), texto('Ya pasé tu solicitud al equipo.')];
-  const ESC = '5215559990002';
+  const ESC = TEST('002');
   const avisosAntes = SENT.length;
   res = makeRes();
   await webhook(postReq(wh(textMsg(ESC, 'quiero factura'))), res);
-  await check('aviso al equipo con formato y hora CDMX', async () => {
-    const aviso = SENT.find((s) => SANMI.human_notify_wa.includes(s.to));
-    assert(aviso, 'no salió aviso a human_notify_wa');
-    console.log('  📲', aviso.text);
-    assert(/^🔔 Sanmi Café — \d{2}\/\d{2}\/\d{4} \d{2}:\d{2} \(CDMX\) — escalado de \+/.test(aviso.text), aviso.text);
-  });
-  await check('el aviso sale a TODOS los destinos configurados', async () => {
-    // Con varios probadores del staff, un solo envío no basta. Se cuenta solo
-    // lo emitido por ESTE escalado, no los de pruebas anteriores.
+  await check('un número del rango de prueba NO despierta a nadie', async () => {
+    assert(esTest(ESC), 'el test debe usar el rango reservado');
     const avisos = SENT.slice(avisosAntes).filter((s) => SANMI.human_notify_wa.includes(s.to));
-    assert.strictEqual(avisos.length, SANMI.human_notify_wa.length,
-      `${avisos.length} avisos para ${SANMI.human_notify_wa.length} destinos`);
+    assert.strictEqual(avisos.length, 0, 'salió un aviso real desde un número de prueba');
+  });
+  await check('el escalado sí queda registrado, marcado test', async () => {
+    const rows = await store.listLeads('sanmi', ['sanmi']);
+    const esc = rows.find((r) => r.tipo === 'escalado' && r.phone === ESC);
+    assert(esc, 'no se registró el escalado');
+    assert.strictEqual(esc.test, true, 'el lead no quedó marcado como prueba');
+    // El texto ya no sale por WhatsApp en pruebas, así que el formato se
+    // comprueba en la función que lo compone.
+    const texto = agent.avisoEscalamiento(SANMI, ESC, 'El cliente pide factura');
+    console.log('  📲', texto);
+    assert(/^🔔 Sanmi Café — \d{2}\/\d{2}\/\d{4} \d{2}:\d{2} \(CDMX\) — escalado de \+/.test(texto), texto);
   });
   await check('escalado visible en leads', async () => {
     const rows = await store.listLeads('sanmi', ['sanmi']);
@@ -344,7 +348,7 @@ async function main() {
   });
 
   console.log('\n=== 10) Audio y límite diario ===');
-  const AUD = '5215559990003';
+  const AUD = TEST('003');
   guion = [texto('Abrimos mañana a las 8:30.')];
   res = makeRes();
   await webhook(postReq(wh({ id: 'wamid.A1', from: AUD, type: 'audio', audio: { id: 'media-1', mime_type: 'audio/ogg' } })), res);
@@ -383,6 +387,30 @@ async function main() {
     assert(r.body.includes(FOLIO), 'no aparece el folio ' + FOLIO);
     assert(r.body.includes('Sanmi Café'), 'no aparece el cliente');
     assert(r.body.includes('token='), 'las pestañas perdieron el token');
+  });
+
+  console.log('\n=== 11b) Purga de datos de prueba ===');
+  const adminApi = require(path.join(ROOT, 'api/wa/admin'));
+  await check('POST sin token → 403', async () => {
+    const r = makeRes();
+    await adminApi({ method: 'POST', headers: {}, query: { action: 'purge', client: 'sanmi' } }, r);
+    assert.strictEqual(r.statusCode, 403);
+  });
+  await check('scope=all sin confirm → 400', async () => {
+    const r = makeRes();
+    await adminApi({ method: 'POST', headers: {}, query: { action: 'purge', client: 'sanmi', scope: 'all', token: process.env.PANEL_TOKEN } }, r);
+    assert.strictEqual(r.statusCode, 400);
+  });
+  await check('scope=test borra solo las pruebas', async () => {
+    // Un lead real que no debe desaparecer.
+    await store.addLead('sanmi', { phone: '5213331112233', tipo: 'mensaje', resumen: 'cliente real', test: false });
+    const r = makeRes();
+    await adminApi({ method: 'POST', headers: {}, query: { action: 'purge', client: 'sanmi', scope: 'test', token: process.env.PANEL_TOKEN } }, r);
+    assert.strictEqual(r.statusCode, 200);
+    console.log('  🧹', JSON.stringify(r.body));
+    const rows = await store.listLeads('sanmi', ['sanmi']);
+    assert(rows.every((x) => !x.test && !esTest(x.phone)), 'quedaron datos de prueba');
+    assert(rows.some((x) => x.resumen === 'cliente real'), 'borró un lead real');
   });
 
   console.log('\n=== 12) /api/wa/health ===');

@@ -23,6 +23,10 @@
     "api/wa/health.js": {
       "maxDuration": 30,
       "includeFiles": "lib/wa/clients/**"
+    },
+    "api/wa/admin.js": {
+      "maxDuration": 60,
+      "includeFiles": "lib/wa/clients/**"
     }
   }
 }

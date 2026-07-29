@@ -62,9 +62,20 @@ async function handler(req, res) {
     return res.status(200).json({ status: 'ok' });
   }
 
+  // Origen de la petición: sin esto no se puede responder "¿de dónde vino este
+  // webhook?" después, y los logs de runtime caducan en horas.
+  const origen = {
+    ip: req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || '?',
+    ua: String(req.headers['user-agent'] || '?').slice(0, 80),
+    bytes: raw.length,
+  };
+
   const appSecret = process.env.META_APP_SECRET || '';
   const sig = req.headers['x-hub-signature-256'];
   const check = wa.verifySignature(raw, sig, appSecret);
+  console.log('[wa] webhook POST desde ip=%s ua=%s bytes=%s firma=%s',
+    origen.ip, origen.ua, origen.bytes, check.reason);
+
   if (!check.ok) {
     if (isProd()) {
       // Fail closed in production: an unverified POST could be anyone.

@@ -64,8 +64,13 @@ module.exports = async function handler(req, res) {
   const sel = clienteSel ? clientsLib.get(clienteSel) : null;
 
   try {
-    const rows = await store.listLeads(clienteSel || '', claves, 200);
-    const phones = new Set(rows.map((r) => r.phone));
+    let rows = await store.listLeads(clienteSel || '', claves, 200);
+    const tests = rows.filter((r) => r.test).length;
+    // ?test=0 los oculta por completo (útil al enseñarle el panel al cliente).
+    if (String((req.query && req.query.test) ?? '1') === '0') rows = rows.filter((r) => !r.test);
+    // Los contadores SIEMPRE ignoran las pruebas: son métricas del negocio.
+    const reales = rows.filter((r) => !r.test);
+    const phones = new Set(reales.map((r) => r.phone));
 
     const ref = sel || todos.find((c) => c.activo) || todos[0];
     const hora = ref ? clientsLib.ahoraCorto(ref) : new Date().toISOString().slice(11, 19);
@@ -74,7 +79,9 @@ module.exports = async function handler(req, res) {
       titulo: sel ? sel.nombre : 'Todos los clientes',
       acento: sel ? sel.acento_panel : '#ff4e1c',
       contactos: phones.size,
-      total: rows.length,
+      total: reales.length,
+      tests,
+      zona: (ref && ref.zona_horaria) || 'America/Mexico_City',
       rows,
       clientes: todos,
       clienteSel,
