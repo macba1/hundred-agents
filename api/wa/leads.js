@@ -40,6 +40,25 @@ module.exports = async function handler(req, res) {
   if (!rd.ok) return res.status(503).send(rd.error);
 
   const clienteSel = (req.query && req.query.client) || '';
+
+  // ?transcript=<telefono> — conversación literal de un contacto, en JSON.
+  // Mismo token que el panel: expone lo que el cliente escribió y lo que el
+  // agente contestó, que es exactamente lo que hace falta para dar soporte.
+  const transcriptPhone = (req.query && req.query.transcript) || '';
+  if (transcriptPhone) {
+    const c = clientsLib.get(clienteSel);
+    if (!c) return res.status(400).json({ error: 'client_desconocido' });
+    try {
+      const s = await store.getSession(c.clave, transcriptPhone);
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json({
+        client: c.clave, phone: transcriptPhone, turns: s.turns, mensajes: s.history,
+      });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
   const todos = clientsLib.all();
   const claves = todos.map((c) => c.clave);
   const sel = clienteSel ? clientsLib.get(clienteSel) : null;
