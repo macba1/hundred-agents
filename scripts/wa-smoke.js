@@ -257,7 +257,7 @@ async function main() {
       const data = JSON.parse(tool.content);
       TOOLS_USED.push(['buscar_catalogo', data.total_coincidencias]);
       assert(data.coincidencias[0].nombre === 'Pannini Arrachera', 'catálogo equivocado');
-      return toolCall('registrar_pedido', { clasificacion: 'pedido', resumen: '1 Pannini Arrachera + 1 Americano, Javier Mina 27', total: 129 });
+      return toolCall('registrar_pedido', { clasificacion: 'pedido', resumen: '1 Pannini Arrachera + 1 Americano, Javier Mina 27', total: 129, fuera_de_carta: ['pastel de zanahoria'] });
     },
     texto('☕ Pedido Sanmi Café — folio SNM-0001\nTotal: $129\n\n⚠️ Estamos en periodo de pruebas: este pedido es de práctica y no se preparará.'),
   ];
@@ -280,6 +280,18 @@ async function main() {
     console.log('  📋', FOLIO, '· total', ped.total, '·', ped.resumen);
   });
 
+  await check('un pedido con algo fuera de carta avisa al equipo solo', async () => {
+    // Antes dependía de que el modelo llamara escalar_humano y en producción se
+    // le olvidó: prometió "te lo confirma el equipo" sin notificar a nadie.
+    const aviso = SENT.filter((s) => SANMI.human_notify_wa.includes(s.to))
+      .find((s) => /pastel de zanahoria/i.test(s.text));
+    assert(aviso, 'el equipo no fue notificado del platillo fuera de carta');
+    console.log('  📲', aviso.text);
+    const rows = await store.listLeads('sanmi', ['sanmi']);
+    assert(rows.some((r) => r.tipo === 'escalado' && /pastel de zanahoria/i.test(r.resumen || '')),
+      'no quedó registro del escalado');
+  });
+
   console.log('\n=== 6) Dedupe de reintentos de Meta ===');
   await check('mismo message_id no se reprocesa', async () => {
     const antes = SENT.length;
@@ -300,6 +312,7 @@ async function main() {
   console.log('\n=== 8) Escalado ===');
   guion = [toolCall('escalar_humano', { motivo: 'El cliente pide factura' }), texto('Ya pasé tu solicitud al equipo.')];
   const ESC = '5215559990002';
+  const avisosAntes = SENT.length;
   res = makeRes();
   await webhook(postReq(wh(textMsg(ESC, 'quiero factura'))), res);
   await check('aviso al equipo con formato y hora CDMX', async () => {
@@ -309,8 +322,9 @@ async function main() {
     assert(/^🔔 Sanmi Café — \d{2}\/\d{2}\/\d{4} \d{2}:\d{2} \(CDMX\) — escalado de \+/.test(aviso.text), aviso.text);
   });
   await check('el aviso sale a TODOS los destinos configurados', async () => {
-    // Con varios probadores del staff, un solo envío no basta.
-    const avisos = SENT.filter((s) => SANMI.human_notify_wa.includes(s.to));
+    // Con varios probadores del staff, un solo envío no basta. Se cuenta solo
+    // lo emitido por ESTE escalado, no los de pruebas anteriores.
+    const avisos = SENT.slice(avisosAntes).filter((s) => SANMI.human_notify_wa.includes(s.to));
     assert.strictEqual(avisos.length, SANMI.human_notify_wa.length,
       `${avisos.length} avisos para ${SANMI.human_notify_wa.length} destinos`);
   });
