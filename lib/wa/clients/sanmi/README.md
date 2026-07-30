@@ -194,8 +194,16 @@ aviso:
 
 ```jsonc
 // config.json
-"human_notify_wa": ["16503849019", "5213471234567", "5213479876543"]
+"human_notify_wa": ["16503849019", "523471109971", "523471053350"]
 ```
+
+> **México va sin el 1: `52` + 10 dígitos.** El `wa_id` canónico que devuelve
+> Meta sí lleva el 1 (`5213471109971`), pero Graph **solo acepta como input la
+> forma sin él** y lo añade solo. Mandarle el canónico devuelve
+> `(#131030) Recipient phone number not in allowed list` — un error que culpa a
+> la lista de autorizados cuando el número está perfectamente autorizado.
+> `lib/wa/whatsapp.js` ya normaliza al enviar, así que da igual cómo lo escribas
+> aquí; pero al depurar a mano, usa `52` + 10.
 
 Ojo: un número solo recibe el escalamiento si además está en la lista *To* del
 paso A. Si no, el envío rebota y el log lo marca con `NO se pudo notificar`.

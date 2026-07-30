@@ -305,6 +305,26 @@ async function main() {
     assert.strictEqual(SENT.length, antes, 'el dedupe falló');
   });
 
+  console.log('\n=== 6a) Normalización de destinos mexicanos ===');
+  await check('un 521+10 se manda como 52+10 (Graph rechaza el canónico)', async () => {
+    // Graph devuelve 131030 "no está en la lista" si le mandas el wa_id
+    // canónico con el 1, aunque el número SÍ esté autorizado.
+    assert.strictEqual(waLib.normalizarDestino('5213471109971'), '523471109971');
+    assert.strictEqual(waLib.normalizarDestino('+52 347 110 9971'), '523471109971');
+    assert.strictEqual(waLib.normalizarDestino('523471109971'), '523471109971');
+    assert.strictEqual(waLib.normalizarDestino('16503849019'), '16503849019');
+    // El rango de pruebas se deja intacto: no es un número real.
+    assert.strictEqual(waLib.normalizarDestino(TEST('101')), TEST('101'));
+  });
+  await check('el escalado sale con el destino normalizado', async () => {
+    const cliente = { ...SANMI, human_notify_wa: ['5213471109971'], human_notify_wa_alt: '' };
+    const antes = SENT.length;
+    await waLib.sendText(cliente, '5213471109971', 'prueba');
+    assert.strictEqual(SENT[SENT.length - 1].to, '523471109971',
+      'se mandó sin normalizar: Graph lo rechazaría con 131030');
+    assert.strictEqual(SENT.length, antes + 1);
+  });
+
   console.log('\n=== 6b) Filtrado de entrada (falla-cerrado) ===');
   const inbound = require(path.join(ROOT, 'lib/wa/inbound'));
 
