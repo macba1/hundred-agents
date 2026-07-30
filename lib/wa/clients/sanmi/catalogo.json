@@ -13,7 +13,7 @@
     "domingo": "ABIERTO 8:30-12:30 y ABIERTO 17:00-22:15 (cerrado solo entre 12:30 y 17:00)",
     "nota": "Son DOS ventanas de servicio al día: mañana 8:30-12:30 y tarde-noche 17:00-22:15. Cualquier hora dentro de esas dos ventanas está ABIERTO (las 9:00, las 10:00 y las 11:00 de la mañana están abiertas). Solo se cierra entre 12:30 y 17:00, y los jueves todo el día."
   },
-  "domicilio": "Sí hay servicio a domicilio en San Miguel el Alto. Una calle y número sin más datos SE ASUME que es de aquí: acepta el envío sin preguntar por la zona. Solo si el cliente nombra otra población (San Julián, Jalos, Valle, Arandas, una ranchería) se le ofrece recoger. VERIFICAR: el costo de envío sigue pendiente; si preguntan cuánto es, di que el equipo se lo confirma al recibir el pedido y no inventes una cifra.",
+  "domicilio": "Entrega a domicilio en San Miguel el Alto. Costo de envío: $10 a $15 según la zona (el equipo confirma el monto exacto al confirmar el pedido). Pago: efectivo o transferencia; efectivo contra entrega.",
   "pagos": "Efectivo y transferencia. En pedidos a domicilio, efectivo contra entrega.",
   "notas_generales": [
     "No se aceptan cuentas por separado",

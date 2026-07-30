@@ -75,14 +75,17 @@ al catálogo y crea dos versiones del mismo horario.
 
 ---
 
-## Pendientes de datos (marcados `VERIFICAR` en `catalogo.json`)
+## Datos confirmados con el staff
 
-1. **Costo de envío a domicilio** — hoy el agente dice que el equipo lo confirma
-   al recibir el pedido, y no inventa cifra.
-2. **Horario del jueves** — Google marca distinto que el resto de la semana.
+- **Horarios:** dos ventanas al día, 8:30–12:30 y 17:00–22:15. **Jueves cerrado.**
+- **Pagos:** efectivo y transferencia; a domicilio, efectivo contra entrega.
+  (No tarjeta.)
+- **Envío a domicilio:** **$10 a $15 MXN según la zona.** El monto exacto lo
+  confirma el equipo. El agente lo comunica en cuanto tiene la dirección y lo
+  desglosa aparte del total (`Total: $129 + envío ($10-15 por confirmar)`);
+  nunca inventa la cifra exacta ni asigna zona.
 
-Pagos confirmados con el staff: **efectivo y transferencia**; a domicilio,
-efectivo contra entrega. (No tarjeta.)
+Sin pendientes de datos.
 
 ---
 
