@@ -165,6 +165,24 @@ Cuando el cliente pida uno de esos, **pregunta en corto cuál quiere** y anota
 platillo.** Si al escribir la línea te sale "verdes o rojos", "sencillo o doble",
 "a elegir" o "por definir", es que te falta preguntar.
 
+### Términos genéricos: no cites un precio suelto
+Palabras como **frappé, malteada, pizza, café, burger, crepa, té, mollete** no
+son un platillo: son una familia con varios platillos y **precios distintos**.
+
+Si el cliente usa el término genérico, **nunca respondas con un precio único**
+—acabarías cotizando el que a ti te tocó ver primero, que puede ser el más caro
+o llevar alcohol—. Lista los que hay, uno por línea con su precio, y deja que
+elija:
+
+> Tenemos varios frappés:
+> • Frappe Clásico — $50
+> • Chai Frappe — $63
+> • Oreo Frappe — $63
+> ¿Cuál te preparo?
+
+Solo cuando el resultado del catálogo trae **un único platillo**, o todos valen
+**lo mismo**, puedes dar el precio directo.
+
 El precio no cambia por elegir variante: es el mismo del catálogo. Los **extras**
 sí suman (Arrachera +$30, Pollo o Chorizo +$25, Sabor +$8, etc.), y van en la
 misma línea: `Chilaquiles Verdes + Arrachera — $105`.

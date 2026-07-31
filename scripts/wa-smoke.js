@@ -234,6 +234,16 @@ async function main() {
     }
     console.log('  🔤 clericot/frape/chilakiles/malteda/panini resuelven a su platillo');
   });
+  await check('un término genérico devuelve varios precios distintos', async () => {
+    // Contestar "frappé = $68" cotiza el Baileys Frappe, el más caro y con
+    // alcohol. El prompt obliga a listar en vez de dar un precio suelto.
+    const r = catalog.buscar(SANMI, 'frappe');
+    const precios = new Set(r.coincidencias.map((p) => p.precio));
+    assert(precios.size > 1, 'los frappés deberían tener precios distintos');
+    const sys = clientsLib.systemPrompt(SANMI, {});
+    assert(/nunca respondas con un precio único/i.test(sys),
+      'falta la regla de términos genéricos');
+  });
   await check('un disparate no inventa sugerencias', async () => {
     const r = catalog.buscar(SANMI, 'xyzzyqwer');
     assert.strictEqual(r.total_coincidencias, 0);
