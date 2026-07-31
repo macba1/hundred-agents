@@ -244,6 +244,15 @@ async function main() {
     assert(/nunca respondas con un precio único/i.test(sys),
       'falta la regla de términos genéricos');
   });
+  await check('el catálogo marca qué lleva alcohol', async () => {
+    // El agente aceptó llevar un Clericó a domicilio. La subcategoría es lo
+    // único que le permite distinguirlo, así que tiene que llegarle.
+    const r = catalog.buscar(SANMI, 'clerico');
+    assert.strictEqual(r.coincidencias[0].subcategoria, 'con alcohol');
+    const sys = clientsLib.systemPrompt(SANMI, {});
+    assert(/NO se lleva a domicilio/.test(sys), 'falta la prohibición de alcohol a domicilio');
+    assert(/El alcohol no va a domicilio/.test(sys), 'la sección de envío no la referencia');
+  });
   await check('un disparate no inventa sugerencias', async () => {
     const r = catalog.buscar(SANMI, 'xyzzyqwer');
     assert.strictEqual(r.total_coincidencias, 0);
