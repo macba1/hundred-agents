@@ -78,6 +78,24 @@ check('mergePartial keeps earlier main_problem fields', () => {
   assert.strictEqual(m.main_problem.cost_time, '2h');
   assert.strictEqual(m.main_problem.cost_money, '$5k');
 });
+check('a single item where a list belongs no longer corrupts the brain', () => {
+  // Real 500 in production: the model sent do_not_say_rules as ONE object
+  // instead of an array, mergePartial spread it into the array slot, and
+  // finalize crashed on (brain.do_not_say_rules || []).map.
+  const merged = brainLib.mergePartial(
+    { do_not_say_rules: [{ scope: 'global', rule: 'ya existía' }] },
+    { do_not_say_rules: { scope: 'fiado', rule: 'los de obra piden fiado' } });
+  assert.ok(Array.isArray(merged.do_not_say_rules));
+  assert.strictEqual(merged.do_not_say_rules.length, 2, 'must append, not replace');
+  const b = brainLib.finalizeBrain({ ...FERRE, do_not_say_rules: { scope: 'x', rule: 'y' } }, 'hundred');
+  assert.ok(Array.isArray(b.do_not_say_rules));
+  assert.doesNotThrow(() => buildArtifacts({ ...FERRE, do_not_say_rules: { scope: 'x', rule: 'y' } }, new Date().toISOString(), 'hundred'));
+});
+check('the same corruption is survivable on the gabi side too', () => {
+  assert.doesNotThrow(() => buildArtifacts(
+    { client_name: 'G', client_contact: { email: 'g@x.com' }, business_lines: { name: 'Glamping' } },
+    new Date().toISOString(), 'gabi'));
+});
 check('hundred adds the 2 new guardrails; gabi defaults unchanged', () => {
   const rules = A.brain.do_not_say_rules.map((r) => r.rule).join(' | ');
   assert.ok(/Nunca dar precios/.test(rules), 'missing no-price rule');
@@ -114,6 +132,23 @@ check('tiers map to the agreed MXN prices with a ±20% band', () => {
   const p = A.proposal.pricing_internal;
   assert.deepStrictEqual(p.setup_range_mxn, [Math.round(p.setup_mxn * 0.8), Math.round(p.setup_mxn * 1.2)]);
   assert.deepStrictEqual(p.monthly_range_mxn, [Math.round(p.monthly_mxn * 0.8), Math.round(p.monthly_mxn * 1.2)]);
+});
+check('the counter and dead channels do not inflate the price', () => {
+  // Real regression: "el Instagram lo tenemos abandonado" was counted as a
+  // third channel and pushed the tier from Pro ($40k) to Fábrica ($75k).
+  const b = {
+    operation: { sales_channels: ['mostrador', 'teléfono', 'WhatsApp'], service_channels: ['mostrador', 'teléfono', 'WhatsApp'] },
+    current_channels: [
+      { channel: 'mostrador', volume: '25 pedidos diarios' },
+      { channel: 'teléfono', volume: '60 al día' },
+      { channel: 'WhatsApp', volume: '60 al día' },
+      { channel: 'Instagram', volume: 'abandonado' },
+    ],
+    desired_channels: ['teléfono', 'WhatsApp', 'mostrador'],
+  };
+  assert.deepStrictEqual(Array.from(H.channelSet(b)).sort(), ['teléfono', 'whatsapp']);
+  const withDead = H.scoreHundred({ ...FERRE, ...b });
+  assert.strictEqual(withDead.difficulty, 'media', 'an abandoned channel must not raise the tier');
 });
 check('volume strings normalise to per-day', () => {
   assert.strictEqual(H.perDay('60 mensajes al día'), 60);
@@ -157,10 +192,28 @@ check('a very alerty case still respects the 12-line cap', () => {
   assert.ok(out.split('\n').length <= 12, 'got ' + out.split('\n').length);
   assert.ok(/Sesión/.test(out), 'session line must survive the truncation');
 });
-check('shouldNotifyWA: hundred real yes, hundred test no, gabi no', () => {
-  assert.strictEqual(waNotify.shouldNotifyWA({ clientKey: 'hundred' }), true);
-  assert.strictEqual(waNotify.shouldNotifyWA({ clientKey: 'hundred', metadata: { is_test: true } }), false);
+check('placeholder values are dropped instead of shown as data', () => {
+  const b = { ...A.brain, client_contact: { email: 'a@b.mx', whatsapp: 'No proporcionado' } };
+  const out = waNotify.buildWAReport({ brain: b, score: A.score, proposal: A.proposal, sessionToken: 't' });
+  assert.ok(!/No proporcionado/i.test(out), out);
+  assert.ok(/a@b\.mx/.test(out), 'the real value must survive');
+});
+check('WhatsApp is OFF for every client today', () => {
+  const clients = require('../lib/discovery/clients');
+  Object.keys(clients.CLIENTS).forEach((k) =>
+    assert.strictEqual(clients.CLIENTS[k].notify_whatsapp, false, k + ' must not notify by WhatsApp'));
+  assert.strictEqual(waNotify.shouldNotifyWA({ clientKey: 'hundred' }), false);
   assert.strictEqual(waNotify.shouldNotifyWA({ clientKey: 'gabi' }), false);
+});
+check('flipping the flag re-enables the channel without touching code', () => {
+  const clients = require('../lib/discovery/clients');
+  const prev = clients.CLIENTS.hundred.notify_whatsapp;
+  clients.CLIENTS.hundred.notify_whatsapp = true;
+  try {
+    assert.strictEqual(waNotify.shouldNotifyWA({ clientKey: 'hundred' }), true);
+    assert.strictEqual(waNotify.shouldNotifyWA({ clientKey: 'hundred', metadata: { is_test: true } }), false,
+      'test sessions must stay silent even with the channel on');
+  } finally { clients.CLIENTS.hundred.notify_whatsapp = prev; }
 });
 
 /* ---- Notion props ---- */
@@ -192,6 +245,16 @@ check('gabi profile is untouched by the refactor', () => {
 check('unknown clientKey falls back to gabi instead of crashing', () => {
   assert.strictEqual(prompts.forClient('nope').SYSTEM, prompts.SYSTEM);
 });
+check('one-question-per-turn is enforced in code, not just prompted', () => {
+  const { keepOneQuestion } = require('../lib/discovery/reply-shape');
+  assert.strictEqual(
+    keepOneQuestion('Perfecto, Tepatitlán. ¿En qué ciudad están? ¿Y cuántas personas trabajan ahí?'),
+    'Perfecto, Tepatitlán. ¿En qué ciudad están?');
+  assert.strictEqual(keepOneQuestion('¿Cuántos pedidos al mes?'), '¿Cuántos pedidos al mes?');
+  assert.strictEqual(keepOneQuestion('Listo, te contactamos en menos de 24 horas.'), 'Listo, te contactamos en menos de 24 horas.');
+  assert.strictEqual(prompts.forClient('hundred').ONE_QUESTION_PER_TURN, true);
+  assert.ok(!prompts.forClient('gabi').ONE_QUESTION_PER_TURN, 'gabi must keep its own rhythm');
+});
 
 /* ---- finalize end-to-end (stubbed network) ---- */
 (async () => {
@@ -222,13 +285,23 @@ check('unknown clientKey falls back to gabi instead of crashing', () => {
       assert.ok(['Básico', 'Pro', 'Fábrica'].includes(r.body.scopeClass), 'got ' + r.body.scopeClass);
       assert.strictEqual(r.body.humanReviewRequired, true);
     });
-    check('finalize(hundred) sends BOTH the Notion page and the WhatsApp alert', () => {
+    check('finalize(hundred) notifies Notion and NOTHING by WhatsApp', () => {
       assert.strictEqual(notionCalls, 1, 'notion calls: ' + notionCalls);
-      assert.strictEqual(graphCalls, 1, 'graph calls: ' + graphCalls);
-      assert.strictEqual(graphBody.to, '16503849019');
-      assert.ok(graphBody.text.body.split('\n').length <= 12);
-      assert.ok(/ref:campana-jul/.test(graphBody.text.body), 'ref should reach the alert');
+      assert.strictEqual(graphCalls, 0, 'ningún mensaje debe salir por WhatsApp; salieron ' + graphCalls);
+      assert.strictEqual(graphBody, null);
       assert.strictEqual(notionBody.properties[notify.CLIENT_KEY_PROP].select.name, 'hundred');
+    });
+    check('the Notion page body carries the FULL internal report', () => {
+      const flat = JSON.stringify(notionBody.children);
+      assert.ok(notionBody.children.length > 20, 'expected a full report, got ' + notionBody.children.length + ' blocks');
+      ['Informe interno', 'Resumen', 'Problema principal', 'Costo del problema', 'Operación',
+       'Preproyecto propuesto', 'Dificultad', 'Tier y precio interno', 'Alertas', 'Siguiente paso']
+        .forEach((h) => assert.ok(flat.includes(h), 'falta la sección ' + h));
+      assert.ok(flat.includes('Pro — $40,000 MXN + $3,000 MXN/mes'), 'falta el tier con precio interno');
+      assert.ok(flat.includes('Agente de pedidos'), 'falta el preproyecto');
+      assert.ok(flat.includes('10 y 15 pedidos'), 'falta el costo del problema');
+      assert.ok(flat.includes('no enviar al prospecto'), 'falta la advertencia de uso interno');
+      assert.ok(notionBody.children.length <= 100, 'Notion acepta 100 bloques por request');
     });
     const saved = await store.get(s.sessionToken);
     check('finalize persists the internal proposal on the session', () => {
@@ -254,20 +327,30 @@ check('unknown clientKey falls back to gabi instead of crashing', () => {
     });
     await store.del(t.sessionToken);
 
-    // WhatsApp send failure must not break finalize
+    // No discovery client may reach Graph today. Any hit here is a regression.
+    let anyGraph = 0;
     global.fetch = async (u, o) => {
       const url = String(u);
       if (url.includes('api.openai.com')) return { ok: true, json: async () => ({ choices: [{ message: { tool_calls: [] } }] }), text: async () => '' };
       if (url.includes('api.notion.com')) return { ok: true, json: async () => ({}), text: async () => '' };
-      if (url.includes('graph.facebook.com')) return { ok: false, status: 400, text: async () => '(#131047) fuera de la ventana de 24h' };
+      if (url.includes('graph.facebook.com')) { anyGraph++; return { ok: true, json: async () => ({}), text: async () => '' }; }
       return { ok: false };
     };
-    const s3 = store.newSession('hundred'); s3.brainPartial = FERRE; s3.transcript.push({ role: 'user', content: 'x' });
-    await store.save(s3);
-    const r3 = mockRes();
-    await finalizeHandler({ method: 'POST', headers: {}, query: {}, body: { sessionToken: s3.sessionToken } }, r3);
-    check('a failed WhatsApp send never fails the diagnostic', () => assert.strictEqual(r3.code, 200));
-    await store.del(s3.sessionToken);
+    for (const ck of ['hundred', 'gabi']) {
+      const s3 = store.newSession(ck);
+      s3.brainPartial = ck === 'hundred' ? FERRE : { client_name: 'G', client_contact: { email: 'g@x.com' }, business_lines: [{ name: 'Glamping' }] };
+      s3.transcript.push({ role: 'user', content: 'x' });
+      await store.save(s3);
+      const r3 = mockRes();
+      await finalizeHandler({ method: 'POST', headers: {}, query: {}, body: { sessionToken: s3.sessionToken } }, r3);
+      const saved3 = await store.get(s3.sessionToken);
+      check(`finalize(${ck}) sends zero WhatsApp messages`, () => {
+        assert.strictEqual(r3.code, 200);
+        assert.strictEqual(anyGraph, 0, 'salieron ' + anyGraph + ' mensajes por Graph');
+        assert.strictEqual(saved3.notifications.whatsapp.skipped, 'channel_disabled');
+      });
+      await store.del(s3.sessionToken);
+    }
   });
 
   // Notion 400 on the unknown "Agente" property degrades instead of losing the page

@@ -72,29 +72,37 @@ module.exports = async function handler(req, res) {
   s.finalizedAt = nowISO;
   try { await store.save(s); } catch (e) { return res.status(502).json({ error: 'store_unavailable_on_save' }); }
 
-  // Notify the team in Notion on REAL (non-test) completions. Best-effort.
+  // Notify the team. Both channels are best-effort: a failed send must never
+  // turn a completed diagnostic into an error for the client. The outcome is
+  // recorded on the session so "did the alert go out?" is answerable from the
+  // admin instead of only from a log stream.
+  const notifications = { notion: null, whatsapp: null };
+
   if (notify.shouldNotify(s)) {
     try {
-      await notify.notifyCompleted({
-        brain: artifacts.brain, score: artifacts.score,
+      notifications.notion = await notify.notifyCompleted({
+        brain: artifacts.brain, score: artifacts.score, proposal: artifacts.proposal,
         sessionToken: s.sessionToken, clientKey,
       });
     }
-    catch (e) { console.error('[discovery:notify]', e && e.message); }
-  }
+    catch (e) { notifications.notion = { ok: false, error: (e && e.message) || 'throw' }; }
+    if (!notifications.notion.ok) console.error('[discovery:notify]', JSON.stringify(notifications.notion).slice(0, 300));
+  } else notifications.notion = { ok: false, skipped: 'test_session' };
 
-  // WhatsApp alert for the generic diagnostic only. Same best-effort contract
-  // as Notion: a failed send must never turn a completed diagnostic into an
-  // error for the prospect.
+  // WhatsApp alert for the generic diagnostic only.
   if (waNotify.shouldNotifyWA(s)) {
     try {
-      const r = await waNotify.notifyWA({
+      notifications.whatsapp = await waNotify.notifyWA({
         brain: artifacts.brain, score: artifacts.score, proposal: artifacts.proposal,
         sessionToken: s.sessionToken, ref: s.metadata && s.metadata.ref,
       });
-      if (!r.ok) console.error('[discovery:wa-notify] no enviado:', r.error || r.skipped);
-    } catch (e) { console.error('[discovery:wa-notify]', e && e.message); }
-  }
+    } catch (e) { notifications.whatsapp = { ok: false, error: (e && e.message) || 'throw' }; }
+    if (!notifications.whatsapp.ok) console.error('[discovery:wa-notify] no enviado:', JSON.stringify(notifications.whatsapp).slice(0, 300));
+  } else notifications.whatsapp = { ok: false, skipped: 'channel_disabled' };
+
+  notifications.at = new Date().toISOString();
+  s.notifications = notifications;
+  try { await store.save(s); } catch (e) { console.error('[discovery:finalize] no se pudo guardar el resultado de los avisos'); }
 
   return res.status(200).json({
     ok: true,

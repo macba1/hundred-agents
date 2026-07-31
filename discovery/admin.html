@@ -44,9 +44,9 @@
     if(!arr.length) return '<h3>'+title+' (0)</h3>';
     var rows=arr.map(function(s){
       var badge = s.isTest ? '<span class="testbadge">Internal test'+(s.testReason?' — '+esc(s.testReason):'')+'</span>' : (s.humanReviewRequired?'<span class="flag">REVIEW REQUIRED</span>':'');
-      return '<tr'+(s.isTest?' class="testrow"':'')+'><td class="mono"><a data-t="'+s.sessionToken+'">'+s.sessionToken.slice(0,10)+'…</a></td><td>'+(s.email||'—')+'</td><td>'+(s.status||'')+'</td><td>'+(s.scopeClass||'—')+'</td><td>'+badge+'</td></tr>';
+      return '<tr'+(s.isTest?' class="testrow"':'')+'><td class="mono"><a data-t="'+s.sessionToken+'">'+s.sessionToken.slice(0,10)+'…</a></td><td class="mono">'+esc(s.clientKey||'gabi')+'</td><td>'+(s.email||'—')+'</td><td>'+(s.status||'')+'</td><td>'+(s.scopeClass||'—')+'</td><td>'+badge+'</td></tr>';
     }).join('');
-    return '<h3>'+title+' ('+arr.length+')</h3><table><tr><th>Token</th><th>Email</th><th>Status</th><th>Scope</th><th></th></tr>'+rows+'</table>';
+    return '<h3>'+title+' ('+arr.length+')</h3><table><tr><th>Token</th><th>Agent</th><th>Email</th><th>Status</th><th>Scope</th><th></th></tr>'+rows+'</table>';
   }
   async function loadList(){
     el('err').textContent=''; el('detail').innerHTML='';
@@ -70,7 +70,13 @@
       var html='';
       if(s.metadata && s.metadata.is_test){ html+='<div class="banner" style="border-color:#8A8F98;background:rgba(138,143,152,.15);color:#c9cdd3">INTERNAL TEST — '+esc(s.metadata.test_reason||'')+' (marked by '+esc(s.metadata.marked_by||'?')+'). Do NOT use for a real client proposal.</div>'; }
       html+='<div class="banner">HUMAN REVIEW REQUIRED — no price has been sent to the client. price_gate_passed: '+(a.proposal?a.proposal.price_gate_passed:'n/a')+'</div>';
-      html+='<h3>Proposal Draft</h3><pre>'+esc(JSON.stringify(a.proposal||{},null,2))+'</pre>';
+      if(s.notifications){
+        var n=s.notifications, chan=function(k,v){ return k+': '+(v&&v.ok?'enviado'+(v.degraded?' ('+v.degraded+')':''):'no ('+((v&&(v.skipped||v.error))||'—')+')'); };
+        html+='<div class="counts">Avisos — '+esc(chan('Notion',n.notion))+' · '+esc(chan('WhatsApp',n.whatsapp))+'</div>';
+      }
+      // Readable internal report first; the raw JSON stays below for auditing.
+      if(a.proposal && a.proposal.internal_only) html+=report(a.proposal);
+      html+='<h3>Proposal Draft (raw)</h3><pre>'+esc(JSON.stringify(a.proposal||{},null,2))+'</pre>';
       html+='<h3>Scope Score</h3><pre>'+esc(JSON.stringify(a.score||{},null,2))+'</pre>';
       html+='<h3>Agent Blueprint</h3><pre>'+esc(JSON.stringify(a.blueprint||{},null,2))+'</pre>';
       html+='<h3>Business Brain</h3><pre>'+esc(JSON.stringify(a.brain||{},null,2))+'</pre>';
@@ -78,6 +84,30 @@
     }catch(e){ el('err').textContent='Error: '+e; }
   }
   function esc(s){return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+
+  /* Same internal report that gets written into the Notion page body, rendered
+     here so the admin and Notion never disagree about what was decided. */
+  function report(p){
+    var mxn=function(n){return typeof n==='number'?'$'+n.toLocaleString('en-US')+' MXN':'—';};
+    var pi=p.pricing_internal||{}, sr=pi.setup_range_mxn||[], mr=pi.monthly_range_mxn||[];
+    var list=function(a){return (a&&a.length)?'<ul>'+a.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>':'';};
+    var kv=function(pairs){var r=pairs.filter(function(x){return x[1]&&String(x[1]).trim();});
+      return r.length?'<ul>'+r.map(function(x){return '<li><b>'+esc(x[0])+':</b> '+esc(x[1])+'</li>';}).join('')+'</ul>':'';};
+    var c=p.company||{};
+    return '<h3>Informe interno</h3>'
+      + '<p><b>'+esc(p.client||'Prospecto')+'</b> — '+esc([c.industry,c.location,c.size].filter(Boolean).join(' · ')||'sin datos')+'</p>'
+      + kv([['Contacto',[p.client_email,p.client_whatsapp].filter(Boolean).join(' · ')]])
+      + '<h4>Problema</h4><p>'+esc(p.problem_summary||'—')+'</p>'
+      + kv([['Cómo lo resuelven hoy',p.problem_today],['Desde cuándo',p.problem_since],['Han intentado',p.problem_tried],['Si no se resuelve',p.problem_if_unsolved]])
+      + '<h4>Costo del problema</h4><p>'+esc(p.problem_cost||'no cuantificado')+'</p>'
+      + '<h4>Preproyecto</h4><p>'+esc(p.recommended_build||'—')+' — '+esc(p.recommended_build_what||'')+'</p>'
+      + kv([['También considerar',(p.also_consider||[]).join(' · ')],['Fase 1',(p.modules_phase_1||[]).join(' · ')],['Fase 2',(p.modules_phase_2||[]).join(' · ')],['Fase 3',(p.modules_phase_3||[]).join(' · ')]])
+      + '<h4>Dificultad: '+esc(String(p.difficulty||'—').toUpperCase())+'</h4>'+list(p.difficulty_justification)
+      + '<h4>Tier y precio interno</h4><p>'+esc(p.suggested_pricing_tier||'—')+'</p>'
+      + kv([['Implementación',mxn(pi.setup_mxn)+' (banda '+mxn(sr[0])+' – '+mxn(sr[1])+')'],['Mensual',mxn(pi.monthly_mxn)+' (banda '+mxn(mr[0])+' – '+mxn(mr[1])+')']])
+      + '<h4>Alertas</h4>'+((p.alerts&&p.alerts.length)?list(p.alerts):'<p>Ninguna.</p>')
+      + '<h4>Siguiente paso</h4><p>'+esc(p.next_step||'—')+'</p>';
+  }
   el('load').addEventListener('click', loadList);
 })();
 </script>

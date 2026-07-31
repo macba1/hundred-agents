@@ -4,6 +4,7 @@
 const store = require('../../lib/discovery/store');
 const brainLib = require('../../lib/discovery/brain');
 const { forClient } = require('../../lib/discovery/prompts');
+const { keepOneQuestion } = require('../../lib/discovery/reply-shape');
 const rl = require('../../lib/discovery/ratelimit');
 
 const MODEL = 'gpt-4o-mini';
@@ -84,6 +85,8 @@ module.exports = async function handler(req, res) {
         reply = (second.choices && second.choices[0] && second.choices[0].message && second.choices[0].message.content) || 'Entendido, gracias.';
       }
     }
+
+    if (prompts.ONE_QUESTION_PER_TURN) reply = keepOneQuestion(reply);
 
     s.transcript.push({ role: 'assistant', content: reply, ts: new Date().toISOString() });
     const { completeness } = brainLib.assess(brainLib.finalizeBrain(s.brainPartial, s.clientKey), s.clientKey);
