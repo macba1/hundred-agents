@@ -220,6 +220,33 @@ async function main() {
     console.log(`  ${JSON.stringify(q).padEnd(22)} total=${String(r.total_coincidencias).padStart(3)} → ${primero}`);
     await check(`"${q}" → ${esperado}`, async () => assert.strictEqual(primero, esperado));
   }
+  await check('un platillo mal escrito ofrece "¿quisiste decir?"', async () => {
+    // "clericot" es como se escribe en México; la carta dice "Clericó". Decir
+    // que no lo tenemos le niega al cliente algo que sí está a la venta.
+    const r = catalog.buscar(SANMI, 'clericot');
+    const nombres = (r.coincidencias.length ? r.coincidencias : r.sugerencias || []).map((p) => p.nombre);
+    assert(nombres.includes('Clericó'), 'no encontró Clericó: ' + JSON.stringify(nombres));
+    for (const [q, esperado] of [['frape', 'Frappe'], ['chilakiles', 'Chilaquiles'],
+                                 ['malteda', 'Malteada'], ['panini', 'Pannini']]) {
+      const x = catalog.buscar(SANMI, q);
+      const lista = (x.coincidencias.length ? x.coincidencias : x.sugerencias || []).map((p) => p.nombre);
+      assert(lista.some((n) => n.includes(esperado)), `"${q}" no llevó a ${esperado}: ${JSON.stringify(lista)}`);
+    }
+    console.log('  🔤 clericot/frape/chilakiles/malteda/panini resuelven a su platillo');
+  });
+  await check('un disparate no inventa sugerencias', async () => {
+    const r = catalog.buscar(SANMI, 'xyzzyqwer');
+    assert.strictEqual(r.total_coincidencias, 0);
+    assert(!(r.sugerencias || []).length, 'sugirió algo para un disparate');
+  });
+  await check('el alcohol se confirma, no se niega', async () => {
+    const r = catalog.buscar(SANMI, 'clerico');
+    assert.strictEqual(r.coincidencias[0].nombre, 'Clericó');
+    assert.strictEqual(r.coincidencias[0].precio, 68);
+    const sys = clientsLib.systemPrompt(SANMI, {});
+    assert(/NUNCA es motivo para decir que no lo tenemos/.test(sys),
+      'la regla de alcohol puede volver a usarse para negar el platillo');
+  });
   await check('sin campos privados en la salida', async () => {
     const r = catalog.buscar(SANMI, 'cafe');
     for (const p of r.coincidencias) for (const k of Object.keys(p)) assert(!k.startsWith('_'), k);

@@ -458,7 +458,12 @@
           },
           {
             "nombre": "Clericó",
-            "precio": 68
+            "precio": 68,
+            "sinonimos": [
+              "clericot",
+              "clerico",
+              "sangria de frutas"
+            ]
           },
           {
             "nombre": "Copa de vino tinto",
