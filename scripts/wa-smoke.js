@@ -563,6 +563,31 @@ async function main() {
     console.log('  🛟 folio real forzado:', p.ultimo_pedido.folio);
   });
 
+  console.log('\n=== 10a2) Prometer al equipo obliga a escalar de verdad ===');
+  await check('"lo confirmo con el equipo" sin escalar se corrige solo', async () => {
+    const PROM = TEST('088');
+    guion = [
+      texto('Déjame confirmarlo con el equipo, no lo tengo como combinación en la carta.'),
+      toolCall('escalar_humano', { motivo: 'Pide soda italiana combinada mora + manzana verde' }),
+      texto('Ya lo pasé al equipo, te confirmo en cuanto me digan.'),
+    ];
+    const r = makeRes();
+    await webhook(postReq(wh(textMsg(PROM, 'una soda combinada de mora con manzana verde'))), r);
+    const rows = await store.listLeads('sanmi', ['sanmi']);
+    const esc = rows.find((x) => x.tipo === 'escalado' && x.phone === PROM);
+    assert(esc, 'prometió consultar al equipo y no escaló');
+    console.log('  🛟 escalado forzado:', esc.resumen.slice(0, 60));
+  });
+  await check('la frase del costo de envío NO fuerza escalado', async () => {
+    const ENV = TEST('089');
+    const antes = (await store.listLeads('sanmi', ['sanmi'])).filter((x) => x.tipo === 'escalado').length;
+    guion = [texto('El envío tiene un costo de $10 a $15 según la zona; el equipo te confirma el monto exacto.')];
+    const r = makeRes();
+    await webhook(postReq(wh(textMsg(ENV, 'me lo mandas a Javier Mina 27'))), r);
+    const ahora = (await store.listLeads('sanmi', ['sanmi'])).filter((x) => x.tipo === 'escalado').length;
+    assert.strictEqual(ahora, antes, 'escaló por la frase legítima del envío');
+  });
+
   console.log('\n=== 10b) Perfil del cliente y reset de sesión ===');
   const adminPre = require(path.join(ROOT, 'api/wa/admin'));
   await check('el pedido guardó nombre y último pedido', async () => {

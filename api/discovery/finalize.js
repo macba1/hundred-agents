@@ -11,6 +11,7 @@ const hundred = require('../../lib/discovery/hundred-scope');
 const compile = require('../../lib/discovery/compile');
 const notify = require('../../lib/discovery/notify');
 const waNotify = require('../../lib/discovery/wa-notify');
+const { forClient } = require('../../lib/discovery/prompts');
 
 /** Build the four artifacts from a (possibly LLM-compiled) partial brain.
     The scoring trio is per client: gabi scores business lines and phases,
@@ -57,7 +58,7 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({
       ok: false,
       error: 'email_required',
-      message: '¿Cuál es el mejor email para enviarte la propuesta de implantación y comercial con precios?',
+      message: forClient(clientKey).EMAIL_REQUIRED_MESSAGE,
     });
   }
 
