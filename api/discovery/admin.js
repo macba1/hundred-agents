@@ -26,6 +26,8 @@ module.exports = async function handler(req, res) {
     const all = await store.list();
     const summary = all.map((s) => ({
       sessionToken: s.sessionToken, status: s.status,
+      clientKey: s.clientKey || 'gabi',
+      ref: (s.metadata && s.metadata.ref) || null,
       email: (s.brainPartial && s.brainPartial.client_contact && s.brainPartial.client_contact.email)
         || (s.artifacts && s.artifacts.brain && s.artifacts.brain.client_contact && s.artifacts.brain.client_contact.email) || null,
       scopeClass: s.artifacts && s.artifacts.score && s.artifacts.score.classification,
@@ -46,7 +48,10 @@ module.exports = async function handler(req, res) {
       sessions: real,             // default review set
       incompleteSessions: incomplete,
       testSessions: test,
-      counts: { realCompleted: real.length, incompleteAbandoned: incomplete.length, testInternal: test.length },
+      counts: {
+        realCompleted: real.length, incompleteAbandoned: incomplete.length, testInternal: test.length,
+        realByClient: real.reduce((acc, x) => { acc[x.clientKey] = (acc[x.clientKey] || 0) + 1; return acc; }, {}),
+      },
     });
   } catch (e) {
     return res.status(503).json({ error: 'store_unavailable' });

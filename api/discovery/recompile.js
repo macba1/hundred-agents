@@ -24,14 +24,15 @@ module.exports = async function handler(req, res) {
   if (!s) return res.status(404).json({ error: 'session_not_found' });
 
   let partial = s.brainPartial || {};
+  const clientKey = s.clientKey || 'gabi';
   const key = process.env.OPENAI_API_KEY;
   if (key && s.transcript && s.transcript.length) {
-    try { partial = await compile.compileSession(s.transcript, partial, key); }
+    try { partial = await compile.compileSession(s.transcript, partial, key, clientKey); }
     catch (e) { return res.status(502).json({ error: 'compile_failed', detail: (e && e.code) || 'error' }); }
   }
 
   const nowISO = new Date().toISOString();
-  const artifacts = buildArtifacts(partial, nowISO);
+  const artifacts = buildArtifacts(partial, nowISO, clientKey);
   s.brainPartial = partial;
   s.artifacts = artifacts;
   if (s.status !== 'finalized') s.status = 'finalized';
@@ -39,18 +40,29 @@ module.exports = async function handler(req, res) {
   try { await store.save(s); } catch { return res.status(502).json({ error: 'store_unavailable_on_save' }); }
 
   const b = artifacts.brain;
+  const filled = clientKey === 'hundred'
+    ? {
+        company_profile: Object.keys(b.company_profile || {}).length,
+        main_problem: Object.keys(b.main_problem || {}).length,
+        operation: Object.keys(b.operation || {}).length,
+        urgency: Object.keys(b.urgency || {}).length,
+        success_criteria: (b.success_criteria || []).length,
+      }
+    : {
+        business_lines: (b.business_lines || []).length,
+        business_unit_details: (b.business_unit_details || []).length,
+        escalation_rules: (b.escalation_rules || []).length,
+        integrations: (b.integrations || []).length,
+        success_criteria: (b.success_criteria || []).length,
+        faqs_by_business: (b.faqs_by_business || []).length,
+        lead_capture: (b.lead_capture_fields_by_business || []).length,
+      };
+
   return res.status(200).json({
     ok: true,
+    clientKey,
     completeness: b.completeness,
-    filled: {
-      business_lines: (b.business_lines || []).length,
-      business_unit_details: (b.business_unit_details || []).length,
-      escalation_rules: (b.escalation_rules || []).length,
-      integrations: (b.integrations || []).length,
-      success_criteria: (b.success_criteria || []).length,
-      faqs_by_business: (b.faqs_by_business || []).length,
-      lead_capture: (b.lead_capture_fields_by_business || []).length,
-    },
+    filled,
     scopeClass: artifacts.score.classification,
   });
 };

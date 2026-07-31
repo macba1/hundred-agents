@@ -3,7 +3,7 @@
    structured facts into the partial brain, persists, returns reply. */
 const store = require('../../lib/discovery/store');
 const brainLib = require('../../lib/discovery/brain');
-const { SYSTEM, UPDATE_BRAIN_TOOL, SECTIONS, FINAL_MESSAGE } = require('../../lib/discovery/prompts');
+const { forClient } = require('../../lib/discovery/prompts');
 const rl = require('../../lib/discovery/ratelimit');
 
 const MODEL = 'gpt-4o-mini';
@@ -39,6 +39,11 @@ module.exports = async function handler(req, res) {
   catch (e) { return res.status(503).json({ error: 'store_unavailable' }); }
   if (!s) return res.status(404).json({ error: 'session_not_found' });
   if (s.status === 'finalized') return res.status(409).json({ error: 'session_finalized' });
+
+  // Prompt profile is per client: gabi keeps its multi-business interview,
+  // hundred runs the generic one-problem diagnostic.
+  const prompts = forClient(s.clientKey);
+  const { SYSTEM, UPDATE_BRAIN_TOOL, SECTIONS, FINAL_MESSAGE } = prompts;
 
   s.transcript.push({ role: 'user', content: message, ts: new Date().toISOString() });
   const userTurns = s.transcript.filter((m) => m.role === 'user').length;
@@ -81,7 +86,7 @@ module.exports = async function handler(req, res) {
     }
 
     s.transcript.push({ role: 'assistant', content: reply, ts: new Date().toISOString() });
-    const { completeness } = brainLib.assess(brainLib.finalizeBrain(s.brainPartial));
+    const { completeness } = brainLib.assess(brainLib.finalizeBrain(s.brainPartial, s.clientKey), s.clientKey);
     await store.save(s);
     return res.status(200).json({ reply, progress: completeness, sections: SECTIONS.length });
   } catch (err) {

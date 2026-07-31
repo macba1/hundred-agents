@@ -33,7 +33,7 @@ module.exports = async function handler(req, res) {
     await store.save(r1);
     const r2 = await store.get(tok); steps.update = !!(r2 && r2.transcript.length === 1);
 
-    r2.artifacts = buildArtifacts(r2.brainPartial, new Date().toISOString());
+    r2.artifacts = buildArtifacts(r2.brainPartial, new Date().toISOString(), 'gabi');
     r2.status = 'finalized';
     await store.save(r2);
     const r3 = await store.get(tok);

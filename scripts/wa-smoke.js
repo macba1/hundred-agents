@@ -253,6 +253,17 @@ async function main() {
     assert(/NO se lleva a domicilio/.test(sys), 'falta la prohibición de alcohol a domicilio');
     assert(/El alcohol no va a domicilio/.test(sys), 'la sección de envío no la referencia');
   });
+  await check('los sabores viven en la descripción y son buscables', async () => {
+    // Dije que la carta no traía sabores de sodas: sí los trae, en descripcion.
+    const soda = SANMI.productos.find((p) => p.nombre === 'Sodas Italianas');
+    assert(/Mora, manzana verde, mango, uva o fresa/.test(soda.descripcion || ''),
+      'la soda perdió sus sabores');
+    assert.strictEqual(catalog.buscar(SANMI, 'mora').coincidencias[0].nombre, 'Sodas Italianas');
+    assert.strictEqual(catalog.buscar(SANMI, 'toronja').coincidencias[0].nombre, 'Rusa');
+    const sys = clientsLib.systemPrompt(SANMI, {});
+    assert(/Combinar dos sabores no está en la carta/.test(sys), 'falta la regla de combinaciones');
+    assert(/poco hielo/.test(sys), 'falta permitir ajustes normales de preparación');
+  });
   await check('un disparate no inventa sugerencias', async () => {
     const r = catalog.buscar(SANMI, 'xyzzyqwer');
     assert.strictEqual(r.total_coincidencias, 0);
