@@ -82,7 +82,7 @@ module.exports = async function handler(req, res) {
     try {
       notifications.notion = await notify.notifyCompleted({
         brain: artifacts.brain, score: artifacts.score, proposal: artifacts.proposal,
-        sessionToken: s.sessionToken, clientKey,
+        sessionToken: s.sessionToken, clientKey, ref: s.metadata && s.metadata.ref,
       });
     }
     catch (e) { notifications.notion = { ok: false, error: (e && e.message) || 'throw' }; }

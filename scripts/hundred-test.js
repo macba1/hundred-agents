@@ -198,6 +198,22 @@ check('placeholder values are dropped instead of shown as data', () => {
   assert.ok(!/No proporcionado/i.test(out), out);
   assert.ok(/a@b\.mx/.test(out), 'the real value must survive');
 });
+check('one funnel: gabi frozen, hundred live, one database', () => {
+  const clients = require('../lib/discovery/clients');
+  assert.strictEqual(clients.configFor('gabi').frozen, true, 'gabi debe quedar congelado');
+  assert.strictEqual(clients.configFor('hundred').frozen, false, 'hundred es el embudo vivo');
+  // Ambos clientes escriben en la MISMA base: no hay id de base por cliente.
+  Object.values(clients.CLIENTS).forEach((c) =>
+    assert.ok(!('notion_db_id' in c), 'ningún cliente puede tener base propia'));
+});
+check('the notion-setup ops tool renames the DB and describes it', () => {
+  const setup = require('../api/discovery/notion-setup');
+  assert.strictEqual(setup.DB_TITLE, 'Prospectos — Hundred Agents');
+  assert.ok(/Cada fila = una empresa que quiere trabajar con Hundred/.test(setup.DB_DESCRIPTION));
+  assert.ok(/\/diagnostico/.test(setup.DB_DESCRIPTION));
+  const names = setup.ORIGIN_OPTIONS.map((o) => o.name);
+  ['diagnostico', 'gabi', 'coparmex', 'comercial'].forEach((n) => assert.ok(names.includes(n), 'falta la opción ' + n));
+});
 check('WhatsApp is OFF for every client today', () => {
   const clients = require('../lib/discovery/clients');
   Object.keys(clients.CLIENTS).forEach((k) =>
@@ -217,13 +233,23 @@ check('flipping the flag re-enables the channel without touching code', () => {
 });
 
 /* ---- Notion props ---- */
-check('Notion props carry the clientKey for filtering', () => {
+check('one database for everyone, segmented by Origen', () => {
   const p = notify.buildProps(A.brain, A.score, 'tok12345', 'hundred');
-  assert.strictEqual(p[notify.CLIENT_KEY_PROP].select.name, 'hundred');
+  assert.strictEqual(p[notify.ORIGIN_PROP].select.name, 'diagnostico');
   assert.ok(/ferretería/i.test(p['Negocios'].rich_text[0].text.content), 'giro should land in Negocios');
   const g = notify.buildProps({ client_name: 'Gabi', business_lines: [{ name: 'Glamping' }] }, { classification: 'Starter Pilot' }, 't', 'gabi');
-  assert.strictEqual(g[notify.CLIENT_KEY_PROP].select.name, 'gabi');
+  assert.strictEqual(g[notify.ORIGIN_PROP].select.name, 'gabi');
   assert.strictEqual(g['Negocios'].rich_text[0].text.content, 'Glamping');
+});
+check('a ?ref= wins as the Origen, so future sources need no code', () => {
+  ['coparmex', 'comercial', 'linkedin-julio'].forEach((ref) => {
+    const p = notify.buildProps(A.brain, A.score, 't', 'hundred', ref);
+    assert.strictEqual(p[notify.ORIGIN_PROP].select.name, ref);
+  });
+  // Notion rejects commas inside a select option name.
+  assert.strictEqual(notify.originFor('hundred', 'feria, leon'), 'feria  leon');
+  assert.strictEqual(notify.originFor('hundred', '   '), 'diagnostico');
+  assert.strictEqual(notify.originFor('hundred', undefined), 'diagnostico');
 });
 
 /* ---- prompts ---- */
@@ -289,7 +315,7 @@ check('one-question-per-turn is enforced in code, not just prompted', () => {
       assert.strictEqual(notionCalls, 1, 'notion calls: ' + notionCalls);
       assert.strictEqual(graphCalls, 0, 'ningún mensaje debe salir por WhatsApp; salieron ' + graphCalls);
       assert.strictEqual(graphBody, null);
-      assert.strictEqual(notionBody.properties[notify.CLIENT_KEY_PROP].select.name, 'hundred');
+      assert.strictEqual(notionBody.properties[notify.ORIGIN_PROP].select.name, 'campana-jul', 'el ?ref= debe llegar a Origen');
     });
     check('the Notion page body carries the FULL internal report', () => {
       const flat = JSON.stringify(notionBody.children);
@@ -358,18 +384,18 @@ check('one-question-per-turn is enforced in code, not just prompted', () => {
   global.fetch = async (u, o) => {
     if (String(u).includes('api.notion.com')) {
       calls++;
-      if (calls === 1) return { ok: false, status: 400, text: async () => 'body.properties.Agente should be not present' };
+      if (calls === 1) return { ok: false, status: 400, text: async () => 'body.properties.Origen should be not present' };
       const body = JSON.parse(o.body);
-      assert.ok(!(notify.CLIENT_KEY_PROP in body.properties), 'retry must drop the property');
+      assert.ok(!(notify.ORIGIN_PROP in body.properties), 'retry must drop the property');
       return { ok: true, json: async () => ({}), text: async () => '' };
     }
     return { ok: false };
   };
   await withEnv({ NOTION_TOKEN: 'n', NOTION_DISCOVERY_DB_ID: 'db' }, async () => {
     const out = await notify.notifyCompleted({ brain: A.brain, score: A.score, sessionToken: 't', clientKey: 'hundred' });
-    check('Notion 400 on a missing "Agente" property retries without it', () => {
+    check('Notion 400 on a missing "Origen" property retries without it', () => {
       assert.strictEqual(out.ok, true);
-      assert.strictEqual(out.degraded, 'client_key_prop_missing');
+      assert.strictEqual(out.degraded, 'origin_prop_missing');
       assert.strictEqual(calls, 2);
     });
   });
