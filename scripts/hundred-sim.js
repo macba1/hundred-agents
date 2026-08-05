@@ -11,8 +11,8 @@
    question and a "what exactly would you build me" question. Both are
    asserted afterwards.
 
-   Prints: transcript, compiled brain, internal proposal, and the EXACT
-   WhatsApp text that a real completion would send.
+   Prints: transcript, compiled brain, requirements dossier, and the EXACT
+   WhatsApp text a real completion would send if that channel were on.
 
    Two modes:
    - local:  DISCOVERY_FORCE_FILE=1 OPENAI_API_KEY=... node scripts/hundred-sim.js
@@ -129,6 +129,7 @@ const hr = (t) => console.log('\n' + '─'.repeat(72) + '\n' + t + '\n' + '─'.
   console.log('AGENTE: ' + s0.body.greeting);
 
   let userTurns = 0;
+  let autoFinalized = false;
   const probeReplies = [];
 
   for (let i = 0; i < MAX_TURNS; i++) {
@@ -146,12 +147,14 @@ const hr = (t) => console.log('\n' + '─'.repeat(72) + '\n' + t + '\n' + '─'.
     transcript.push({ role: 'assistant', content: r.body.reply });
     if (probe) probeReplies.push({ probe: probe.text, reply: r.body.reply });
 
+    if (r.body.finalized) { autoFinalized = true; console.log('\n[la entrevista se cerró SOLA, sin pulsar Terminar]'); break; }
     if (/24 horas/.test(r.body.reply) && userTurns > 10) break;
     if (r.body.done) break;
   }
 
-  // 2. finalize (is_test -> notifies nobody)
-  let fin = await post(finalizeH, { sessionToken: token });
+  // 2. finalize. Ya no hace falta si la entrevista se cerró sola: el botón
+  // queda como red de seguridad para quien corta la conversación antes.
+  let fin = autoFinalized ? { code: 200, body: { ok: true, auto: true } } : await post(finalizeH, { sessionToken: token });
   if (fin.code === 400 && fin.body && fin.body.error === 'email_required') {
     console.log('\n[finalize pidió el correo — se lo damos y reintentamos]');
     const r = await post(messageH, { sessionToken: token, message: 'javier.ramirez@ferreteriaeltornillo.mx' });
@@ -173,7 +176,7 @@ const hr = (t) => console.log('\n' + '─'.repeat(72) + '\n' + t + '\n' + '─'.
     missing: (brain.missing_information || []).map((m) => m.field),
   }, null, 2));
 
-  hr('PROPUESTA INTERNA');
+  hr('EXPEDIENTE INTERNO (requerimientos, sin recomendación)');
   console.log(JSON.stringify(proposal, null, 2));
 
   hr('WHATSAPP — TEXTO EXACTO QUE LLEGARÍA');
@@ -215,9 +218,10 @@ const hr = (t) => console.log('\n' + '─'.repeat(72) + '\n' + t + '\n' + '─'.
 
   hr('RESUMEN');
   console.log('sesión: ' + token.slice(0, 8) + '… ' + (process.env.SIM_REAL === '1' ? '(REAL — notificó)' : '(is_test, no notificó a nadie)'));
+  console.log('cierre: ' + (autoFinalized ? 'AUTOMÁTICO (sin botón)' : 'manual, hubo que llamar a finalize'));
   if (done.notifications) console.log('avisos: ' + JSON.stringify(done.notifications));
   console.log('turnos del cliente: ' + userTurns + ' | completitud: ' + brain.completeness);
-  console.log('recomendación: ' + score.recommended_build + ' | dificultad: ' + score.difficulty + ' | tier: ' + proposal.suggested_pricing_tier);
+  console.log('alcance: ' + proposal.scope + ' (lo decide una persona) | huecos: ' + ((proposal.gaps || []).join(' · ') || 'ninguno'));
   console.log('guardarraíles: ' + (gfail ? gfail + ' FALLAS' : 'todos OK'));
 
   if (process.env.SIM_KEEP !== '1') await store.del(token);
