@@ -17,13 +17,13 @@ const { forClient } = require('../../lib/discovery/prompts');
     Gabi still scores business lines, phases and a scope class. "hundred"
     only organises what the prospect said: it takes requirements, it does
     not recommend — the team decides after studying the case. */
-function buildArtifacts(partial, nowISO, clientKey) {
+function buildArtifacts(partial, nowISO, clientKey, transcript) {
   const brain = brainLib.finalizeBrain(partial, clientKey);
   brain.captured_at = nowISO;
   if (clientKey === 'hundred') {
     const score = hundred.scoreHundred(brain);
     const blueprint = hundred.buildHundredBlueprint();
-    const proposal = hundred.buildHundredProposal(brain);
+    const proposal = hundred.buildHundredProposal(brain, transcript);
     return { brain, score, blueprint, proposal };
   }
   const score = scoreBrain(brain);
@@ -61,7 +61,7 @@ async function finalizeSession(s) {
   }
 
   const nowISO = new Date().toISOString();
-  const artifacts = buildArtifacts(partial, nowISO, clientKey);
+  const artifacts = buildArtifacts(partial, nowISO, clientKey, s.transcript);
   const valid = brainLib.validate(artifacts.brain, clientKey);
 
   s.brainPartial = partial;
@@ -80,7 +80,8 @@ async function finalizeSession(s) {
     try {
       notifications.notion = await notify.notifyCompleted({
         brain: artifacts.brain, score: artifacts.score, proposal: artifacts.proposal,
-        sessionToken: s.sessionToken, clientKey, ref: s.metadata && s.metadata.ref,
+        transcript: s.transcript, sessionToken: s.sessionToken,
+        clientKey, ref: s.metadata && s.metadata.ref,
       });
     }
     catch (e) { notifications.notion = { ok: false, error: (e && e.message) || 'throw' }; }

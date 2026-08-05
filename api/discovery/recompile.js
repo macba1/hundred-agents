@@ -32,7 +32,7 @@ module.exports = async function handler(req, res) {
   }
 
   const nowISO = new Date().toISOString();
-  const artifacts = buildArtifacts(partial, nowISO, clientKey);
+  const artifacts = buildArtifacts(partial, nowISO, clientKey, s.transcript);
   s.brainPartial = partial;
   s.artifacts = artifacts;
   if (s.status !== 'finalized') s.status = 'finalized';

@@ -79,6 +79,7 @@
       html+='<h3>Proposal Draft (raw)</h3><pre>'+esc(JSON.stringify(a.proposal||{},null,2))+'</pre>';
       html+='<h3>Scope Score</h3><pre>'+esc(JSON.stringify(a.score||{},null,2))+'</pre>';
       html+='<h3>Agent Blueprint</h3><pre>'+esc(JSON.stringify(a.blueprint||{},null,2))+'</pre>';
+      html+='<h3>Conversación completa</h3><pre>'+esc((s.transcript||[]).map(function(m){return (m.role==='user'?'CLIENTE: ':'AGENTE: ')+m.content;}).join('\n\n'))+'</pre>';
       html+='<h3>Business Brain</h3><pre>'+esc(JSON.stringify(a.brain||{},null,2))+'</pre>';
       el('detail').innerHTML=html;
     }catch(e){ el('err').textContent='Error: '+e; }
@@ -95,7 +96,7 @@
     var c=p.company||{}, o=p.operation||{}, u=p.urgency||{};
     return '<h3>Requerimientos recogidos</h3>'
       + '<p><b>'+esc(p.client||'Prospecto')+'</b> — '+esc([c.industry,c.location,c.size].filter(Boolean).join(' · ')||'sin datos')+'</p>'
-      + kv([['Contacto',[p.client_email,p.client_whatsapp,p.client_person].filter(Boolean).join(' · ')],['Antigüedad',c.years_operating],['Tipo de cliente',c.customer_type]])
+      + kv([['Contacto',[p.client_email,p.client_whatsapp,p.client_person].filter(Boolean).join(' · ')],['Copiar también a',(p.other_emails||[]).join(', ')],['Antigüedad',c.years_operating],['Tipo de cliente',c.customer_type]])
       + '<h4>Problema</h4><p>'+esc(p.problem_summary||'—')+'</p>'
       + kv([['Cómo lo resuelven hoy',p.problem_today],['Desde cuándo',p.problem_since],['Han intentado',p.problem_tried],['Si no se resuelve',p.problem_if_unsolved],['Severidad declarada',p.problem_severity]])
       + '<h4>Qué les cuesta</h4><p>'+esc(p.problem_cost||'no cuantificado')+'</p>'

@@ -140,6 +140,40 @@ check('the dossier keeps every requirement the prospect gave', () => {
   assert.strictEqual(A.proposal.urgency.timeline, FERRE.urgency.timeline);
   assert.strictEqual(A.proposal.client_email, FERRE.client_contact.email);
 });
+check('every address the prospect typed survives the summary', () => {
+  // Dulces Providencia pidió copiar a tres compañeros y el resumen guardó uno.
+  const tr = [
+    { role: 'user', content: 'mi correo es h.marquez@dulcesprovidencia.mx' },
+    { role: 'user', content: 'y copia a e.vazquez@dulcesprovidencia.mx, j.silva@dulcesprovidencia.mx e isaac.vazquez@dulcesprovidencia.mx' },
+  ];
+  const others = H.otherEmails(tr, 'h.marquez@dulcesprovidencia.mx');
+  assert.deepStrictEqual(others, ['e.vazquez@dulcesprovidencia.mx', 'j.silva@dulcesprovidencia.mx', 'isaac.vazquez@dulcesprovidencia.mx']);
+  const d = H.buildHundredProposal({ ...FERRE, client_contact: { email: 'h.marquez@dulcesprovidencia.mx' } }, tr);
+  assert.strictEqual(d.other_emails.length, 3);
+});
+check('the verbatim conversation is written into the page body', () => {
+  const long = 'x'.repeat(4200);
+  const blocks = notify.buildTranscriptBlocks([
+    { role: 'assistant', content: '¿Cómo se llama tu negocio?' },
+    { role: 'user', content: 'Dulces Providencia, dulce típico mexicano a base de leche' },
+    { role: 'user', content: long },
+  ]);
+  const flat = JSON.stringify(blocks);
+  assert.ok(flat.includes('Conversación completa'));
+  assert.ok(flat.includes('dulce típico mexicano a base de leche'), 'literal, no resumido');
+  assert.ok(flat.includes('Cliente') && flat.includes('Agente'), 'hay que distinguir quién habla');
+  // Notion rechaza runs de más de 2000 caracteres: la respuesta larga se trocea.
+  blocks.forEach((b) => ((b[b.type] && b[b.type].rich_text) || []).forEach((r) =>
+    assert.ok(r.text.content.length <= 2000, 'bloque de ' + r.text.content.length + ' chars')));
+  assert.ok(blocks.length >= 6, 'la respuesta larga debe partirse en varios bloques');
+});
+check('a long interview is split into Notion-sized batches', () => {
+  const many = Array.from({ length: 120 }, (_, i) => ({ role: i % 2 ? 'user' : 'assistant', content: 'mensaje ' + i }));
+  const all = notify.buildChildren(A.brain, 'hundred', { score: A.score, proposal: A.proposal }, many);
+  assert.ok(all.length > notify.MAX_BLOCKS_PER_CALL, 'este caso debe superar el tope de 100');
+  // notifyCompleted manda los primeros 100 al crear y añade el resto después.
+  assert.strictEqual(notify.MAX_BLOCKS_PER_CALL, 100);
+});
 check('gaps report what is missing from the INTERVIEW, not deal judgements', () => {
   assert.deepStrictEqual(A.proposal.gaps, [], 'este caso quedó completo');
   const thin = H.buildGaps({ main_problem: {}, operation: {}, urgency: {}, completeness: 0.3 });
@@ -326,6 +360,8 @@ check('one-question-per-turn is enforced in code, not just prompted', () => {
       assert.ok(flat.includes('10 y 15 pedidos'), 'falta el costo del problema');
       assert.ok(flat.includes('Karla'), 'falta quién lo operaría');
       assert.ok(flat.includes('no recomienda'), 'falta la advertencia de que no se recomienda nada');
+      assert.ok(flat.includes('Conversación completa'), 'falta la conversación literal');
+      assert.ok(flat.includes('hola'), 'el texto del prospecto debe ir palabra por palabra');
       assert.ok(!/MXN|Front Desk|Dificultad|Preproyecto/.test(flat), 'el cuerpo no debe recomendar nada');
       assert.ok(notionBody.children.length <= 100, 'Notion acepta 100 bloques por request');
     });
