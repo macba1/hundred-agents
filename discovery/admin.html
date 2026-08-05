@@ -85,27 +85,26 @@
   }
   function esc(s){return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
 
-  /* Same internal report that gets written into the Notion page body, rendered
-     here so the admin and Notion never disagree about what was decided. */
+  /* Same dossier that gets written into the Notion page body, rendered here so
+     the admin and Notion never disagree. Requirements only: the interview does
+     not recommend a solution, a scope or a price. */
   function report(p){
-    var mxn=function(n){return typeof n==='number'?'$'+n.toLocaleString('en-US')+' MXN':'—';};
-    var pi=p.pricing_internal||{}, sr=pi.setup_range_mxn||[], mr=pi.monthly_range_mxn||[];
     var list=function(a){return (a&&a.length)?'<ul>'+a.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>':'';};
     var kv=function(pairs){var r=pairs.filter(function(x){return x[1]&&String(x[1]).trim();});
-      return r.length?'<ul>'+r.map(function(x){return '<li><b>'+esc(x[0])+':</b> '+esc(x[1])+'</li>';}).join('')+'</ul>':'';};
-    var c=p.company||{};
-    return '<h3>Informe interno</h3>'
+      return r.length?'<ul>'+r.map(function(x){return '<li><b>'+esc(x[0])+':</b> '+esc(x[1])+'</li>';}).join('')+'</ul>':'<p>No se cubrió.</p>';};
+    var c=p.company||{}, o=p.operation||{}, u=p.urgency||{};
+    return '<h3>Requerimientos recogidos</h3>'
       + '<p><b>'+esc(p.client||'Prospecto')+'</b> — '+esc([c.industry,c.location,c.size].filter(Boolean).join(' · ')||'sin datos')+'</p>'
-      + kv([['Contacto',[p.client_email,p.client_whatsapp].filter(Boolean).join(' · ')]])
+      + kv([['Contacto',[p.client_email,p.client_whatsapp,p.client_person].filter(Boolean).join(' · ')],['Antigüedad',c.years_operating],['Tipo de cliente',c.customer_type]])
       + '<h4>Problema</h4><p>'+esc(p.problem_summary||'—')+'</p>'
-      + kv([['Cómo lo resuelven hoy',p.problem_today],['Desde cuándo',p.problem_since],['Han intentado',p.problem_tried],['Si no se resuelve',p.problem_if_unsolved]])
-      + '<h4>Costo del problema</h4><p>'+esc(p.problem_cost||'no cuantificado')+'</p>'
-      + '<h4>Preproyecto</h4><p>'+esc(p.recommended_build||'—')+' — '+esc(p.recommended_build_what||'')+'</p>'
-      + kv([['También considerar',(p.also_consider||[]).join(' · ')],['Fase 1',(p.modules_phase_1||[]).join(' · ')],['Fase 2',(p.modules_phase_2||[]).join(' · ')],['Fase 3',(p.modules_phase_3||[]).join(' · ')]])
-      + '<h4>Dificultad: '+esc(String(p.difficulty||'—').toUpperCase())+'</h4>'+list(p.difficulty_justification)
-      + '<h4>Tier y precio interno</h4><p>'+esc(p.suggested_pricing_tier||'—')+'</p>'
-      + kv([['Implementación',mxn(pi.setup_mxn)+' (banda '+mxn(sr[0])+' – '+mxn(sr[1])+')'],['Mensual',mxn(pi.monthly_mxn)+' (banda '+mxn(mr[0])+' – '+mxn(mr[1])+')']])
-      + '<h4>Alertas</h4>'+((p.alerts&&p.alerts.length)?list(p.alerts):'<p>Ninguna.</p>')
+      + kv([['Cómo lo resuelven hoy',p.problem_today],['Desde cuándo',p.problem_since],['Han intentado',p.problem_tried],['Si no se resuelve',p.problem_if_unsolved],['Severidad declarada',p.problem_severity]])
+      + '<h4>Qué les cuesta</h4><p>'+esc(p.problem_cost||'no cuantificado')+'</p>'
+      + '<h4>Operación</h4>'
+      + kv([['Canales de venta',(o.sales_channels||[]).join(', ')],['Canales de atención',(o.service_channels||[]).join(', ')],['Volumen de mensajes',o.volume_messages],['Volumen de pedidos',o.volume_orders],['Herramientas hoy',(o.tools_today||[]).join(', ')],['Quién lo operaría',o.who_would_operate]])
+      + '<h4>Urgencia y presupuesto</h4>'
+      + kv([['Para cuándo',u.timeline],['Por qué esa fecha',u.driver],['Señal de presupuesto',[u.budget_signal,u.budget_posture].filter(Boolean).join(' · ')]])
+      + ((p.success_criteria&&p.success_criteria.length)?'<h4>Qué quieren lograr</h4>'+list(p.success_criteria):'')
+      + '<h4>Qué falta preguntar</h4>'+((p.gaps&&p.gaps.length)?list(p.gaps):'<p>Nada: la entrevista quedó completa.</p>')
       + '<h4>Siguiente paso</h4><p>'+esc(p.next_step||'—')+'</p>';
   }
   el('load').addEventListener('click', loadList);

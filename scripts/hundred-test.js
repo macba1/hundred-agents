@@ -103,39 +103,51 @@ check('hundred adds the 2 new guardrails; gabi defaults unchanged', () => {
   assert.strictEqual(brainLib.DEFAULT_DO_NOT_SAY.length, 5, 'gabi defaults were modified');
 });
 
-/* ---- recommendation / difficulty / tier ---- */
-check('recommends the order-taking agent for the ferretería case', () => {
-  assert.strictEqual(A.score.recommended_build_key, 'pedidos');
-  assert.ok(A.proposal.also_consider.includes('AI Front Desk WhatsApp'));
-  assert.ok(A.score.recommendation_reasons.length > 0);
+/* ---- guardrail: requirements only, never a recommendation ---- */
+const RECOMMENDATION_KEYS = [
+  'recommended_build', 'recommended_build_what', 'recommended_build_reasons', 'also_consider',
+  'modules_phase_1', 'modules_phase_2', 'modules_phase_3',
+  'difficulty', 'difficulty_justification',
+  'suggested_tier', 'suggested_pricing_tier', 'pricing_internal',
+];
+
+check('the dossier carries NO recommendation, difficulty, tier or price', () => {
+  RECOMMENDATION_KEYS.forEach((k) =>
+    assert.ok(!(k in A.proposal), 'la ficha no debe traer ' + k));
+  // Ojo: la ficha SÍ puede contener cifras del prospecto ("ticket promedio
+  // $1,800"). Lo prohibido es un precio NUESTRO o un producto del catálogo.
+  const flat = JSON.stringify(A.proposal);
+  assert.ok(!/MXN|pricing|tier/i.test(flat), 'ningún precio nuestro en la ficha: ' + flat.slice(0, 200));
+  assert.ok(!/Front Desk|Agente de pedidos|Agente de citas|Agente a medida/.test(flat), 'ningún producto del catálogo');
 });
-check('pure-attention case recommends the front desk instead', () => {
-  const b = { main_problem: { description: 'no alcanzamos a contestar los mensajes de whatsapp, la gente pregunta precios' }, operation: { service_channels: ['whatsapp'] } };
-  assert.strictEqual(H.recommendBuild(b).primary.key, 'front_desk');
+check('the recommendation engine is gone, not just unused', () => {
+  ['recommendBuild', 'assessDifficulty', 'tierFor', 'CATALOG', 'TIERS', 'MODULES', 'buildAlerts']
+    .forEach((k) => assert.strictEqual(H[k], undefined, 'sigue existiendo ' + k));
 });
-check('difficulty is justified, never an unexplained label', () => {
-  assert.ok(['baja', 'media', 'alta'].includes(A.score.difficulty));
-  assert.ok(A.score.difficulty_reasons.length >= 3, 'difficulty must carry its reasons');
-  assert.deepStrictEqual(A.proposal.difficulty_justification, A.score.difficulty_reasons);
+check('scope stays "Por estudiar" — a person decides it', () => {
+  assert.strictEqual(A.score.classification, H.PENDING);
+  assert.strictEqual(A.proposal.scope, H.PENDING);
+  assert.strictEqual(A.blueprint, null, 'el diagnóstico no diseña arquitectura');
 });
-check('difficulty climbs with channels + read_write integration', () => {
-  const easy = H.scoreHundred({ main_problem: { description: 'no contestamos whatsapp' }, operation: { service_channels: ['whatsapp'], volume_messages: '10 al día', tools_today: ['nada'] }, source_materials_available: [{ type: 'lista de precios', provided: true }] });
-  const hard = H.scoreHundred({ main_problem: { description: 'pedidos y cotizaciones' }, operation: { service_channels: ['whatsapp', 'instagram', 'facebook'], volume_messages: '300 al día', tools_today: ['CRM'] }, integrations: [{ tool: 'CRM', integration_appetite: 'read_write' }] });
-  assert.strictEqual(easy.difficulty, 'baja');
-  assert.strictEqual(hard.difficulty, 'alta');
+check('the dossier keeps every requirement the prospect gave', () => {
+  assert.strictEqual(A.proposal.problem_summary, FERRE.main_problem.description);
+  assert.strictEqual(A.proposal.problem_today, FERRE.main_problem.how_solved_today);
+  assert.strictEqual(A.proposal.problem_tried, FERRE.main_problem.tried_before);
+  assert.strictEqual(A.proposal.problem_if_unsolved, FERRE.main_problem.consequence_if_unsolved);
+  assert.ok(/2 horas diarias/.test(A.proposal.problem_cost));
+  assert.deepStrictEqual(A.proposal.operation.tools_today, FERRE.operation.tools_today);
+  assert.strictEqual(A.proposal.operation.who_would_operate, FERRE.operation.who_would_operate);
+  assert.strictEqual(A.proposal.urgency.timeline, FERRE.urgency.timeline);
+  assert.strictEqual(A.proposal.client_email, FERRE.client_contact.email);
 });
-check('tiers map to the agreed MXN prices with a ±20% band', () => {
-  assert.deepStrictEqual([H.TIERS.basico.setup, H.TIERS.basico.monthly], [15000, 1500]);
-  assert.deepStrictEqual([H.TIERS.pro.setup, H.TIERS.pro.monthly], [40000, 3000]);
-  assert.deepStrictEqual([H.TIERS.fabrica.setup, H.TIERS.fabrica.monthly], [75000, 5000]);
-  assert.strictEqual(H.TIER_BAND, 0.2);
-  const p = A.proposal.pricing_internal;
-  assert.deepStrictEqual(p.setup_range_mxn, [Math.round(p.setup_mxn * 0.8), Math.round(p.setup_mxn * 1.2)]);
-  assert.deepStrictEqual(p.monthly_range_mxn, [Math.round(p.monthly_mxn * 0.8), Math.round(p.monthly_mxn * 1.2)]);
+check('gaps report what is missing from the INTERVIEW, not deal judgements', () => {
+  assert.deepStrictEqual(A.proposal.gaps, [], 'este caso quedó completo');
+  const thin = H.buildGaps({ main_problem: {}, operation: {}, urgency: {}, completeness: 0.3 });
+  assert.ok(thin.some((g) => /cuantificó lo que cuesta/.test(g)));
+  assert.ok(thin.some((g) => /Sin señal de presupuesto/.test(g)));
+  assert.ok(!thin.some((g) => /tier|precio|dificultad/i.test(g)), 'los huecos no juzgan el trato');
 });
-check('the counter and dead channels do not inflate the price', () => {
-  // Real regression: "el Instagram lo tenemos abandonado" was counted as a
-  // third channel and pushed the tier from Pro ($40k) to Fábrica ($75k).
+check('the counter and dead channels stay out of the factual signal', () => {
   const b = {
     operation: { sales_channels: ['mostrador', 'teléfono', 'WhatsApp'], service_channels: ['mostrador', 'teléfono', 'WhatsApp'] },
     current_channels: [
@@ -147,30 +159,18 @@ check('the counter and dead channels do not inflate the price', () => {
     desired_channels: ['teléfono', 'WhatsApp', 'mostrador'],
   };
   assert.deepStrictEqual(Array.from(H.channelSet(b)).sort(), ['teléfono', 'whatsapp']);
-  const withDead = H.scoreHundred({ ...FERRE, ...b });
-  assert.strictEqual(withDead.difficulty, 'media', 'an abandoned channel must not raise the tier');
+  assert.deepStrictEqual(H.scoreHundred({ ...FERRE, ...b }).channels_to_cover.sort(), ['teléfono', 'whatsapp']);
 });
 check('volume strings normalise to per-day', () => {
   assert.strictEqual(H.perDay('60 mensajes al día'), 60);
   assert.strictEqual(Math.round(H.perDay('350 a la semana')), 50);
   assert.strictEqual(H.perDay(''), null);
 });
-check('proposal is internal-only and needs human review', () => {
+check('dossier is internal-only and needs human review', () => {
   assert.strictEqual(A.proposal.human_review_required, true);
   assert.strictEqual(A.proposal.internal_only, true);
-  assert.ok(A.proposal.next_step && A.proposal.next_step.length > 10);
-  assert.ok(A.proposal.modules_phase_1.length, 'phase 1 must list modules');
-});
-check('alerts fire on the things that kill a deal', () => {
-  const noBudget = H.buildHundredProposal(
-    brainLib.finalizeBrain({ ...FERRE, urgency: { timeline: 'ya' }, operation: { ...FERRE.operation, who_would_operate: '' } }, 'hundred'),
-    A.score, A.blueprint);
-  const joined = noBudget.alerts.join(' | ');
-  assert.ok(/presupuesto/i.test(joined), 'missing budget alert');
-  assert.ok(/operar el sistema/i.test(joined), 'missing owner alert');
-});
-check('a well-qualified case does not invent alerts', () => {
-  assert.ok(!A.proposal.alerts.some((a) => /Sin costo del problema/.test(a)), 'cost was quantified: ' + A.proposal.alerts.join(' | '));
+  assert.strictEqual(A.proposal.kind, 'intake');
+  assert.ok(/Estudiar el caso/.test(A.proposal.next_step));
 });
 
 /* ---- WhatsApp report ---- */
@@ -178,16 +178,15 @@ const WA = waNotify.buildWAReport({ brain: A.brain, score: A.score, proposal: A.
 check('WhatsApp report never exceeds 12 lines', () => {
   assert.ok(WA.split('\n').length <= 12, 'got ' + WA.split('\n').length + ' lines');
 });
-check('WhatsApp report carries every required field', () => {
+check('WhatsApp report carries requirements only, never advice', () => {
   assert.ok(/Ferretería El Tornillo/.test(WA), 'empresa');
   assert.ok(/Problema:/.test(WA) && /Cuesta:/.test(WA), 'problema + costo');
-  assert.ok(/Propuesta:/.test(WA), 'propuesta');
-  assert.ok(/Dificultad:/.test(WA), 'dificultad');
-  assert.ok(/Tier:.*\$[\d,]+.*\/mes/.test(WA), 'tier + precio interno');
+  assert.ok(/Hoy:/.test(WA) && /Canales:/.test(WA) && /Urgencia:/.test(WA), 'operación y urgencia');
+  assert.ok(!/Propuesta:|Dificultad:|Tier:|MXN/.test(WA), 'el aviso no debe recomendar ni cotizar');
   assert.ok(/Sesión abcdef12/.test(WA) && /admin/.test(WA), 'referencia de sesión');
 });
-check('a very alerty case still respects the 12-line cap', () => {
-  const noisy = { ...A.proposal, alerts: Array.from({ length: 12 }, (_, i) => 'alerta muy larga número ' + i + ' '.repeat(30)) };
+check('a gap-heavy case still respects the 12-line cap', () => {
+  const noisy = { ...A.proposal, gaps: Array.from({ length: 12 }, (_, i) => 'hueco muy largo número ' + i + ' '.repeat(30)) };
   const out = waNotify.buildWAReport({ brain: A.brain, score: A.score, proposal: noisy, sessionToken: 'x'.repeat(20) });
   assert.ok(out.split('\n').length <= 12, 'got ' + out.split('\n').length);
   assert.ok(/Sesión/.test(out), 'session line must survive the truncation');
@@ -257,7 +256,8 @@ check('hundred prompt enforces one question per turn + the price deflection', ()
   const S = prompts.forClient('hundred').SYSTEM;
   assert.ok(/UNA SOLA PREGUNTA POR TURNO/.test(S));
   assert.ok(/Eso te lo presenta el equipo en la propuesta/.test(S));
-  assert.ok(/NO DISEÑAR LA SOLUCIÓN FRENTE AL PROSPECTO/.test(S));
+  assert.ok(/NO RECOMENDAR NADA, NUNCA/.test(S));
+  assert.ok(/después de estudiar tu caso/.test(S));
   assert.ok(/menos de 24 horas/.test(S));
   ['how_solved_today', 'cost_money', 'since_when', 'tried_before', 'consequence_if_unsolved']
     .forEach((f) => assert.ok(S.includes('INTENTADO') || true) && assert.ok(prompts.forClient('hundred').UPDATE_BRAIN_TOOL.function.parameters.properties.main_problem.properties[f], 'tool missing ' + f));
@@ -306,9 +306,9 @@ check('one-question-per-turn is enforced in code, not just prompted', () => {
     await store.save(s);
     const r = mockRes();
     await finalizeHandler({ method: 'POST', headers: {}, query: {}, body: { sessionToken: s.sessionToken } }, r);
-    check('finalize(hundred) returns 200 with the tier as scope class', () => {
+    check('finalize(hundred) returns 200 and leaves the scope to a person', () => {
       assert.strictEqual(r.code, 200);
-      assert.ok(['Básico', 'Pro', 'Fábrica'].includes(r.body.scopeClass), 'got ' + r.body.scopeClass);
+      assert.strictEqual(r.body.scopeClass, H.PENDING, 'got ' + r.body.scopeClass);
       assert.strictEqual(r.body.humanReviewRequired, true);
     });
     check('finalize(hundred) notifies Notion and NOTHING by WhatsApp', () => {
@@ -317,23 +317,24 @@ check('one-question-per-turn is enforced in code, not just prompted', () => {
       assert.strictEqual(graphBody, null);
       assert.strictEqual(notionBody.properties[notify.ORIGIN_PROP].select.name, 'campana-jul', 'el ?ref= debe llegar a Origen');
     });
-    check('the Notion page body carries the FULL internal report', () => {
+    check('the Notion page body carries every requirement, and no advice', () => {
       const flat = JSON.stringify(notionBody.children);
-      assert.ok(notionBody.children.length > 20, 'expected a full report, got ' + notionBody.children.length + ' blocks');
-      ['Informe interno', 'Resumen', 'Problema principal', 'Costo del problema', 'Operación',
-       'Preproyecto propuesto', 'Dificultad', 'Tier y precio interno', 'Alertas', 'Siguiente paso']
+      assert.ok(notionBody.children.length > 20, 'expected a full dossier, got ' + notionBody.children.length + ' blocks');
+      ['Requerimientos recogidos en la entrevista', 'Empresa', 'Problema principal', 'Qué les cuesta',
+       'Operación', 'Urgencia y presupuesto', 'Qué falta preguntar', 'Siguiente paso']
         .forEach((h) => assert.ok(flat.includes(h), 'falta la sección ' + h));
-      assert.ok(flat.includes('Pro — $40,000 MXN + $3,000 MXN/mes'), 'falta el tier con precio interno');
-      assert.ok(flat.includes('Agente de pedidos'), 'falta el preproyecto');
       assert.ok(flat.includes('10 y 15 pedidos'), 'falta el costo del problema');
-      assert.ok(flat.includes('no enviar al prospecto'), 'falta la advertencia de uso interno');
+      assert.ok(flat.includes('Karla'), 'falta quién lo operaría');
+      assert.ok(flat.includes('no recomienda'), 'falta la advertencia de que no se recomienda nada');
+      assert.ok(!/MXN|Front Desk|Dificultad|Preproyecto/.test(flat), 'el cuerpo no debe recomendar nada');
       assert.ok(notionBody.children.length <= 100, 'Notion acepta 100 bloques por request');
     });
     const saved = await store.get(s.sessionToken);
-    check('finalize persists the internal proposal on the session', () => {
+    check('finalize persists the requirements dossier on the session', () => {
       assert.strictEqual(saved.status, 'finalized');
-      assert.ok(saved.artifacts.proposal.suggested_tier);
-      assert.ok(saved.artifacts.proposal.pricing_internal.setup_mxn > 0);
+      assert.strictEqual(saved.artifacts.proposal.kind, 'intake');
+      assert.strictEqual(saved.artifacts.proposal.scope, H.PENDING);
+      assert.ok(saved.artifacts.proposal.problem_summary.length > 10);
     });
     await store.del(s.sessionToken);
 
@@ -352,6 +353,60 @@ check('one-question-per-turn is enforced in code, not just prompted', () => {
       assert.strictEqual(graphCalls, 0);
     });
     await store.del(t.sessionToken);
+
+    /* The button bug: a prospect completed the whole interview, the agent told
+       him "listo, te contactamos en menos de 24 horas", and the session was
+       never finalized because nobody pressed Terminar. The closing line is the
+       promise — the server must honour it by itself. */
+    const messageHandler = require('../api/discovery/message');
+    const CLOSING = 'Listo. Con esto el equipo de Hundred Agents arma tu propuesta y te contactamos en menos de 24 horas.';
+    let notionOnAuto = 0;
+    global.fetch = async (u, o) => {
+      const url = String(u);
+      if (url.includes('api.openai.com')) {
+        const sent = JSON.parse(o.body);
+        // El compile FUERZA la tool (objeto); el turno de chat manda 'auto'.
+        if (sent.tool_choice && typeof sent.tool_choice === 'object') {
+          return { ok: true, json: async () => ({ choices: [{ message: { tool_calls: [] } }] }), text: async () => '' };
+        }
+        return { ok: true, json: async () => ({ choices: [{ message: { content: CLOSING } }] }), text: async () => '' };
+      }
+      if (url.includes('api.notion.com')) { notionOnAuto++; return { ok: true, json: async () => ({ url: 'https://notion/x' }), text: async () => '' }; }
+      if (url.includes('graph.facebook.com')) return { ok: true, json: async () => ({}), text: async () => '' };
+      return { ok: false };
+    };
+
+    const auto = store.newSession('hundred');
+    auto.brainPartial = FERRE;
+    auto.transcript.push({ role: 'assistant', content: 'hola' });
+    await store.save(auto);
+    const rAuto = mockRes();
+    await messageHandler({ method: 'POST', headers: {}, query: {}, body: { sessionToken: auto.sessionToken, message: 'no falta nada' } }, rAuto);
+    const savedAuto = await store.get(auto.sessionToken);
+    check('the interview closes itself when the agent says goodbye', () => {
+      assert.strictEqual(rAuto.code, 200);
+      assert.strictEqual(rAuto.body.done, true, 'el front debe recibir done');
+      assert.strictEqual(rAuto.body.finalized, true);
+      assert.strictEqual(savedAuto.status, 'finalized', 'la sesión quedó en ' + savedAuto.status);
+      assert.ok(savedAuto.artifacts, 'sin artefactos');
+      assert.strictEqual(notionOnAuto, 1, 'debe crear la fila en Notion sin pulsar Terminar');
+    });
+    await store.del(auto.sessionToken);
+
+    // Sin correo válido no se puede cerrar: la conversación sigue abierta.
+    const noMail = store.newSession('hundred');
+    noMail.brainPartial = { ...FERRE, client_contact: { name: 'Ruth', email: 'Ruthprueba' } };
+    noMail.transcript.push({ role: 'assistant', content: 'hola' });
+    await store.save(noMail);
+    const rNo = mockRes();
+    await messageHandler({ method: 'POST', headers: {}, query: {}, body: { sessionToken: noMail.sessionToken, message: 'ya' } }, rNo);
+    const savedNo = await store.get(noMail.sessionToken);
+    check('without a valid email the session stays open instead of half-closing', () => {
+      assert.strictEqual(rNo.code, 200);
+      assert.ok(!rNo.body.finalized);
+      assert.strictEqual(savedNo.status, 'active');
+    });
+    await store.del(noMail.sessionToken);
 
     // No discovery client may reach Graph today. Any hit here is a regression.
     let anyGraph = 0;

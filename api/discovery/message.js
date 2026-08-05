@@ -12,6 +12,25 @@ const MAX_TURNS = 40;
 const MAX_WINDOW = 40;
 const MAX_TOKENS = 500;
 
+/**
+ * Close the interview server-side, best-effort.
+ *
+ * The prospect's contract is the agent's own closing line, not a button. If
+ * the session cannot close yet (no valid email), we leave it open and the
+ * conversation simply continues.
+ */
+async function closeNow(s) {
+  try {
+    const { finalizeSession } = require('./finalize');
+    const out = await finalizeSession(s);
+    if (!out.ok) console.error('[discovery:autofinalize]', s.sessionToken.slice(0, 8), out.error);
+    return out;
+  } catch (e) {
+    console.error('[discovery:autofinalize] throw', e && e.message);
+    return null;
+  }
+}
+
 async function callOpenAI(payload, key) {
   const r = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
@@ -54,7 +73,10 @@ module.exports = async function handler(req, res) {
     s.transcript.push({ role: 'assistant', content: reply, ts: new Date().toISOString() });
     s.status = 'ready_to_finalize';
     await store.save(s);
-    return res.status(200).json({ reply, done: true, progress: 1 });
+    // Hitting the cap used to leave the session in 'ready_to_finalize' forever:
+    // the client showed the thank-you screen and nobody ever finalized it.
+    const closed = await closeNow(s);
+    return res.status(200).json({ reply, done: true, progress: 1, ...(closed ? { finalized: closed.ok } : {}) });
   }
 
   const window = s.transcript.slice(-MAX_WINDOW).map((m) => ({ role: m.role, content: m.content }));
@@ -91,6 +113,13 @@ module.exports = async function handler(req, res) {
     s.transcript.push({ role: 'assistant', content: reply, ts: new Date().toISOString() });
     const { completeness } = brainLib.assess(brainLib.finalizeBrain(s.brainPartial, s.clientKey), s.clientKey);
     await store.save(s);
+
+    // The agent just told the prospect the interview is over. Make that true.
+    if (prompts.CLOSING_RE && prompts.CLOSING_RE.test(reply)) {
+      const closed = await closeNow(s);
+      if (closed && closed.ok) return res.status(200).json({ reply, progress: 1, done: true, finalized: true });
+    }
+
     return res.status(200).json({ reply, progress: completeness, sections: SECTIONS.length });
   } catch (err) {
     // user's answer is already saved; surface a retryable error
