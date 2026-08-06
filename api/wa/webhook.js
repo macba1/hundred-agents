@@ -109,8 +109,15 @@ async function handler(req, res) {
         // generan respuesta. Se registran y se acaba ahí.
         if (Array.isArray(value.statuses) && value.statuses.length) {
           for (const st of value.statuses) {
-            console.log('[status-ignored] wamid=%s estado=%s destinatario=%s',
-              st.id, st.status, st.recipient_id || '?');
+            // El motivo del fallo es lo único accionable de un status, y sin él
+            // un "failed" no dice si fue la ventana de 24h, el número o Meta.
+            const err = (st.errors || [])
+              .map((e) => `${e.code}:${e.title || e.message || ''}`).join(' | ');
+            console.log('[status-ignored] wamid=%s estado=%s destinatario=%s%s',
+              st.id, st.status, st.recipient_id || '?', err ? ' error=' + err : '');
+            if (st.status === 'failed') {
+              console.error('[wa] ENTREGA FALLIDA a %s: %s', st.recipient_id || '?', err || 'sin detalle');
+            }
           }
         }
 
