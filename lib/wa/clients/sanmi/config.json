@@ -19,5 +19,7 @@
   "acento_panel": "#8a5a2b",
   "datos": {},
   "_datos_nota": "Vacío a propósito: dirección, horarios, domicilio y pagos salen de catalogo.json, que es lo que también consulta la herramienta. Poner algo aquí SOBRESCRIBE al catálogo para el system prompt.",
-  "mensaje_cierre": "Por hoy aquí le paramos, pero con gusto seguimos mañana. ¡Gracias por escribir a Sanmi Café! ☕"
+  "mensaje_cierre": "Por hoy aquí le paramos, pero con gusto seguimos mañana. ¡Gracias por escribir a Sanmi Café! ☕",
+  "audio_max_dia": 30,
+  "_audio_max_dia_nota": "Notas de voz por persona y día. Con 5 el cliente se quedaba tirado a media orden. El abuso real lo corta el cortacircuitos de 25 respuestas/hora."
 }

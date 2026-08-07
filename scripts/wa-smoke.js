@@ -515,15 +515,34 @@ async function main() {
     console.log('  📝', user.content);
     assert(user.content.startsWith('[Audio transcrito]:'));
   });
-  await check('el 6º audio del día pide texto', async () => {
-    for (let i = 2; i <= 6; i += 1) {
+  await check('el tope de audios se sigue aplicando, en el número correcto', async () => {
+    // Se precarga el contador directamente: mandar 30 webhooks chocaría antes
+    // con el cortacircuitos de 25 respuestas/hora y no probaría nada.
+    const TOPE = TEST('067');
+    const dia = new Intl.DateTimeFormat('en-CA', { timeZone: SANMI.zona_horaria,
+      year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+    for (let i = 0; i < SANMI.audio_max_dia; i += 1) {
+      await store.bumpAudio('sanmi', TOPE, dia);
+    }
+    guion = [texto('ok')];
+    const r = makeRes();
+    await webhook(postReq(wh({ id: 'wamid.TOPE', from: TOPE, type: 'audio', audio: { id: 'media-t' } })), r);
+    const last = SENT[SENT.length - 1];
+    console.log(`  📤 audio ${SANMI.audio_max_dia + 1}:`, last.text.slice(0, 58));
+    assert(/no puedo procesar más notas de voz/.test(last.text), 'el tope dejó de aplicarse');
+  });
+
+  await check('una conversación de pedido por voz NO se corta', async () => {
+    // Cinco audios seguidos son una orden normal; con el tope en 5 el cliente
+    // se quedaba a media conversación.
+    const VOZ = TEST('066');
+    for (let i = 1; i <= 5; i += 1) {
       guion = [texto('ok')];
       const r = makeRes();
-      await webhook(postReq(wh({ id: `wamid.A${i}`, from: AUD, type: 'audio', audio: { id: `media-${i}` } })), r);
+      await webhook(postReq(wh({ id: `wamid.V${i}`, from: VOZ, type: 'audio', audio: { id: `media-v${i}` } })), r);
+      assert(!/no puedo procesar más notas de voz/.test(SENT[SENT.length - 1].text),
+        `cortó en el audio ${i} de 5`);
     }
-    const last = SENT[SENT.length - 1];
-    console.log('  📤', last.text);
-    assert(/no puedo procesar más notas de voz/.test(last.text));
   });
 
   console.log('\n=== 11) Panel /api/wa/leads ===');
