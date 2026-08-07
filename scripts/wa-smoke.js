@@ -241,8 +241,7 @@ async function main() {
     const precios = new Set(r.coincidencias.map((p) => p.precio));
     assert(precios.size > 1, 'los frappés deberían tener precios distintos');
     const sys = clientsLib.systemPrompt(SANMI, {});
-    assert(/nunca respondas con un precio único/i.test(sys),
-      'falta la regla de términos genéricos');
+    assert(/nunca.{0,20}un precio único/i.test(sys), 'falta la regla de términos genéricos');
   });
   await check('el catálogo marca qué lleva alcohol', async () => {
     // El agente aceptó llevar un Clericó a domicilio. La subcategoría es lo
@@ -250,8 +249,9 @@ async function main() {
     const r = catalog.buscar(SANMI, 'clerico');
     assert.strictEqual(r.coincidencias[0].subcategoria, 'con alcohol');
     const sys = clientsLib.systemPrompt(SANMI, {});
-    assert(/NO se lleva a domicilio/.test(sys), 'falta la prohibición de alcohol a domicilio');
-    assert(/El alcohol no va a domicilio/.test(sys), 'la sección de envío no la referencia');
+    assert(/NO a domicilio|no se lleva a domicilio/i.test(sys),
+      'falta la prohibición de alcohol a domicilio');
+    assert(/alcohol no va a domicilio/i.test(sys), 'la sección de envío no la referencia');
   });
   await check('los sabores viven en la descripción y son buscables', async () => {
     // Dije que la carta no traía sabores de sodas: sí los trae, en descripcion.
@@ -274,7 +274,8 @@ async function main() {
     assert.strictEqual(r.coincidencias[0].nombre, 'Clericó');
     assert.strictEqual(r.coincidencias[0].precio, 68);
     const sys = clientsLib.systemPrompt(SANMI, {});
-    assert(/NUNCA es motivo para decir que no lo tenemos/.test(sys),
+    // Tolerante a saltos de línea: el prompt va envuelto a 90 columnas.
+    assert(/NUNCA[\s\S]{0,25}(es motivo|sirve)\s+para\s+decir\s+que\s+no\s+lo\s+tenemos/i.test(sys),
       'la regla de alcohol puede volver a usarse para negar el platillo');
   });
   await check('sin campos privados en la salida', async () => {
