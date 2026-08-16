@@ -27,6 +27,14 @@
     "api/wa/admin.js": {
       "maxDuration": 60,
       "includeFiles": "lib/wa/clients/**"
+    },
+    "api/chacon/webhook.js": {
+      "maxDuration": 120,
+      "includeFiles": "chacon-alcantara/data/**"
+    },
+    "api/chacon/panel.js": {
+      "maxDuration": 30,
+      "includeFiles": "chacon-alcantara/data/**"
     }
   }
 }

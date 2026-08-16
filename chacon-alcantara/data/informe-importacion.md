@@ -2,7 +2,7 @@
 
 - **PDF**: `Catalogo Articulos Tarifa 1.pdf`
 - **SHA-256**: `08fd02e55fd9d745a288f30fd18b91a6a87b94415e468f0d3e48b18593f5a71a`
-- **Generado**: 2026-08-16T14:30:51.160634+00:00
+- **Generado**: 2026-08-16T15:50:51.189681+00:00
 
 ## Recuento
 
@@ -12,7 +12,8 @@
 | Fichas extraídas | 112 |
 | Códigos únicos | 90 |
 | Registros con código repetido | 22 |
-| **Bloqueados para pedido** (`price_conflict`) | **41** |
+| **Bloqueados para cálculo de precio** | **42** |
+| Bloqueados para cálculo de peso (peso 0) | 6 |
 | Imágenes en el PDF | 110 |
 | Marcas distintas | 19 |
 
@@ -31,12 +32,24 @@ Vacío **no** es negativo: son datos que Chacón no ha proporcionado.
 | `tarifa` | 0 | 0% |
 | `marca` | 0 | 0% |
 
-## Códigos con tarifas contradictorias
+## Posibles variantes de tarifa sin identificar
 
 **19 códigos** aparecen más de una vez con precios distintos.
-En todos ellos el resto de campos es idéntico: misma descripción, mismo código de
-barras, misma marca, mismas unidades por caja y mismo peso. **Solo cambia el precio.**
-No es una diferencia de formato: es una contradicción que solo Chacón puede resolver.
+Chacón ha confirmado que existen 8 tarifas según la cantidad pedida, así que estos
+precios **podrían ser niveles de tarifa distintos**, no errores.
+
+Se buscó evidencia en el PDF para asignar cada precio a su nivel:
+
+| Evidencia | Resultado |
+|---|---|
+| Cabecera o sección que nombre la tarifa | no existe ninguna |
+| Registros consecutivos en el documento | **sí, en los 19 códigos** |
+| Precio monótono en ese orden | **no**: 8 descendentes, 9 ascendentes, 2 sin orden |
+
+Están agrupados como variantes, pero **la posición no identifica el nivel**: si fueran
+tarifa 1→2→3, el precio por kilo bajaría al aumentar la cantidad, y no lo hace.
+Por eso el nivel queda `unknown` y **solo se bloquea el cálculo automático de precio**.
+El producto se puede buscar y se puede pedir sujeto a revisión humana.
 
 | Código | Registros | Tarifas | Páginas | Descripción |
 |---|---|---|---|---|

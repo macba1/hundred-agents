@@ -1,13 +1,13 @@
 {
   "version": {
-    "generado": "2026-08-16T14:30:51.160634+00:00",
+    "generado": "2026-08-16T15:50:51.189681+00:00",
     "pdf": "Catalogo Articulos Tarifa 1.pdf",
     "pdf_sha256": "08fd02e55fd9d745a288f30fd18b91a6a87b94415e468f0d3e48b18593f5a71a",
     "paginas": 38,
     "imagenes_en_pdf": 110,
     "fichas": 112,
     "codigos_unicos": 90,
-    "registros_bloqueados": 41,
+    "registros_bloqueados": 42,
     "tarifa": "Tarifa 1",
     "significado_tarifa": null,
     "iva_incluido": null,
@@ -218,7 +218,8 @@
         "cod_barras_no_valida_ean"
       ],
       "descripcion_normalizada": "embutido de pollo del mio del mio 0449",
-      "cod_barras_valido": false
+      "cod_barras_valido": false,
+      "revision_administrativa": true
     },
     {
       "id": "1240#3.1",
@@ -317,13 +318,18 @@
         "observaciones": "",
         "tarifa": "5,278"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "1 2 fbre lomo cdo adb c 2p del mio del mio 2003",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [9, 10]); precio descendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "2003#4.1",
@@ -354,13 +360,18 @@
         "observaciones": "",
         "tarifa": "4,167"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "1 2 fbre lomo cdo adb c 2p del mio del mio 2003",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [9, 10]); precio descendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "21446#4.2",
@@ -391,13 +402,18 @@
         "observaciones": "",
         "tarifa": "6,528"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "salami extra blanco del mio 21446",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [11, 12]); precio descendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "21446#4.3",
@@ -428,13 +444,18 @@
         "observaciones": "",
         "tarifa": "5,417"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "salami extra blanco del mio 21446",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [11, 12]); precio descendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "3047#5.1",
@@ -470,7 +491,8 @@
         "peso_desconocido_o_cero"
       ],
       "descripcion_normalizada": "lote 3047 del mio 3047",
-      "cod_barras_valido": null
+      "cod_barras_valido": null,
+      "bloqueado_para_calculo_peso": true
     },
     {
       "id": "4315#5.2",
@@ -540,7 +562,8 @@
         "peso_desconocido_o_cero"
       ],
       "descripcion_normalizada": "chorizo rosario oreado del mio del mio 4316",
-      "cod_barras_valido": null
+      "cod_barras_valido": null,
+      "bloqueado_para_calculo_peso": true
     },
     {
       "id": "4998#6.1",
@@ -610,7 +633,8 @@
         "cod_barras_no_valida_ean"
       ],
       "descripcion_normalizada": "1 2 salchichon tunel pmta prolongo del mio 50537",
-      "cod_barras_valido": false
+      "cod_barras_valido": false,
+      "revision_administrativa": true
     },
     {
       "id": "5076#6.3",
@@ -714,7 +738,8 @@
         "cod_barras_no_valida_ean"
       ],
       "descripcion_normalizada": "chorizo extra de pavo del mio del mio 5812",
-      "cod_barras_valido": false
+      "cod_barras_valido": false,
+      "revision_administrativa": true
     },
     {
       "id": "5814#7.3",
@@ -847,13 +872,18 @@
         "observaciones": "",
         "tarifa": "6,112"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "bacon molde medios del mio del mio 6703",
       "cod_barras_valido": null,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [24, 25]); precio ascendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "6703#9.1",
@@ -884,13 +914,18 @@
         "observaciones": "",
         "tarifa": "7,083"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "bacon molde medios del mio del mio 6703",
       "cod_barras_valido": null,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [24, 25]); precio ascendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "6711#9.2",
@@ -1368,7 +1403,8 @@
         "cod_barras_no_valida_ean"
       ],
       "descripcion_normalizada": "fiambre paleta horno campofrio c 2u campofrio 212",
-      "cod_barras_valido": false
+      "cod_barras_valido": false,
+      "revision_administrativa": true
     },
     {
       "id": "26644#14.1",
@@ -1501,13 +1537,18 @@
         "observaciones": "",
         "tarifa": "2,74"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "chopped cerdo esp 350 grs crismona crismona 6803",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [43, 44, 45]); precio descendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "6803#15.2",
@@ -1538,13 +1579,18 @@
         "observaciones": "",
         "tarifa": "2,367"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "chopped cerdo esp 350 grs crismona crismona 6803",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [43, 44, 45]); precio descendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "6803#15.3",
@@ -1575,13 +1621,18 @@
         "observaciones": "",
         "tarifa": "1,257"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "chopped cerdo esp 350 grs crismona crismona 6803",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 3,
+      "evidencia_tarifa": "registros consecutivos (órdenes [43, 44, 45]); precio descendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "6804#16.1",
@@ -1889,7 +1940,8 @@
         "peso_desconocido_o_cero"
       ],
       "descripcion_normalizada": "lacon cocido y ahumado extra frimancha 53100p",
-      "cod_barras_valido": null
+      "cod_barras_valido": null,
+      "bloqueado_para_calculo_peso": true
     },
     {
       "id": "6708#19.1",
@@ -1959,7 +2011,8 @@
         "peso_desconocido_o_cero"
       ],
       "descripcion_normalizada": "hamburguesas cong 6kilos frimancha frimancha 6710",
-      "cod_barras_valido": true
+      "cod_barras_valido": true,
+      "bloqueado_para_calculo_peso": true
     },
     {
       "id": "6722#19.3",
@@ -2165,7 +2218,8 @@
         "peso_desconocido_o_cero"
       ],
       "descripcion_normalizada": "saco de rosquillas de 7 5 kg horno carlos iii 3909",
-      "cod_barras_valido": null
+      "cod_barras_valido": null,
+      "bloqueado_para_calculo_peso": true
     },
     {
       "id": "3911#21.3",
@@ -2230,12 +2284,15 @@
         "observaciones": "",
         "tarifa": "0,001"
       },
-      "estado": "ok",
+      "estado": "promotion_requires_validation",
       "avisos": [
-        "peso_desconocido_o_cero"
+        "peso_desconocido_o_cero",
+        "posible_promocion_sin_condiciones"
       ],
       "descripcion_normalizada": "sin cargo violines c 8 pack 4 uds h carlos iii horno carlos iii of3900",
-      "cod_barras_valido": null
+      "cod_barras_valido": null,
+      "bloqueado_para_calculo_precio": true,
+      "bloqueado_para_calculo_peso": true
     },
     {
       "id": "CM01#22.2",
@@ -2470,13 +2527,18 @@
         "observaciones": "",
         "tarifa": "23,294"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "filetes de caballa a g 1800 c 6 la tarifena 30101",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [71, 72]); precio descendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "30101#24.3",
@@ -2507,13 +2569,18 @@
         "observaciones": "",
         "tarifa": "19,8"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "filetes de caballa a g 1800 c 6 la tarifena 30101",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [71, 72]); precio descendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "30201#25.1",
@@ -2544,13 +2611,18 @@
         "observaciones": "",
         "tarifa": "6"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "filetes de caballa a g 250 c 24 pack6pzas la tarifena 30201",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [73, 74]); precio descendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "30201#25.2",
@@ -2581,13 +2653,18 @@
         "observaciones": "",
         "tarifa": "5,101"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "filetes de caballa a g 250 c 24 pack6pzas la tarifena 30201",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [73, 74]); precio descendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "30301#25.3",
@@ -2618,13 +2695,18 @@
         "observaciones": "",
         "tarifa": "7,149"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "filetes caballa ro 550 c 24 a g la tarifena 30301",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [75, 76]); precio ascendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "30301#26.1",
@@ -2655,13 +2737,18 @@
         "observaciones": "",
         "tarifa": "7,946"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "filetes caballa ro 550 c 24 a g la tarifena 30301",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [75, 76]); precio ascendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "30501#26.2",
@@ -2692,13 +2779,18 @@
         "observaciones": "",
         "tarifa": "1,817"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "ftes caballa 125g 50 u c 5 pzas retr la tarifena 30501",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [77, 78]); precio ascendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "30501#26.3",
@@ -2729,13 +2821,18 @@
         "observaciones": "",
         "tarifa": "2,471"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "ftes caballa 125g 50 u c 5 pzas retr la tarifena 30501",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [77, 78]); precio ascendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "30701#27.1",
@@ -2766,13 +2863,18 @@
         "observaciones": "",
         "tarifa": "13,882"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "filetes de caballa a g 1000 c 12 la tarifena 30701",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [79, 80]); precio descendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "30701#27.2",
@@ -2803,13 +2905,18 @@
         "observaciones": "",
         "tarifa": "11,796"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "filetes de caballa a g 1000 c 12 la tarifena 30701",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [79, 80]); precio descendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "5100#27.3",
@@ -2840,13 +2947,18 @@
         "observaciones": "",
         "tarifa": "27,941"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "melva 1800 filete de almadraba ro c 6 la tarifena 5100",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [81, 82]); precio descendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "5100#28.1",
@@ -2877,13 +2989,18 @@
         "observaciones": "",
         "tarifa": "23,118"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "melva 1800 filete de almadraba ro c 6 la tarifena 5100",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [81, 82]); precio descendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "5102#28.2",
@@ -2914,13 +3031,18 @@
         "observaciones": "",
         "tarifa": "17,034"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "melva filete de almadraba 1000 c 12 la tarifena 5102",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [83, 84]); precio ascendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "5102#28.3",
@@ -2951,13 +3073,18 @@
         "observaciones": "",
         "tarifa": "20,588"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "melva filete de almadraba 1000 c 12 la tarifena 5102",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [83, 84]); precio ascendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "307002#29.1",
@@ -3022,13 +3149,18 @@
         "observaciones": "",
         "tarifa": "21"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "lomito iberico bellota marcial marcial castro 6302",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [86, 87]); precio ascendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "6302#29.3",
@@ -3059,13 +3191,18 @@
         "observaciones": "",
         "tarifa": "50,694"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "lomito iberico bellota marcial marcial castro 6302",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [86, 87]); precio ascendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "6303#30.1",
@@ -3096,13 +3233,18 @@
         "observaciones": "",
         "tarifa": "21"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "lomo plata cebo campo 50 marcial marcial castro 6303",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [88, 89]); precio ascendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "6303#30.2",
@@ -3133,13 +3275,18 @@
         "observaciones": "",
         "tarifa": "50"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "lomo plata cebo campo 50 marcial marcial castro 6303",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [88, 89]); precio ascendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "6304#30.3",
@@ -3170,13 +3317,18 @@
         "observaciones": "",
         "tarifa": "13,889"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "salchichon cular plata ib marcial marcial castro 6304",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [90, 91, 92]); precio sin orden; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "6304#31.1",
@@ -3207,13 +3359,18 @@
         "observaciones": "",
         "tarifa": "7,81"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "salchichon cular plata ib marcial marcial castro 6304",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [90, 91, 92]); precio sin orden; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "6304#31.2",
@@ -3244,13 +3401,18 @@
         "observaciones": "",
         "tarifa": "12,5"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "salchichon cular plata ib marcial marcial castro 6304",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 3,
+      "evidencia_tarifa": "registros consecutivos (órdenes [90, 91, 92]); precio sin orden; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "6305#31.3",
@@ -3281,13 +3443,18 @@
         "observaciones": "",
         "tarifa": "12,5"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "chorizo cular plata ib marcial marcial castro 6305",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [93, 94, 95]); precio sin orden; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "6305#32.1",
@@ -3318,13 +3485,18 @@
         "observaciones": "",
         "tarifa": "7,81"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "chorizo cular plata ib marcial marcial castro 6305",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [93, 94, 95]); precio sin orden; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "6305#32.2",
@@ -3355,13 +3527,18 @@
         "observaciones": "",
         "tarifa": "13,889"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "chorizo cular plata ib marcial marcial castro 6305",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 3,
+      "evidencia_tarifa": "registros consecutivos (órdenes [93, 94, 95]); precio sin orden; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "6313#32.3",
@@ -3494,13 +3671,18 @@
         "observaciones": "",
         "tarifa": "23,125"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "queso curado ocana ocana 7001",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [99, 100]); precio ascendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "7001#34.1",
@@ -3531,13 +3713,18 @@
         "observaciones": "",
         "tarifa": "24,306"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "queso curado ocana ocana 7001",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [99, 100]); precio ascendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "3500#34.2",
@@ -3602,13 +3789,18 @@
         "observaciones": "",
         "tarifa": "4,514"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "barra lunch 1 3 kg pamplonica pamplonica 3502",
       "cod_barras_valido": null,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [102, 103]); precio ascendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "3502#35.1",
@@ -3639,13 +3831,18 @@
         "observaciones": "",
         "tarifa": "4,86"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "barra lunch 1 3 kg pamplonica pamplonica 3502",
       "cod_barras_valido": null,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [102, 103]); precio ascendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "3506#35.2",
@@ -3710,13 +3907,18 @@
         "observaciones": "",
         "tarifa": "16,875"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "queso el hidalgo aceite grande queso el hidalgo 8003",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [105, 106]); precio descendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "8003#36.1",
@@ -3747,13 +3949,18 @@
         "observaciones": "",
         "tarifa": "14,097"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "queso el hidalgo aceite grande queso el hidalgo 8003",
       "cod_barras_valido": true,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [105, 106]); precio descendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "8005#36.2",
@@ -3920,13 +4127,18 @@
         "observaciones": "",
         "tarifa": "0,633"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "churros cong 450gm ricarte ricarte 5000",
       "cod_barras_valido": null,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 1,
+      "evidencia_tarifa": "registros consecutivos (órdenes [111, 112]); precio ascendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     },
     {
       "id": "5000#38.1",
@@ -3957,13 +4169,18 @@
         "observaciones": "",
         "tarifa": "1,278"
       },
-      "estado": "price_conflict",
+      "estado": "tariff_variant_unresolved",
       "avisos": [
-        "tarifas_contradictorias"
+        "varios_precios_sin_nivel_identificado"
       ],
       "descripcion_normalizada": "churros cong 450gm ricarte ricarte 5000",
       "cod_barras_valido": null,
-      "bloqueado_para_pedido": true
+      "nivel_tarifa": "unknown",
+      "variante": 2,
+      "evidencia_tarifa": "registros consecutivos (órdenes [111, 112]); precio ascendente; el PDF no trae cabeceras de nivel de tarifa",
+      "bloqueado_para_calculo_precio": true,
+      "buscable": true,
+      "permite_solicitud_con_revision": true
     }
   ]
 }

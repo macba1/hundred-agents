@@ -120,3 +120,82 @@ enseñárselas a un cliente. Enviar la foto equivocada es peor que no enviar fot
 | Cantidad ambigua ("ponme 3") | Pregunta: "¿3 cajas o 3 unidades?" |
 | Total con IVA no definido | Muestra base imponible y dice que el IVA lo confirma el equipo. |
 | Pedido enviado | Dice **"enviado a Chacón"**, nunca "aceptado por fábrica". |
+
+---
+
+# Actualización — tras las respuestas parciales del cliente
+
+## Resuelto
+
+| # | Confirmado |
+|---|---|
+| D-01 | **Los precios son por kilo.** El cliente pide por cajas o unidades; se cobra por kilo. |
+| D-02 | **Los precios NO incluyen IVA.** El tipo por producto sigue pendiente (ver P-05). |
+| D-09 | **Las tarifas dependen de la cantidad, no del cliente.** Todos usan las mismas reglas. |
+| D-05 | El pedido va por **WhatsApp a un número operativo de Chacón** (`FACTORY_WHATSAPP_NUMBER`). |
+| D-11 | La tienda se identifica **por su nombre**, asociado al teléfono, con ID interno propio. |
+
+## Pendientes que siguen bloqueando el cálculo
+
+### P-01 · Reglas exactas de las 8 tarifas
+Confirmado: T1 fracción de caja · T2 media caja · T3 caja completa · T4 más de una caja.
+**Falta**: qué son T5, T6, T7 y T8.
+
+### P-02 · Tabla completa de precios por tarifa y producto
+El PDF trae **una sola cifra por ficha**. Con 8 niveles hacen falta hasta 8 precios por
+artículo. Sin esa tabla, el sistema solo puede usar el precio que hay, y por eso lo
+marca como tramo sin nivel conocido.
+
+### P-03 · Definición de fracción y media caja
+- ¿Qué cuenta como "fracción de caja"? ¿Cualquier cantidad por debajo de media?
+- ¿Cómo se calcula media caja cuando la caja tiene un número impar de piezas?
+  Hay artículos con `Und Caja` = 1, 15, 98…
+
+### P-04 · Umbral de la Tarifa 4
+"Más de una caja" ¿es a partir de 2 cajas, o hay un mínimo mayor?
+
+**Mientras P-01 a P-04 sigan abiertos**, `elegirNivel()` solo resuelve dos casos sin
+ambigüedad —una caja exacta (T3) y más de una caja entera (T4)— y devuelve
+`indeterminada` en el resto. Nunca adivina el tramo.
+
+### P-05 · IVA por producto
+Los importes se guardan y se muestran **sin IVA**, y no se calcula ningún total con IVA.
+
+### P-06 · Número de WhatsApp que recibe los pedidos
+`FACTORY_WHATSAPP_NUMBER` sin definir → el envío queda en **modo simulado** y se registra.
+
+> **Aviso técnico**: el número que recibe los pedidos dentro de Chacón puede tener que
+> ser **distinto** del número de WhatsApp Business desde el que responde el agente:
+> algunos proveedores no permiten que un número se escriba a sí mismo. El sistema
+> rechaza el envío si el destino coincide con el teléfono de la tienda.
+
+### P-07 · Stock
+Sin fuente. El agente **nunca afirma disponibilidad**; la interfaz de stock está
+preparada para conectarla después.
+
+### P-08 · Alérgenos
+Sin fuente adicional. 97 de 112 fichas sin dato. Las consultas sin dato se registran
+en el log para que alguien las conteste.
+
+### P-09 a P-16
+Pedido mínimo · días y zonas de reparto · hora límite · gastos de transporte ·
+sustituciones · promociones y artículos sin cargo · proceso interno de aceptación y
+modificación · responsable de comunicar la fecha de entrega.
+
+## Los 19 códigos repetidos: reanalizados
+
+Ya **no** se tratan como error. Se buscó en el PDF evidencia para asignar cada precio a
+un nivel de tarifa:
+
+| Evidencia | Resultado |
+|---|---|
+| Cabecera o sección que nombre la tarifa | no existe ninguna |
+| Registros consecutivos en el documento | **sí, en los 19 códigos** |
+| Precio monótono en ese orden | **no**: 8 descendentes, 9 ascendentes, 2 sin orden |
+
+Están agrupados como variantes, pero la posición **no identifica el nivel**: si fueran
+T1→T2→T3, el precio por kilo bajaría al aumentar la cantidad, y no lo hace.
+
+Por eso quedan como **`tariff_variant_unresolved`** con `nivel_tarifa: "unknown"` y la
+evidencia guardada en cada registro. **Se pueden buscar y pedir**; lo único bloqueado es
+el cálculo automático del precio.

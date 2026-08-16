@@ -203,12 +203,60 @@ def normalizar(crudas: list[dict]) -> list[dict]:
             p["avisos"].append("peso_desconocido_o_cero")
         if p["cod_barras"] and p["cod_barras_valido"] is False:
             p["avisos"].append("cod_barras_no_valida_ean")
+            p["revision_administrativa"] = True
+        # "SIN CARGO" a 0,001 no es un precio: es una promoción sin condiciones
+        # definidas. No puede venderse automáticamente a ese importe.
+        if p["tarifa"] is not None and p["tarifa"] < 0.01:
+            p["estado"] = "promotion_requires_validation"
+            p["avisos"].append("posible_promocion_sin_condiciones")
+            p["bloqueado_para_calculo_precio"] = True
+        # Sin peso no hay peso estimado ni importe estimado (el precio es por kilo).
+        if p["peso_und_kg"] in (0, None):
+            p["bloqueado_para_calculo_peso"] = True
         productos.append(p)
     return productos
 
 
+def clasificar_variantes(grupo: list[dict]) -> dict:
+    """
+    ¿Los precios repetidos de un código son niveles de tarifa distintos?
+
+    Chacón confirmó que hay 8 tarifas por cantidad (fracción de caja, media
+    caja, caja, más de una caja...). Habría que poder asignar cada precio a su
+    nivel. Se buscan tres evidencias en el PDF:
+
+      1. cabecera o sección que nombre la tarifa  -> no existe ninguna;
+      2. los registros aparecen consecutivos      -> sí, en los 19 códigos;
+      3. el precio es monótono en ese orden       -> NO (8 bajan, 9 suben, 2 sin orden).
+
+    Consecutivos pero sin monotonía significa que están agrupados como
+    variantes, pero que la posición **no** identifica el nivel: si fueran
+    tarifa 1→2→3 el precio por kilo bajaría al subir la cantidad.
+
+    Por tanto el nivel queda `unknown`. Elegir por posición sería inventarlo.
+    """
+    regs = sorted(grupo, key=lambda p: p["_origen"]["orden"])
+    ordenes = [p["_origen"]["orden"] for p in regs]
+    tarifas = [p["tarifa"] for p in regs]
+    consecutivos = all(ordenes[i + 1] - ordenes[i] == 1 for i in range(len(ordenes) - 1))
+    desc = all(tarifas[i] > tarifas[i + 1] for i in range(len(tarifas) - 1))
+    asc = all(tarifas[i] < tarifas[i + 1] for i in range(len(tarifas) - 1))
+    return {
+        "consecutivos_en_pdf": consecutivos,
+        "precio_monotono": "descendente" if desc else ("ascendente" if asc else "no"),
+        "cabecera_de_tarifa_en_pdf": False,
+        "nivel_tarifa_demostrable": False,   # ninguna evidencia lo permite
+        "evidencia": (
+            f"registros {'consecutivos' if consecutivos else 'no consecutivos'} "
+            f"(órdenes {ordenes}); precio "
+            f"{'descendente' if desc else ('ascendente' if asc else 'sin orden')}; "
+            "el PDF no trae cabeceras de nivel de tarifa"
+        ),
+    }
+
+
 def marcar_conflictos(productos: list[dict]) -> dict:
-    """Agrupa por código y bloquea los que tienen tarifas contradictorias."""
+    """Agrupa por código y marca los que tienen varios precios sin nivel demostrable."""
     por_codigo = defaultdict(list)
     for p in productos:
         por_codigo[p["codigo"]].append(p)
@@ -225,16 +273,26 @@ def marcar_conflictos(productos: list[dict]) -> dict:
             if len({str(p[campo]) for p in grupo}) > 1
         ]
         if len(tarifas) > 1:
-            for p in grupo:
-                p["estado"] = "price_conflict"
-                p["avisos"].append("tarifas_contradictorias")
-                p["bloqueado_para_pedido"] = True
+            ev = clasificar_variantes(grupo)
+            for i, p in enumerate(sorted(grupo, key=lambda x: x["_origen"]["orden"]), 1):
+                # NO es un error: son variantes de precio cuyo nivel de tarifa
+                # no puede demostrarse con el PDF. Se bloquea el CÁLCULO, no
+                # la búsqueda ni la posibilidad de pedirlo con revisión humana.
+                p["estado"] = "tariff_variant_unresolved"
+                p["nivel_tarifa"] = "unknown"
+                p["variante"] = i
+                p["evidencia_tarifa"] = ev["evidencia"]
+                p["avisos"].append("varios_precios_sin_nivel_identificado")
+                p["bloqueado_para_calculo_precio"] = True
+                p["buscable"] = True
+                p["permite_solicitud_con_revision"] = True
             conflictos.append({
                 "codigo": codigo, "registros": len(grupo),
                 "tarifas": sorted(t for t in tarifas if t is not None),
                 "otros_campos_que_difieren": difieren,
                 "paginas": [p["_origen"]["pagina"] for p in grupo],
                 "descripcion": grupo[0]["descripcion"],
+                **ev,
             })
         else:
             for p in grupo:
@@ -265,7 +323,8 @@ def main() -> None:
 
     codigos = [p["codigo"] for p in productos]
     unicos = sorted(set(codigos))
-    bloqueados = [p for p in productos if p.get("bloqueado_para_pedido")]
+    bloqueados = [p for p in productos if p.get("bloqueado_para_calculo_precio")]
+    sin_peso = [p for p in productos if p.get("bloqueado_para_calculo_peso")]
 
     vacios = {
         campo: sum(1 for p in productos if p[campo] is None)
@@ -342,7 +401,8 @@ def main() -> None:
         f"| Fichas extraídas | {len(productos)} |",
         f"| Códigos únicos | {len(unicos)} |",
         f"| Registros con código repetido | {len(productos) - len(unicos)} |",
-        f"| **Bloqueados para pedido** (`price_conflict`) | **{len(bloqueados)}** |",
+        f"| **Bloqueados para cálculo de precio** | **{len(bloqueados)}** |",
+        f"| Bloqueados para cálculo de peso (peso 0) | {len(sin_peso)} |",
         f"| Imágenes en el PDF | {meta['imagenes']} |",
         f"| Marcas distintas | {len(marcas)} |", "",
         "## Campos sin informar", "",
@@ -352,11 +412,19 @@ def main() -> None:
     for campo, n in vacios.items():
         informe.append(f"| `{campo}` | {n} | {100 * n / len(productos):.0f}% |")
     informe += [
-        "", "## Códigos con tarifas contradictorias", "",
+        "", "## Posibles variantes de tarifa sin identificar", "",
         f"**{len(conflictos['price_conflict'])} códigos** aparecen más de una vez con precios distintos.",
-        "En todos ellos el resto de campos es idéntico: misma descripción, mismo código de",
-        "barras, misma marca, mismas unidades por caja y mismo peso. **Solo cambia el precio.**",
-        "No es una diferencia de formato: es una contradicción que solo Chacón puede resolver.", "",
+        "Chacón ha confirmado que existen 8 tarifas según la cantidad pedida, así que estos",
+        "precios **podrían ser niveles de tarifa distintos**, no errores.", "",
+        "Se buscó evidencia en el PDF para asignar cada precio a su nivel:", "",
+        "| Evidencia | Resultado |", "|---|---|",
+        "| Cabecera o sección que nombre la tarifa | no existe ninguna |",
+        "| Registros consecutivos en el documento | **sí, en los 19 códigos** |",
+        "| Precio monótono en ese orden | **no**: 8 descendentes, 9 ascendentes, 2 sin orden |", "",
+        "Están agrupados como variantes, pero **la posición no identifica el nivel**: si fueran",
+        "tarifa 1→2→3, el precio por kilo bajaría al aumentar la cantidad, y no lo hace.",
+        "Por eso el nivel queda `unknown` y **solo se bloquea el cálculo automático de precio**.",
+        "El producto se puede buscar y se puede pedir sujeto a revisión humana.", "",
         "| Código | Registros | Tarifas | Páginas | Descripción |", "|---|---|---|---|---|",
     ]
     for c in sorted(conflictos["price_conflict"], key=lambda x: x["codigo"]):
