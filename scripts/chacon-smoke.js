@@ -436,6 +436,21 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     assert.strictEqual(r.dato_disponible, false);
     assert.strictEqual(ctx.consultasAlergenoSinDato.length, 1);
   });
+  await check('el saludo se identifica como Chacón y es literal', async () => {
+    // Sin esto el modelo redacta un "¿en qué puedo ayudarte?" genérico y la
+    // tienda no sabe con quién habla.
+    const sys = agente.systemPrompt({ cliente: null });
+    assert(/responde EXACTAMENTE esto/.test(sys), 'el saludo no puede quedar al criterio del modelo');
+    assert(/Soy el asistente de pedidos de Chacón Alcántara/.test(sys), sys.slice(0, 400));
+    assert(/1\. Repetir mi último pedido/.test(sys));
+    assert(/4\. Hacer un pedido nuevo/.test(sys));
+    assert(/sáltate el saludo/.test(sys), 'no debe saludar si ya traen pedido');
+
+    // Con la tienda ya identificada, la saluda por su nombre.
+    const conTienda = agente.systemPrompt({ cliente: { nombre: 'Carnicería Pepe' } });
+    assert(/¿Qué necesitas hoy, Carnicería Pepe\?/.test(conTienda), conTienda.slice(0, 400));
+    assert(/Soy el asistente de pedidos de Chacón Alcántara/.test(conTienda));
+  });
   await check('el prompt fija Tarifa 1, prohíbe stock y prohíbe inventar cifras', async () => {
     const sys = agente.systemPrompt({ cliente: null });
     assert(/no tenemos datos de stock/i.test(sys));
