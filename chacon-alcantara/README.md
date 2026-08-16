@@ -46,3 +46,59 @@ Cada uno responde a un riesgo real de este PDF:
 
 Base de datos, carrito, agente, panel, integración con fábrica. La arquitectura
 propuesta y el plan por fases están en `docs/arquitectura.md`.
+
+---
+
+## Fase 2 — agente, carrito y pedidos (implementado)
+
+```
+lib/chacon/
+  repo.js        capa de repositorio: toda la persistencia pasa por aquí
+  catalogo.js    catálogo versionado + búsqueda (código, EAN, texto, difusa)
+  precios.js     modelo de 8 tarifas + cálculo por kilo, sin IVA
+  pedido.js      carrito persistente + confirmación + máquina de estados
+  fabrica.js     salida a Chacón (WhatsApp o simulado), desacoplada
+  agente.js      loop de OpenAI con herramientas deterministas
+api/chacon/
+  webhook.js     entrada de WhatsApp (firma, dedupe, cortacircuitos)
+  panel.js       panel interno con token
+```
+
+### Cómo probarlo ahora mismo
+
+```bash
+node scripts/chacon-smoke.js     # pruebas de Chacón, sin credenciales
+node scripts/wa-smoke.js         # regresión de Sanmi: debe seguir en verde
+```
+
+Panel (con `PANEL_TOKEN`): `/api/chacon/panel?token=…&v=pedidos|catalogo|conflictos|clientes|config`
+
+### Qué garantiza el código, no el prompt
+
+| Garantía | Dónde |
+|---|---|
+| No se puede añadir un producto que no exista | `pedido.anadir` exige `producto_id` del catálogo |
+| Una cantidad ambigua no se añade: se pregunta | `pedido.anadir` → `unidad_ambigua` |
+| Los importes los calcula código, nunca el modelo | `precios.calcularLinea` |
+| Nunca se muestra un total con IVA | `precios.totalizar` devuelve `iva: null` |
+| Un pedido ambiguo no se confirma | `pedido.validarParaConfirmar` |
+| Confirmar dos veces no crea dos pedidos | idempotencia por `wamid` |
+| El precio confirmado no cambia si se reimporta el catálogo | copia exacta en el pedido |
+| El agente no puede decir "aceptado" | el mensaje al cliente lo sustituye el código |
+| El pedido interno no se manda a la tienda | `fabrica.enviar` lo rechaza |
+
+### Estados del pedido
+
+`solicitud_en_preparacion` → `pendiente_confirmacion_cliente` → **`enviada_a_chacon`**
+→ `pendiente_de_revision` → `aceptada` · `necesita_cambios` → `preparada` → `enviada`
+→ `entregada` · `cancelada`
+
+**El agente solo puede llegar hasta `enviada_a_chacon`.** Lo único que le dice a la
+tienda es: *"Hemos recibido tu solicitud de pedido correctamente. Chacón Alcántara la
+revisará y realizará el envío lo antes posible."*
+
+### Migrar a PostgreSQL
+
+Toda la persistencia pasa por `lib/chacon/repo.js`. Escribir otra implementación de sus
+métodos —clientes, carritos, pedidos, config— cambia el motor sin tocar carrito, precios
+ni pedidos.
