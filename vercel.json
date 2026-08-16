@@ -39,6 +39,9 @@
     "api/chacon/imagen.js": {
       "maxDuration": 15,
       "includeFiles": "chacon-alcantara/data/**"
+    },
+    "api/chacon/diagnostico.js": {
+      "maxDuration": 30
     }
   }
 }
