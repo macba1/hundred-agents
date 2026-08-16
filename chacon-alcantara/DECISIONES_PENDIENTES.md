@@ -159,15 +159,29 @@ ambigüedad —una caja exacta (T3) y más de una caja entera (T4)— y devuelve
 `indeterminada` en el resto. Nunca adivina el tramo.
 
 ### P-05 · IVA por producto
-Los importes se guardan y se muestran **sin IVA**, y no se calcula ningún total con IVA.
+Sigue sin definirse. En el MVP ya no importa para el flujo: **no se muestra ninguna
+cifra económica**. El campo queda preparado para la fase siguiente.
 
-### P-06 · Número de WhatsApp que recibe los pedidos
-`FACTORY_WHATSAPP_NUMBER` sin definir → el envío queda en **modo simulado** y se registra.
+### ~~P-06 · Número de WhatsApp que recibe los pedidos~~ — **RESUELTO**
+Destinatario interno: **Fernando**. Su número se configura **solo** por variable de
+entorno (`FACTORY_WHATSAPP_NUMBER`), nunca en el código ni en `.env.example`, y
+**no se le enseña a las tiendas** ni aparece en el panel: ahí solo sale el nombre
+(`FACTORY_CONTACT_NAME`).
 
-> **Aviso técnico**: el número que recibe los pedidos dentro de Chacón puede tener que
-> ser **distinto** del número de WhatsApp Business desde el que responde el agente:
-> algunos proveedores no permiten que un número se escriba a sí mismo. El sistema
-> rechaza el envío si el destino coincide con el teléfono de la tienda.
+Antes de cada envío el sistema comprueba que ese número no coincida con:
+
+| Coincidencia | Qué hace |
+|---|---|
+| El teléfono de la tienda | No envía. Sería una fuga de datos y no llegaría a fábrica. |
+| El número emisor del agente (`CHACON_WHATSAPP_SENDER_NUMBER`) | **No lo intenta** y muestra una advertencia de configuración en el panel. Un número no puede escribirse a sí mismo. |
+
+Sin `FACTORY_WHATSAPP_NUMBER` definido, el envío queda en **modo simulado** y se
+registra igual en el pedido.
+
+**Pendiente antes de operar de verdad**: la ventana de 24 horas de WhatsApp. Si
+Fernando no ha escrito al número del agente en las últimas 24 h, el mensaje libre
+no le llega —Graph devuelve 200 y luego el estado pasa a `failed`—. Hace falta una
+plantilla aprobada. Ver `PLANTILLA_WHATSAPP.md`.
 
 ### P-07 · Stock
 Sin fuente. El agente **nunca afirma disponibilidad**; la interfaz de stock está
@@ -199,3 +213,48 @@ T1→T2→T3, el precio por kilo bajaría al aumentar la cantidad, y no lo hace.
 Por eso quedan como **`tariff_variant_unresolved`** con `nivel_tarifa: "unknown"` y la
 evidencia guardada en cada registro. **Se pueden buscar y pedir**; lo único bloqueado es
 el cálculo automático del precio.
+
+
+---
+
+# Actualización — MVP simplificado
+
+El objetivo de esta primera versión **no es cotizar**. Es que una tienda prepare y
+envíe por WhatsApp una **solicitud de pedido estructurada**.
+
+## Qué deja de intervenir
+
+Precios, tarifas, subtotales, IVA, importes estimados y conversión de cajas a euros
+**siguen calculándose y guardándose**, pero se recortan antes de llegar al modelo y a
+la tienda (`lib/chacon/mvp.js`). Si el modelo no recibe una cifra, no puede enseñarla
+ni construir un total con ella.
+
+Poner `CHACON_MOSTRAR_PRECIOS=1` los devuelve al flujo cuando estén confirmados, sin
+tocar la lógica de negocio.
+
+## Qué deja de bloquear
+
+| Antes | Ahora |
+|---|---|
+| Los 19 códigos con varios precios no podían valorarse | **Se piden con normalidad.** Siguen marcados `tariff_variant_unresolved` internamente y salen como aviso en el mensaje a Fernando. |
+| Las 6 fichas sin peso bloqueaban el importe | **Se piden con normalidad.** El peso sigue registrado como desconocido. |
+| `OF3900` promocional | Se pide con normalidad, con aviso interno. |
+
+## Qué sigue bloqueando, igual que antes
+
+- Una cantidad sin unidad ("ponme 3") → se pregunta caja o unidad, no se adivina.
+- Un producto que no existe en el catálogo.
+- Una tienda sin nombre.
+- Un carrito vacío.
+- Afirmar stock, aceptación o fecha de entrega.
+- Afirmar que algo no lleva un alérgeno cuando el dato no consta.
+
+## Decisiones que dejan de ser urgentes
+
+D-01 a D-04, D-08, D-09, D-16 y P-01 a P-05 **ya no bloquean el MVP**: sin cálculo
+económico no hacen falta para tomar una solicitud. Siguen abiertas y vuelven a ser
+necesarias en cuanto se quiera valorar el pedido.
+
+Las que **siguen bloqueando el lanzamiento con clientes reales** son las de riesgo,
+no las de dinero: **D-06 (alérgenos sin informar)**, D-07 (stock), D-10 (reparto),
+D-11 (alta de clientes) y D-18 (imágenes).

@@ -11,6 +11,7 @@ const inbound = require('../../lib/wa/inbound');
 const store = require('../../lib/wa/store');
 const repo = require('../../lib/chacon/repo');
 const agente = require('../../lib/chacon/agente');
+const fabrica = require('../../lib/chacon/fabrica');
 
 const MAX_RESPUESTAS_HORA = Number(process.env.CHACON_MAX_RESPUESTAS_HORA || 40);
 const HISTORIAL_MAX = Number(process.env.CHACON_HISTORIAL_MAX || 24);
@@ -72,7 +73,11 @@ async function handler(req, res) {
         if (Array.isArray(value.statuses) && value.statuses.length) {
           for (const st of value.statuses) {
             const err = (st.errors || []).map((e) => `${e.code}:${e.title || ''}`).join(' | ');
-            console.log('[status-ignored] wamid=%s estado=%s%s', st.id, st.status, err ? ' error=' + err : '');
+            console.log('[chacon][status] wamid=%s estado=%s%s', st.id, st.status, err ? ' error=' + err : '');
+            // Única fuente de verdad sobre si la solicitud llegó de verdad al
+            // canal interno. El 200 del envío solo decía "aceptado".
+            pendientes.push(fabrica.confirmarEntrega(st.id, st.status)
+              .catch((e) => console.error('[chacon] confirmarEntrega:', e.message)));
           }
         }
         const mensajes = Array.isArray(value.messages) ? value.messages : [];

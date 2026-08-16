@@ -42,11 +42,25 @@ const PENDIENTES = [
 ];
 
 module.exports = async function handler(req, res) {
-  if (req.method !== 'GET') { res.setHeader('Allow', 'GET'); return res.status(405).json({ error: 'method_not_allowed' }); }
+  // POST solo para reintentar un envío fallido. Todo lo demás es lectura.
+  if (req.method !== 'GET' && req.method !== 'POST') {
+    res.setHeader('Allow', 'GET, POST'); return res.status(405).json({ error: 'method_not_allowed' });
+  }
   const want = process.env.PANEL_TOKEN || '';
   const got = (req.query && req.query.token) || String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
   if (!want) return res.status(503).send('PANEL_TOKEN no configurado.');
   if (!mismoToken(got, want)) return res.status(403).send('<h1>403</h1><p>Falta el token.</p>');
+
+  let aviso = '';
+  if (req.method === 'POST') {
+    const id = (req.body && req.body.pedido) || (req.query && req.query.pedido) || '';
+    try {
+      const r = await fabrica.reintentar(String(id));
+      aviso = r.ok
+        ? `<p class="ok">Reintento de ${esc(id)}: aceptado por el proveedor. Queda pendiente de confirmación de entrega.</p>`
+        : `<p class="bad">Reintento de ${esc(id)} fallido: ${esc(r.aviso_configuracion || r.error || 'error')}</p>`;
+    } catch (err) { aviso = `<p class="bad">Reintento fallido: ${esc(err.message)}</p>`; }
+  }
 
   const rd = repo.ready();
   const vista = (req.query && req.query.v) || 'pedidos';
@@ -66,13 +80,16 @@ module.exports = async function handler(req, res) {
       cuerpo = vistaConfig(await repo.todaLaConfig());
     } else {
       cuerpo = vistaPedidos(await repo.listarPedidos({ limite: 100,
-        cliente: req.query.cliente || null, estado: req.query.estado || null }));
+        cliente: req.query.cliente || null, estado: req.query.estado || null }), tk);
     }
   } catch (err) {
     cuerpo = `<p class="warn">Error: ${esc(err.message)}</p>`;
   }
 
-  const tabs = [['pedidos', 'Pedidos'], ['catalogo', 'Catálogo'], ['conflictos', 'Conflictos de tarifa'],
+  const problema = fabrica.revisarConfiguracion();
+  const cfgAviso = problema ? `<br><span class="bad">⚠️ ${esc(problema.aviso)}</span>` : '';
+
+  const tabs = [['pedidos', 'Solicitudes'], ['catalogo', 'Catálogo'], ['conflictos', 'Conflictos de tarifa'],
                 ['clientes', 'Clientes'], ['config', 'Configuración pendiente']]
     .map(([k, t]) => `<a href="/api/chacon/panel?v=${k}&${tk}" class="${vista === k ? 'on' : ''}">${t}</a>`).join('');
 
@@ -99,30 +116,52 @@ module.exports = async function handler(req, res) {
  .pill{font-size:10px;padding:2px 7px;border-radius:4px;background:#2a2e35;color:#c9ccd3}
  form{margin-bottom:14px} input{background:#15181d;border:1px solid var(--line);color:var(--fg);padding:7px 10px;border-radius:6px}
  code{background:#15181d;padding:1px 5px;border-radius:4px}
+ button{background:#2a2e35;border:1px solid var(--line);color:var(--fg);padding:5px 10px;
+   border-radius:6px;font-size:12px;cursor:pointer} button:hover{background:var(--ac);border-color:var(--ac)}
 </style></head><body>
 <h1>Chacón <span>Alcántara</span> — panel interno</h1>
-<div class="sub">Importes sin IVA · almacenamiento ${esc(rd.backend)} · envío a fábrica: <code>${esc(fabrica.modo())}</code></div>
-<div class="tabs">${tabs}</div>${cuerpo}</body></html>`);
+<div class="sub">Solicitudes de pedido, sin importes en esta versión · almacenamiento ${esc(rd.backend)}
+ · canal interno: <code>${esc(fabrica.modo())}</code> → ${esc(fabrica.nombreDestinatario())}
+ ${cfgAviso}</div>
+<div class="tabs">${tabs}</div>${aviso}${cuerpo}</body></html>`);
 };
 
-function vistaPedidos(pedidos) {
-  if (!pedidos.length) return '<p class="sub">Sin pedidos todavía.</p>';
+/** Estado del envío interno, en palabras, y botón de reintento si procede. */
+function celdaEnvio(p, tk) {
+  const e = p.envio_interno || {};
+  if (e.entregado) return '<span class="ok">entregado</span>';
+  const etiquetas = {
+    aceptado_por_proveedor: '<span class="warn">aceptado, sin confirmar entrega</span>',
+    simulado: '<span class="pill">simulado</span>',
+    fallido: '<span class="bad">fallido</span>',
+    bloqueado_por_configuracion: '<span class="bad">config incorrecta</span>',
+  };
+  let html = etiquetas[e.estado] || '<span class="warn">sin enviar</span>';
+  if (e.aviso_configuracion) html += `<br><span class="sub">${esc(e.aviso_configuracion)}</span>`;
+  const ultimo = e.intentos?.slice(-1)[0];
+  if (ultimo && !ultimo.ok && ultimo.detalle) html += `<br><span class="sub">${esc(String(ultimo.detalle).slice(0, 120))}</span>`;
+  if (!e.entregado && e.estado !== 'simulado') {
+    html += `<form method="post" action="/api/chacon/panel?${tk}" style="margin:6px 0 0">
+      <input type="hidden" name="pedido" value="${esc(p.id)}">
+      <button type="submit">Reintentar envío</button></form>`;
+  }
+  return html;
+}
+
+function vistaPedidos(pedidos, tk) {
+  if (!pedidos.length) return '<p class="sub">Sin solicitudes todavía.</p>';
   const filas = pedidos.map((p) => {
-    const t = p.totales || {};
-    const envio = p.envio_interno?.entregado ? '<span class="ok">entregado</span>'
-      : `<span class="warn">${esc(p.envio_interno?.intentos?.slice(-1)[0]?.modo || 'sin enviar')}</span>`;
     const lineas = (p.lineas || []).map((l) =>
       `${esc(l.codigo)} ×${l.cantidad} ${esc(l.unidad_pedido)}`).join('<br>');
+    const avisos = fabrica.avisosInternos(p);
     return `<tr><td><code>${esc(p.id)}</code></td><td>${esc(p.creado).slice(0, 16).replace('T', ' ')}</td>
       <td>${esc(p.cliente?.nombre)}<br><span class="sub">+${esc(p.cliente?.telefonos?.[0])}</span></td>
       <td><span class="pill">${esc(p.estado)}</span></td><td>${lineas}</td>
-      <td>${t.base_estimada_sin_iva !== null && t.base_estimada_sin_iva !== undefined
-        ? esc(t.base_estimada_sin_iva) + ' €' : '<span class="warn">pendiente</span>'}
-        ${t.lineas_pendientes_revision ? `<br><span class="warn">${t.lineas_pendientes_revision} línea(s) a revisar</span>` : ''}</td>
-      <td>${envio}</td></tr>`;
+      <td>${avisos.length ? `<span class="warn">${avisos.map(esc).join('<br>')}</span>` : '<span class="sub">—</span>'}</td>
+      <td>${celdaEnvio(p, tk)}</td></tr>`;
   }).join('');
-  return `<div class="wrap"><table><thead><tr><th>Pedido</th><th>Fecha</th><th>Tienda</th>
-    <th>Estado</th><th>Líneas</th><th>Estimado s/IVA</th><th>Envío interno</th></tr></thead>
+  return `<div class="wrap"><table><thead><tr><th>Solicitud</th><th>Fecha</th><th>Tienda</th>
+    <th>Estado</th><th>Líneas</th><th>Avisos internos</th><th>Envío interno</th></tr></thead>
     <tbody>${filas}</tbody></table></div>`;
 }
 

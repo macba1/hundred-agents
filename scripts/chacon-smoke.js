@@ -1,8 +1,11 @@
 /* ============================================================
    Pruebas del agente de pedidos de Chacón Alcántara.
 
-   Offline: Redis en memoria, OpenAI y Graph simulados. Cubre las 13
-   comprobaciones obligatorias del encargo más el aislamiento entre tenants.
+   Offline: Redis en memoria, OpenAI y Graph simulados.
+
+   Cubre las comprobaciones obligatorias del encargo, las nueve del MVP
+   simplificado (una solicitud de pedido sin una sola cifra económica) y el
+   aislamiento entre tenants.
 
        node scripts/chacon-smoke.js
    ============================================================ */
@@ -46,11 +49,13 @@ process.env.WHATSAPP_TOKEN = 'token-test';
 process.env.META_APP_SECRET = APP_SECRET;
 process.env.PANEL_TOKEN = 'panel-chacon-test';
 process.env.CHACON_VERIFY_TOKEN = 'verify-chacon-test';
+process.env.CHACON_PHONE_NUMBER_ID = '999000111';   // = PNID, definido más abajo
 process.env.VERCEL_ENV = 'development';
 
 /* ---------- fetch simulado ---------------------------------------------- */
 const SENT = [];
 let guion = [];
+let fallarEnvios = false;   // para probar el reintento desde el panel
 global.fetch = async (url, opts = {}) => {
   const u = String(url);
   if (u.includes('/chat/completions')) {
@@ -60,9 +65,15 @@ global.fetch = async (url, opts = {}) => {
     return { ok: true, status: 200, async json() { return { choices: [{ message: msg }] }; } };
   }
   if (u.includes('/messages')) {
+    if (fallarEnvios) {
+      return { ok: false, status: 400, async text() { return '{"error":{"code":131047}}'; } };
+    }
     const b = JSON.parse(opts.body);
     SENT.push({ to: b.to, text: b.text.body });
-    return { ok: true, status: 200, async text() { return '{}'; } };
+    const wamid = `wamid.OUT${SENT.length}`;
+    return { ok: true, status: 200,
+      async text() { return '{}'; },
+      async json() { return { messages: [{ id: wamid }] }; } };
   }
   throw new Error('fetch no simulado: ' + u);
 };
@@ -137,7 +148,7 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     assert(/Sí, contiene gluten/.test(catalogo.textoAlergeno(conSi, 'gluten')));
   });
 
-  console.log('\n=== 2) Precios, tarifas y bloqueos ===');
+  console.log('\n=== 2) Estructura técnica de precios (existe, pero fuera del flujo) ===');
   await check('no se puede vender un código inexistente', async () => {
     const c = await repo.crearCliente({ nombre: 'Tienda Test', telefono: '34600000001' });
     const r = await pedidoLib.anadir(c.id, { producto_id: 'NO-EXISTE#1.1', cantidad: 1, unidad_pedido: 'caja' });
@@ -157,9 +168,6 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     const p = catalogo.buscar('6302').candidatos[0];
     assert.strictEqual(p.buscable, true);
     assert.strictEqual(p.permite_solicitud_con_revision, true);
-    const v = catalogo.paraMostrar(p);
-    assert.strictEqual(v.precio_kg_sin_iva, null);
-    assert(v.motivo_precio_bloqueado);
   });
   await check('la promoción SIN CARGO no se vende a 0,001', async () => {
     const p = catalogo.todos().find((x) => x.codigo === 'OF3900');
@@ -285,21 +293,68 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     delete process.env.FACTORY_WHATSAPP_NUMBER;
     const r = await fabrica.enviar(pedidoRef);
     assert.strictEqual(r.simulado, true);
-    assert(/PEDIDO PED-/.test(r.texto));
-    assert(/SIN IVA/.test(r.texto));
+    assert(/NUEVA SOLICITUD DE PEDIDO/.test(r.texto));
   });
-  await check('el pedido interno NUNCA se manda al teléfono de la tienda', async () => {
+  await check('la solicitud interna NUNCA se manda al teléfono de la tienda', async () => {
     process.env.FACTORY_WHATSAPP_NUMBER = pedidoRef.cliente.telefonos[0];
     const r = await fabrica.enviar(pedidoRef);
     assert.strictEqual(r.ok, false);
     assert.strictEqual(r.error, 'destino_igual_al_telefono_del_cliente');
     delete process.env.FACTORY_WHATSAPP_NUMBER;
   });
-  await check('el mensaje interno lleva lo que fábrica necesita', async () => {
-    const t = fabrica.componerMensaje(pedidoRef);
-    for (const campo of [pedidoRef.id, pedidoRef.cliente.nombre, '0003', 'peso est.', '€/kg']) {
-      assert(t.includes(campo), `falta "${campo}" en el mensaje interno`);
-    }
+  await check('si el destino es el propio número emisor, no se intenta y se avisa', async () => {
+    process.env.CHACON_WHATSAPP_SENDER_NUMBER = '34999000111';
+    process.env.FACTORY_WHATSAPP_NUMBER = '+34 999 000 111';   // mismo número, otro formato
+    const antes = SENT.length;
+    const r = await fabrica.enviar(pedidoRef);
+    assert.strictEqual(r.ok, false);
+    assert.strictEqual(r.error, 'destino_igual_al_numero_emisor');
+    assert(/no puede enviarse mensajes a sí mismo/i.test(r.aviso_configuracion), r.aviso_configuracion);
+    assert.strictEqual(SENT.length, antes, 'no debía intentarse el envío');
+    const guardado = await repo.getPedido(pedidoRef.id);
+    assert.strictEqual(guardado.envio_interno.estado, 'bloqueado_por_configuracion');
+    delete process.env.FACTORY_WHATSAPP_NUMBER;
+    delete process.env.CHACON_WHATSAPP_SENDER_NUMBER;
+  });
+  await check('el destinatario se configura por entorno, nunca en el código', async () => {
+    const fuente = require('fs').readFileSync(path.join(ROOT, 'lib/chacon/fabrica.js'), 'utf8');
+    assert(!/\d{9,}/.test(fuente), 'hay un número de teléfono escrito en fabrica.js');
+    assert(fuente.includes('FACTORY_WHATSAPP_NUMBER'));
+    const ejemplo = require('fs').readFileSync(path.join(ROOT, '.env.example'), 'utf8');
+    assert(/^FACTORY_WHATSAPP_NUMBER=$/m.test(ejemplo), '.env.example no debe llevar el número real');
+    assert(/^FACTORY_CONTACT_NAME=$/m.test(ejemplo));
+    assert(!/\d{9,}/.test(ejemplo), 'hay un teléfono real en .env.example');
+  });
+  await check('un 200 del proveedor NO marca la solicitud como recibida', async () => {
+    process.env.FACTORY_WHATSAPP_NUMBER = '34600000999';
+    const r = await fabrica.enviar(pedidoRef);
+    assert.strictEqual(r.ok, true);
+    assert.strictEqual(r.entregado, false, 'aceptado no es entregado');
+    const tras200 = await repo.getPedido(pedidoRef.id);
+    assert.strictEqual(tras200.envio_interno.entregado, false);
+    assert.strictEqual(tras200.envio_interno.estado, 'aceptado_por_proveedor');
+
+    // Solo el estado del proveedor puede marcarla como entregada.
+    await fabrica.confirmarEntrega(r.wamid, 'delivered');
+    const trasWebhook = await repo.getPedido(pedidoRef.id);
+    assert.strictEqual(trasWebhook.envio_interno.entregado, true);
+    delete process.env.FACTORY_WHATSAPP_NUMBER;
+  });
+  await check('un envío fallido conserva el pedido y se puede reintentar', async () => {
+    process.env.FACTORY_WHATSAPP_NUMBER = '34600000998';
+    fallarEnvios = true;
+    const r = await fabrica.enviar(pedidoRef);
+    assert.strictEqual(r.ok, false);
+    assert.strictEqual(r.error, 'envio_fallido');
+    assert(await repo.getPedido(pedidoRef.id), 'el pedido no puede perderse');
+    const tras = await repo.getPedido(pedidoRef.id);
+    assert.strictEqual(tras.envio_interno.estado, 'fallido');
+    assert(tras.envio_interno.intentos.length >= fabrica.MAX_INTENTOS);
+
+    fallarEnvios = false;
+    const re = await fabrica.reintentar(pedidoRef.id);
+    assert.strictEqual(re.ok, true);
+    delete process.env.FACTORY_WHATSAPP_NUMBER;
   });
 
   console.log('\n=== 6) Webhook: firma, dedupe e idempotencia ===');
@@ -356,11 +411,13 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     assert.strictEqual(r.dato_disponible, false);
     assert.strictEqual(ctx.consultasAlergenoSinDato.length, 1);
   });
-  await check('el prompt prohíbe afirmar stock e inventar precios', async () => {
+  await check('el prompt prohíbe afirmar stock, precios y fecha de entrega', async () => {
     const sys = agente.systemPrompt({ cliente: null });
     assert(/no tenemos datos de stock/i.test(sys));
-    assert(/nunca muestres un total con iva/i.test(sys));
-    assert(/por kilo/i.test(sys));
+    assert(/no maneja precios/i.test(sys));
+    assert(/Escribir cualquier cifra en euros/i.test(sys));
+    assert(/Prometer una fecha de entrega/i.test(sys));
+    assert(/CONFIRMAR para enviar la solicitud/i.test(sys));
   });
 
   console.log('\n=== 8) Panel ===');
@@ -380,7 +437,151 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     assert(r.body.includes('6302'), 'el panel no lista los conflictos de tarifa');
   });
 
-  console.log('\n=== 9) Aislamiento entre tenants ===');
+  console.log('\n=== 9) MVP simplificado: solicitud de pedido sin cifras económicas ===');
+
+  /** Busca cualquier cifra en euros o palabra económica en un texto. */
+  const CIFRA_ECONOMICA = /(\d[\d.,]*\s*€)|(€\s*\d)|(\bIVA\b)|(\bsubtotal\b)|(€\/kg)|(\bimporte\b)|(\btotal a pagar\b)|(\btarifa\s*\d)/i;
+  /** Campos económicos que no deben salir en nada que vea el modelo. */
+  const sinCamposEconomicos = (obj) => {
+    const json = JSON.stringify(obj);
+    for (const campo of ['precio_kg_sin_iva', 'importe_estimado_sin_iva', 'iva_pct',
+                         'nivel_tarifa', 'base_estimada_sin_iva', 'total_con_iva', '"tarifa"']) {
+      assert(!json.includes(campo), `se filtró el campo económico ${campo}: ${json.slice(0, 300)}`);
+    }
+  };
+
+  const mvpCli = await repo.crearCliente({ nombre: 'Carnicería MVP', telefono: '34600000010' });
+  const PIEL = catalogo.todos().find((x) => x.codigo === '0003');
+  const DUP = catalogo.buscar('6302').candidatos[0];              // tarifas repetidas
+  const SINPESO = catalogo.todos().find((p) => p.bloqueado_para_calculo_peso);
+
+  await check('1· se puede crear una solicitud completa sin precios', async () => {
+    await pedidoLib.anadir(mvpCli.id, { producto_id: PIEL.id, cantidad: 2, unidad_pedido: 'caja' });
+    const r = await pedidoLib.confirmar(mvpCli.id, { clave_idempotencia: 'wamid.MVP1',
+      observaciones: 'entregar por la mañana' });
+    assert.strictEqual(r.ok, true);
+    assert.strictEqual(r.pedido.lineas.length, 1);
+    assert.strictEqual(r.mensaje_cliente, pedidoLib.MENSAJE_RECEPCION);
+  });
+
+  await check('2· los productos con tarifas repetidas se piden con normalidad', async () => {
+    const r = await pedidoLib.anadir(mvpCli.id, { producto_id: DUP.id, cantidad: 1, unidad_pedido: 'caja' });
+    assert.strictEqual(r.ok, true, 'un precio repetido no puede impedir pedir');
+    // Y sin peso tampoco bloquea.
+    const r2 = await pedidoLib.anadir(mvpCli.id, { producto_id: SINPESO.id, cantidad: 1, unidad_pedido: 'caja' });
+    assert.strictEqual(r2.ok, true, 'la falta de peso no puede impedir pedir');
+    const c = await pedidoLib.confirmar(mvpCli.id, { clave_idempotencia: 'wamid.MVP2' });
+    assert.strictEqual(c.ok, true);
+    // La marca interna se conserva para la fase siguiente.
+    assert.strictEqual(DUP.estado, 'tariff_variant_unresolved');
+    const guardado = await repo.getPedido(c.pedido.id);
+    const l = guardado.lineas.find((x) => x.producto_id === DUP.id);
+    assert(l.bloqueos.includes('varios_precios_sin_nivel_identificado'), 'se perdió la marca interna');
+  });
+
+  await check('3· una cantidad ambigua se sigue rechazando', async () => {
+    const r = await pedidoLib.anadir(mvpCli.id, { producto_id: PIEL.id, cantidad: 3, unidad_pedido: 'ninguna' });
+    assert.strictEqual(r.ok, false);
+    assert.strictEqual(r.error, 'unidad_ambigua');
+    assert(/3 cajas o 3 unidades/.test(r.pregunta));
+  });
+
+  await check('4· caja y unidad siempre se distinguen en lo que se muestra', async () => {
+    await pedidoLib.vaciar(mvpCli.id);
+    await pedidoLib.anadir(mvpCli.id, { producto_id: PIEL.id, cantidad: 2, unidad_pedido: 'caja' });
+    await pedidoLib.anadir(mvpCli.id, { producto_id: PIEL.id, cantidad: 3, unidad_pedido: 'unidad' });
+    const c = await pedidoLib.ver(mvpCli.id);
+    assert.strictEqual(c.lineas.length, 2, 'caja y unidad son líneas distintas');
+    assert(c.lineas.every((l) => ['caja', 'unidad', 'kg'].includes(l.unidad_pedido)));
+    const carrito = await repo.getCarrito(mvpCli.id);
+    const t = pedidoLib.textoResumen(carrito, { nombre: 'Carnicería MVP' });
+    assert(/2 cajas/.test(t), t);
+    assert(/3 unidades/.test(t), t);
+  });
+
+  await check('5· no aparece ninguna cifra económica en nada que se muestre', async () => {
+    const carrito = await repo.getCarrito(mvpCli.id);
+    const resumen = pedidoLib.textoResumen(carrito, { nombre: 'Carnicería MVP' },
+      { observaciones: 'entregar por la mañana' });
+    assert(!CIFRA_ECONOMICA.test(resumen), 'cifra económica en el resumen: ' + resumen);
+    assert(/^SOLICITUD DE PEDIDO$/m.test(resumen), resumen);
+    assert(/\[0003\]/.test(resumen), 'falta el código entre corchetes');
+    assert(/Responde CONFIRMAR para enviar la solicitud o MODIFICAR/.test(resumen));
+
+    // Lo que ve el modelo: carrito, búsqueda y líneas.
+    sinCamposEconomicos(await pedidoLib.ver(mvpCli.id));
+    const ctx = { telefono: '34600000010', clienteId: mvpCli.id, consultasAlergenoSinDato: [] };
+    sinCamposEconomicos(await agente.ejecutar(ctx, 'buscar_productos', { consulta: 'pollo' }));
+    sinCamposEconomicos(await agente.ejecutar(ctx, 'ver_carrito', {}));
+    sinCamposEconomicos(await agente.ejecutar(ctx, 'anadir_al_carrito',
+      { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' }));
+
+    // Y el mensaje interno tampoco lleva importes.
+    const ped = await repo.getPedido(pedidoRef.id);
+    const interno = fabrica.componerMensaje(ped);
+    assert(!CIFRA_ECONOMICA.test(interno), 'cifra económica en el mensaje interno: ' + interno);
+    assert(/^📦 NUEVA SOLICITUD DE PEDIDO$/m.test(interno), interno);
+    for (const campo of ['Pedido:', 'Tienda:', 'Teléfono:', 'Fecha:', 'Productos:', 'Observaciones:',
+                         'Estado: pendiente de revisión por Chacón Alcántara.']) {
+      assert(interno.includes(campo), `falta "${campo}" en el mensaje interno`);
+    }
+  });
+
+  await check('6· no se promete stock en ningún sitio', async () => {
+    const ctx = { telefono: '34600000010', clienteId: mvpCli.id, consultasAlergenoSinDato: [] };
+    const r = await agente.ejecutar(ctx, 'buscar_productos', { consulta: 'pollo' });
+    assert(r.candidatos.every((c) => c.disponibilidad === 'pendiente_de_revision'));
+    assert(/no afirmes que hay stock/i.test(r.nota));
+    assert(/no tenemos datos de stock/i.test(agente.systemPrompt({ cliente: null })));
+  });
+
+  await check('7· no se promete aceptación ni fecha de entrega', async () => {
+    const m = pedidoLib.MENSAJE_RECEPCION;
+    assert(/Hemos recibido tu solicitud de pedido correctamente/.test(m));
+    assert(/Chacón Alcántara la revisará/.test(m));
+    assert(!/acept|prepar|disponible|entrega el|mañana|fecha/i.test(m), m);
+    const ped = await repo.getPedido(pedidoRef.id);
+    assert(/pendiente de revisión/i.test(fabrica.componerMensaje(ped)));
+    // Ni siquiera se le dice a la tienda a quién ha ido internamente.
+    const ctx = { telefono: '34600000010', clienteId: mvpCli.id, consultasAlergenoSinDato: [],
+                  claveIdempotencia: 'wamid.MVP7' };
+    const conf = await agente.ejecutar(ctx, 'confirmar_pedido', {});
+    assert.strictEqual(conf.ok, true);
+    assert.strictEqual(conf.envio_interno.entregado, false);
+    const json = JSON.stringify(conf);
+    assert(!json.includes('Fernando'), 'no se puede filtrar el nombre del receptor');
+    assert(!/\d{9,}/.test(json.replace(/PED-\d+-\d+/g, '')), 'no se puede filtrar un teléfono');
+  });
+
+  await check('8· una confirmación duplicada no duplica la solicitud', async () => {
+    await pedidoLib.anadir(mvpCli.id, { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' });
+    const a = await pedidoLib.confirmar(mvpCli.id, { clave_idempotencia: 'wamid.MVP8' });
+    await pedidoLib.anadir(mvpCli.id, { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' });
+    const b = await pedidoLib.confirmar(mvpCli.id, { clave_idempotencia: 'wamid.MVP8' });
+    assert.strictEqual(b.idempotente, true);
+    assert.strictEqual(b.pedido.id, a.pedido.id);
+    const ids = (await repo.listarPedidos({ limite: 100, cliente: mvpCli.id })).map((x) => x.id);
+    assert.strictEqual(new Set(ids).size, ids.length, 'la lista de pedidos tiene duplicados');
+  });
+
+  await check('9· el panel enseña la solicitud sin importes y permite reintentar', async () => {
+    const r = makeRes();
+    await panel({ method: 'GET', headers: {}, query: { token: process.env.PANEL_TOKEN, v: 'pedidos' } }, r);
+    assert.strictEqual(r.statusCode, 200);
+    assert(/Reintentar env/.test(r.body), 'falta el botón de reintento');
+    assert(!/Estimado s\/IVA/.test(r.body), 'el panel sigue mostrando importes estimados');
+    // El número del receptor nunca se pinta en el panel.
+    process.env.FACTORY_WHATSAPP_NUMBER = '34600000997';
+    process.env.FACTORY_CONTACT_NAME = 'Fernando';
+    const r2 = makeRes();
+    await panel({ method: 'GET', headers: {}, query: { token: process.env.PANEL_TOKEN, v: 'pedidos' } }, r2);
+    assert(r2.body.includes('Fernando'), 'el panel sí debe nombrar al receptor');
+    assert(!r2.body.includes('34600000997'), 'el panel no debe pintar el número del receptor');
+    delete process.env.FACTORY_WHATSAPP_NUMBER;
+    delete process.env.FACTORY_CONTACT_NAME;
+  });
+
+  console.log('\n=== 10) Aislamiento entre tenants ===');
   await check('Chacón y Sanmi no comparten claves de Redis', async () => {
     const claves = [...mem.kv.keys(), ...mem.lists.keys(), ...mem.sets.keys(), ...mem.hashes.keys()];
     const deChacon = claves.filter((k) => k.startsWith('ch:'));
