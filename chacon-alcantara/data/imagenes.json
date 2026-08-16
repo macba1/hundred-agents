@@ -1,0 +1,2239 @@
+{
+  "generado": "2026-08-16T19:26:01.841615+00:00",
+  "pdf": "Catalogo Articulos Tarifa 1.pdf",
+  "paginas": 38,
+  "descartadas_por_posicion": 1,
+  "totales": {
+    "verified": 101,
+    "pending_review": 8,
+    "conflict": 0,
+    "missing": 3
+  },
+  "imagenes": [
+    {
+      "producto_id": "0001#1.1",
+      "codigo": "0001",
+      "descripcion": "PELLA AÑEJA DEL MIO",
+      "pagina": 1,
+      "posicion": 1,
+      "archivo": "imagenes/0001_1-1.jpeg",
+      "sha256": "4931060827f48746329df5ebf806c3f36f8a4f7de61a33dc619feec41b8035c9",
+      "ancho": 444,
+      "alto": 337,
+      "bbox": [
+        398.8,
+        101.8,
+        573.1,
+        234.0
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "0003#1.2",
+      "codigo": "0003",
+      "descripcion": "PIEL DE POLLO",
+      "pagina": 1,
+      "posicion": 2,
+      "archivo": "imagenes/0003_1-2.jpeg",
+      "sha256": "1b5fdf7eb44df0e8f276b859d4b4f30787b4ecb073022754c5fa9fc6f085cd43",
+      "ancho": 219,
+      "alto": 196,
+      "bbox": [
+        398.8,
+        299.6,
+        573.4,
+        455.4
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "0052#1.3",
+      "codigo": "0052",
+      "descripcion": "CHORIZO PINCHO 1,5 KG APROX. DEL MIO",
+      "pagina": 1,
+      "posicion": 3,
+      "archivo": "imagenes/0052_1-3.jpeg",
+      "sha256": "5e2e5aeb360344c99e9d8aaff9c626367b94747c0e2a7066bc020e5a71aab24b",
+      "ancho": 246,
+      "alto": 318,
+      "bbox": [
+        420.8,
+        503.3,
+        550.9,
+        671.4
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "0053#2.1",
+      "codigo": "0053",
+      "descripcion": "CHORIZO PICANTE HRA. DEL MÍO",
+      "pagina": 2,
+      "posicion": 1,
+      "archivo": "imagenes/0053_2-1.jpeg",
+      "sha256": "d9f546f831340583c2255e8cac116487a5b50c213616088ca26042e13783daf6",
+      "ancho": 345,
+      "alto": 238,
+      "bbox": [
+        398.8,
+        54.4,
+        572.9,
+        174.4
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "0072#2.2",
+      "codigo": "0072",
+      "descripcion": "1/2 CAÑA DE LOMO REDONDA DEL MIO",
+      "pagina": 2,
+      "posicion": 2,
+      "archivo": "imagenes/0072_2-2.jpeg",
+      "sha256": "8c796c58bf4d2d413588a258b8aa144c8e08c9e2401f8d298314210454eb590a",
+      "ancho": 443,
+      "alto": 809,
+      "bbox": [
+        439.8,
+        240.1,
+        531.8,
+        408.2
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "0449#2.3",
+      "codigo": "0449",
+      "descripcion": "EMBUTIDO DE POLLO DEL MIO",
+      "pagina": 2,
+      "posicion": 3,
+      "archivo": "imagenes/0449_2-3.jpeg",
+      "sha256": "c0d4e56741426f4875200baba7548715a57222cfd78bac9953361ecdd4abc685",
+      "ancho": 339,
+      "alto": 218,
+      "bbox": [
+        398.8,
+        478.0,
+        573.1,
+        590.0
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "1240#3.1",
+      "codigo": "1240",
+      "descripcion": "HUESOS DE QUIJADA IBERICO",
+      "pagina": 3,
+      "posicion": 1,
+      "archivo": "imagenes/1240_3-1.jpeg",
+      "sha256": "548207dd4675d97d8f426b772fe452b60b409a67d64cbea19c59427be6716239",
+      "ancho": 333,
+      "alto": 188,
+      "bbox": [
+        398.8,
+        65.3,
+        573.1,
+        163.6
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "1241#3.2",
+      "codigo": "1241",
+      "descripcion": "HUESOS DE TESTUZO IBERICO",
+      "pagina": 3,
+      "posicion": 2,
+      "archivo": "imagenes/1241_3-2.jpeg",
+      "sha256": "1bf5701c900b1362577b83506ad77849a38fdc72ed02576218d194549fc8bf80",
+      "ancho": 444,
+      "alto": 250,
+      "bbox": [
+        398.8,
+        275.2,
+        573.1,
+        373.3
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "2003#3.3",
+      "codigo": "2003",
+      "descripcion": "1/2 FBRE. LOMO CDO. ADB. C/2P DEL MIO",
+      "pagina": 3,
+      "posicion": 3,
+      "archivo": "imagenes/2003_3-3.jpeg",
+      "sha256": "bfb562418104372f3d7aa05304ea0a994645fcd2b2574d43449f71fcd00729de",
+      "ancho": 150,
+      "alto": 226,
+      "bbox": [
+        430.1,
+        449.9,
+        541.9,
+        618.1
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "2003#4.1",
+      "codigo": "2003",
+      "descripcion": "1/2 FBRE. LOMO CDO. ADB. C/2P DEL MIO",
+      "pagina": 4,
+      "posicion": 1,
+      "archivo": "imagenes/2003_4-1.jpeg",
+      "sha256": "bfb562418104372f3d7aa05304ea0a994645fcd2b2574d43449f71fcd00729de",
+      "ancho": 150,
+      "alto": 226,
+      "bbox": [
+        430.1,
+        30.4,
+        541.9,
+        198.6
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "21446#4.2",
+      "codigo": "21446",
+      "descripcion": "SALAMI EXTRA BLANCO",
+      "pagina": 4,
+      "posicion": 2,
+      "archivo": "imagenes/21446_4-2.jpeg",
+      "sha256": "0e78ecf0596ca27db1149e32677fbdb1448c27d9348d3af77ee106a4ecf4d7c4",
+      "ancho": 332,
+      "alto": 334,
+      "bbox": [
+        402.4,
+        240.1,
+        569.5,
+        408.1
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "21446#4.3",
+      "codigo": "21446",
+      "descripcion": "SALAMI EXTRA BLANCO",
+      "pagina": 4,
+      "posicion": 3,
+      "archivo": "imagenes/21446_4-3.jpeg",
+      "sha256": "0e78ecf0596ca27db1149e32677fbdb1448c27d9348d3af77ee106a4ecf4d7c4",
+      "ancho": 332,
+      "alto": 334,
+      "bbox": [
+        402.4,
+        449.9,
+        569.5,
+        617.9
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "3047#5.1",
+      "codigo": "3047",
+      "descripcion": "LOTE: 3047",
+      "pagina": 5,
+      "posicion": 1,
+      "archivo": "imagenes/3047_5-1.jpeg",
+      "sha256": "5b9ebe52545e60d6a403ec3d1f0633da1fe98fd09ba9cb97cc969b9182dcc77f",
+      "ancho": 800,
+      "alto": 800,
+      "bbox": [
+        401.8,
+        30.4,
+        570.0,
+        198.5
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "4315#5.2",
+      "codigo": "4315",
+      "descripcion": "SALCHICHON CASERO PRIMERA",
+      "pagina": 5,
+      "posicion": 2,
+      "archivo": "imagenes/4315_5-2.jpeg",
+      "sha256": "602badde1c62e6e4d0b5ece2f9cebb06bf1abd4c196392de42b0f57d68650aa4",
+      "ancho": 250,
+      "alto": 383,
+      "bbox": [
+        431.0,
+        240.1,
+        540.7,
+        408.4
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "4316#5.3",
+      "codigo": "4316",
+      "descripcion": "CHORIZO ROSARIO OREADO DEL MÍO",
+      "pagina": 5,
+      "posicion": 3,
+      "archivo": "imagenes/4316_5-3.jpeg",
+      "sha256": "75c5636d7896cdbad8be44b0f6703e1d001938ddb9db45713687985b6e226a99",
+      "ancho": 248,
+      "alto": 332,
+      "bbox": [
+        423.1,
+        449.9,
+        548.9,
+        618.0
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "4998#6.1",
+      "codigo": "4998",
+      "descripcion": "VIOLINES 8 PACK DE 4 UN DEL MIO",
+      "pagina": 6,
+      "posicion": 1,
+      "archivo": "imagenes/4998_6-1.jpeg",
+      "sha256": "388953386210e6587b93326cb296cc4953ad1f4934c0aec283c50108ecae123d",
+      "ancho": 416,
+      "alto": 312,
+      "bbox": [
+        398.8,
+        49.1,
+        573.1,
+        179.9
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "50537#6.2",
+      "codigo": "50537",
+      "descripcion": "1/2 SALCHICHON TUNEL PMTA. PROLONGO",
+      "pagina": 6,
+      "posicion": 2,
+      "archivo": "imagenes/50537_6-2.jpeg",
+      "sha256": "7217506fe0d6a4ecd6dcfcd3deaa18219ef8dca503262a746f90be6954e7b466",
+      "ancho": 372,
+      "alto": 343,
+      "bbox": [
+        398.8,
+        243.8,
+        573.2,
+        404.5
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "5076#6.3",
+      "codigo": "5076",
+      "descripcion": "SALCHICHON DE AJO PROLONGO",
+      "pagina": 6,
+      "posicion": 3,
+      "archivo": "imagenes/5076_6-3.jpeg",
+      "sha256": "e04bd3b515a9ef1e9a48996b9f96f9c205500ee3cbf12d0087b054fb5119408c",
+      "ancho": 282,
+      "alto": 175,
+      "bbox": [
+        398.8,
+        479.9,
+        573.1,
+        588.0
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "5811#7.1",
+      "codigo": "5811",
+      "descripcion": "SALCHICHON EXTRA DE PAVO DEL MIO",
+      "pagina": 7,
+      "posicion": 1,
+      "archivo": "imagenes/5811_7-1.jpeg",
+      "sha256": "e0e8ce06c3a27ef7f024b536381e15f89f2285a8ebd984165e30ecbc15052fcd",
+      "ancho": 277,
+      "alto": 181,
+      "bbox": [
+        398.8,
+        57.5,
+        573.0,
+        171.4
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "5812#7.2",
+      "codigo": "5812",
+      "descripcion": "CHORIZO EXTRA DE PAVO DEL MIO",
+      "pagina": 7,
+      "posicion": 2,
+      "archivo": "imagenes/5812_7-2.jpeg",
+      "sha256": "f9f53dc852ab47f1bacd1d84d3781da2ef18083eec1c721107fe848e608a47ff",
+      "ancho": 297,
+      "alto": 306,
+      "bbox": [
+        404.3,
+        240.1,
+        567.7,
+        408.4
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "5814#7.3",
+      "codigo": "5814",
+      "descripcion": "SALCHICHON VELA EXTRA AL VACIO DEL MÍO",
+      "pagina": 7,
+      "posicion": 3,
+      "archivo": "imagenes/5814_7-3.jpeg",
+      "sha256": "ee44e81b820573bb33cc5f051ccf5641c5c7b086c3b6285cf03945e236536d36",
+      "ancho": 317,
+      "alto": 436,
+      "bbox": [
+        424.8,
+        449.9,
+        547.2,
+        618.1
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6701#8.1",
+      "codigo": "6701",
+      "descripcion": "FIAMBRE MAGRETA CDA. ADOBADA DEL MIO",
+      "pagina": 8,
+      "posicion": 1,
+      "archivo": "imagenes/6701_8-1.jpeg",
+      "sha256": "7c29ffe293b7889622a782ab32547459fc7c67eb101cb1ab03b77d6bcaf37017",
+      "ancho": 180,
+      "alto": 320,
+      "bbox": [
+        438.6,
+        30.4,
+        533.2,
+        198.6
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6702#8.2",
+      "codigo": "6702",
+      "descripcion": "FIAMBRE MAGRETA CDA. BLANCA DEL MIO",
+      "pagina": 8,
+      "posicion": 2,
+      "archivo": "imagenes/6702_8-2.jpeg",
+      "sha256": "677f9e33bffeaded10656e03755dd01319863929e33f534e405ec58ad94e783b",
+      "ancho": 188,
+      "alto": 285,
+      "bbox": [
+        430.4,
+        240.1,
+        541.6,
+        408.4
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6703#8.3",
+      "codigo": "6703",
+      "descripcion": "BACON MOLDE MEDIOS DEL MIO",
+      "pagina": 8,
+      "posicion": 3,
+      "archivo": "imagenes/6703_8-3.jpeg",
+      "sha256": "48054e176e9ec10fe5c8c3f519f1496280de08f0fc9cb9bdac91aa6f0fc20fbf",
+      "ancho": 543,
+      "alto": 304,
+      "bbox": [
+        398.8,
+        485.3,
+        572.5,
+        582.8
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6703#9.1",
+      "codigo": "6703",
+      "descripcion": "BACON MOLDE MEDIOS DEL MIO",
+      "pagina": 9,
+      "posicion": 1,
+      "archivo": "imagenes/6703_9-1.jpeg",
+      "sha256": "48054e176e9ec10fe5c8c3f519f1496280de08f0fc9cb9bdac91aa6f0fc20fbf",
+      "ancho": 543,
+      "alto": 304,
+      "bbox": [
+        398.8,
+        65.8,
+        572.5,
+        163.3
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6711#9.2",
+      "codigo": "6711",
+      "descripcion": "CODILLOS BLANCOS \"DEL MIO\"",
+      "pagina": 9,
+      "posicion": 2,
+      "archivo": "imagenes/6711_9-2.jpeg",
+      "sha256": "27e66491bc4fc8c816d0e5fd310dd3f38ef058ed3fa2d47bf83cde902a7053ce",
+      "ancho": 648,
+      "alto": 486,
+      "bbox": [
+        398.8,
+        258.8,
+        573.1,
+        389.4
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6712#9.3",
+      "codigo": "6712",
+      "descripcion": "AÑEJO LOMITO CORTADO \"DEL MIO\"",
+      "pagina": 9,
+      "posicion": 3,
+      "archivo": "imagenes/6712_9-3.jpeg",
+      "sha256": "8044e522f04ac5f30e83ab61fabd435c927fa034aed2e205fa968e62d287f654",
+      "ancho": 1024,
+      "alto": 626,
+      "bbox": [
+        398.8,
+        480.7,
+        573.0,
+        587.2
+      ],
+      "estado": "pending_review",
+      "motivo": "misma foto que 6713",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6713#10.1",
+      "codigo": "6713",
+      "descripcion": "CORTEZA AÑEJA CORT. FINO \"DEL MIO\"",
+      "pagina": 10,
+      "posicion": 1,
+      "archivo": "imagenes/6713_10-1.jpeg",
+      "sha256": "8044e522f04ac5f30e83ab61fabd435c927fa034aed2e205fa968e62d287f654",
+      "ancho": 1024,
+      "alto": 626,
+      "bbox": [
+        398.8,
+        61.2,
+        573.0,
+        167.6
+      ],
+      "estado": "pending_review",
+      "motivo": "misma foto que 6712",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6890#10.2",
+      "codigo": "6890",
+      "descripcion": "CHORIZO EXTRA ROJO VELA AL VACIO DEL MIO",
+      "pagina": 10,
+      "posicion": 2,
+      "archivo": "imagenes/6890_10-2.jpeg",
+      "sha256": "37e3c1caf6156a11c94eb19b70a4f0d573e71259c9f3472b2b3164f0a4a7867a",
+      "ancho": 199,
+      "alto": 381,
+      "bbox": [
+        442.0,
+        240.1,
+        529.6,
+        408.2
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6891#10.3",
+      "codigo": "6891",
+      "descripcion": "CHORIZO EXTRA BLANCO VELA AL VACIO DEL MÍO",
+      "pagina": 10,
+      "posicion": 3,
+      "archivo": "imagenes/6891_10-3.jpeg",
+      "sha256": "39e5ecb3fddbbfc72c17b9103b4620f5e84135cb55a658c02176bcb53f8fa69f",
+      "ancho": 186,
+      "alto": 396,
+      "bbox": [
+        446.4,
+        449.9,
+        525.1,
+        618.1
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "8950#11.1",
+      "codigo": "8950",
+      "descripcion": "CHOPPED DE PAVO DEL MIO",
+      "pagina": 11,
+      "posicion": 1,
+      "archivo": "imagenes/8950_11-1.jpeg",
+      "sha256": "7863eae3e299a883bd5afaa925ce4e7f98fd47a6c5e919368bed1de4ec2e08fa",
+      "ancho": 269,
+      "alto": 188,
+      "bbox": [
+        398.8,
+        53.5,
+        573.2,
+        175.3
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "MC01#11.2",
+      "codigo": "MC01",
+      "descripcion": "MORCILLA DE CEBOLLA DEL MÍO",
+      "pagina": 11,
+      "posicion": 2,
+      "archivo": "imagenes/MC01_11-2.jpeg",
+      "sha256": "fe02ef3221e09c8373be8166694a0a35c31a61cb2de75cf0d38dbe5214602cb8",
+      "ancho": 125,
+      "alto": 199,
+      "bbox": [
+        433.1,
+        240.1,
+        539.0,
+        408.2
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "MC02#11.3",
+      "codigo": "MC02",
+      "descripcion": "MORCILLA ASTIGITANA DEL MIO",
+      "pagina": 11,
+      "posicion": 3,
+      "archivo": "imagenes/MC02_11-3.jpeg",
+      "sha256": "d8bc8be72ebbdcdcfca7c62c2068412287a17223e5d59c772645af548ff5e3b7",
+      "ancho": 590,
+      "alto": 770,
+      "bbox": [
+        421.4,
+        449.9,
+        550.3,
+        618.0
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "SP01#12.1",
+      "codigo": "SP01",
+      "descripcion": "SALCHICHAS AVE MINI DEL MIO",
+      "pagina": 12,
+      "posicion": 1,
+      "archivo": "imagenes/SP01_12-1.jpeg",
+      "sha256": "8c0e631e2ba210b810b9c5b4f3f7937303ae037aa619f3d6578f8cd33a6ea2bd",
+      "ancho": 290,
+      "alto": 290,
+      "bbox": [
+        401.8,
+        30.4,
+        570.2,
+        198.5
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "025418#12.2",
+      "codigo": "025418",
+      "descripcion": "CHOPPED PORK CAMPOFRIO 3 KG C/2U",
+      "pagina": 12,
+      "posicion": 2,
+      "archivo": "imagenes/025418_12-2.jpeg",
+      "sha256": "e323ac3d218bb7d78d6180ef9f16eb872a5ae482b150089d36983ac225d2e223",
+      "ancho": 225,
+      "alto": 225,
+      "bbox": [
+        401.8,
+        240.1,
+        569.5,
+        408.6
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "025420#12.3",
+      "codigo": "025420",
+      "descripcion": "MORTADELA CLAS. CAMPOFRIO 3,5 KG. C/2U",
+      "pagina": 12,
+      "posicion": 3,
+      "archivo": "imagenes/025420_12-3.jpeg",
+      "sha256": "ca5b8a97f056b3b9e839d0bcb95f1eb4b0bc313a5d9f369a4f2231f47da61205",
+      "ancho": 161,
+      "alto": 134,
+      "bbox": [
+        398.8,
+        461.4,
+        572.3,
+        606.1
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "025433#13.1",
+      "codigo": "025433",
+      "descripcion": "LUNCH 3 KG CAMPOFRIO C/2U",
+      "pagina": 13,
+      "posicion": 1,
+      "archivo": "imagenes/025433_13-1.jpeg",
+      "sha256": "d189751027a54393a9094b6780b60323b148474708a2bda248047e2ddfb60231",
+      "ancho": 224,
+      "alto": 320,
+      "bbox": [
+        427.1,
+        30.4,
+        544.8,
+        198.6
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "028012#13.2",
+      "codigo": "028012",
+      "descripcion": "CHOPPED PORK CAMPOFRIO 330G C/15U",
+      "pagina": 13,
+      "posicion": 2,
+      "archivo": "imagenes/028012_13-2.jpg",
+      "sha256": "9b487e46ac5717d7ad1b0764ce74f7133590ec041c585755a2c712c219a73197",
+      "ancho": 2400,
+      "alto": 2000,
+      "bbox": [
+        398.8,
+        251.5,
+        573.1,
+        396.7
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "212#13.3",
+      "codigo": "212",
+      "descripcion": "FIAMBRE PALETA HORNO CAMPOFRIO C/2U",
+      "pagina": 13,
+      "posicion": 3,
+      "archivo": "imagenes/212_13-3.jpeg",
+      "sha256": "7c14e66f92b76317769d512e551fd04a2c3d9a260e03a777e01746707e767c56",
+      "ancho": 228,
+      "alto": 558,
+      "bbox": [
+        451.6,
+        449.9,
+        520.3,
+        618.2
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "26644#14.1",
+      "codigo": "26644",
+      "descripcion": "MORTADELA CLAS. CAMPOFRIO 330G C/15U",
+      "pagina": 14,
+      "posicion": 1,
+      "archivo": "imagenes/26644_14-1.jpeg",
+      "sha256": "dfda9d7180584ca60be7f7b796d2cafb1e715defcf2e449598f6dc3788492ca9",
+      "ancho": 400,
+      "alto": 320,
+      "bbox": [
+        398.8,
+        44.8,
+        573.2,
+        184.2
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "2736#14.2",
+      "codigo": "2736",
+      "descripcion": "SALCHICHAS FRAN. CAMPOFRIO 4 PACK C/12U",
+      "pagina": 14,
+      "posicion": 2,
+      "archivo": null,
+      "sha256": null,
+      "ancho": null,
+      "alto": null,
+      "bbox": null,
+      "estado": "missing",
+      "motivo": "no hay ninguna foto en la banda de esta ficha",
+      "candidatas": 0
+    },
+    {
+      "producto_id": "3286#14.3",
+      "codigo": "3286",
+      "descripcion": "CENTRO DE JAMON NAVIDUL C/2 U",
+      "pagina": 14,
+      "posicion": 3,
+      "archivo": "imagenes/3286_14-3.jpeg",
+      "sha256": "bbc39f6d23a6577be24c789b8152a28560fa6098fe13c2d3a1ad12388be97435",
+      "ancho": 378,
+      "alto": 500,
+      "bbox": [
+        422.4,
+        449.9,
+        549.4,
+        618.2
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6803#15.1",
+      "codigo": "6803",
+      "descripcion": "CHOPPED CERDO ESP. 350 GRS.CRISMONA",
+      "pagina": 15,
+      "posicion": 1,
+      "archivo": "imagenes/6803_15-1.jpeg",
+      "sha256": "6a0394b818fa1e5b1449b7523d8f7f7bc0ab6641fb61a6e8ff242076e08cef24",
+      "ancho": 245,
+      "alto": 325,
+      "bbox": [
+        422.5,
+        30.4,
+        549.4,
+        198.6
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6803#15.2",
+      "codigo": "6803",
+      "descripcion": "CHOPPED CERDO ESP. 350 GRS.CRISMONA",
+      "pagina": 15,
+      "posicion": 2,
+      "archivo": "imagenes/6803_15-2.jpeg",
+      "sha256": "6a0394b818fa1e5b1449b7523d8f7f7bc0ab6641fb61a6e8ff242076e08cef24",
+      "ancho": 245,
+      "alto": 325,
+      "bbox": [
+        422.5,
+        240.1,
+        549.4,
+        408.4
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6803#15.3",
+      "codigo": "6803",
+      "descripcion": "CHOPPED CERDO ESP. 350 GRS.CRISMONA",
+      "pagina": 15,
+      "posicion": 3,
+      "archivo": "imagenes/6803_15-3.jpeg",
+      "sha256": "6a0394b818fa1e5b1449b7523d8f7f7bc0ab6641fb61a6e8ff242076e08cef24",
+      "ancho": 245,
+      "alto": 325,
+      "bbox": [
+        422.5,
+        449.9,
+        549.4,
+        618.1
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6804#16.1",
+      "codigo": "6804",
+      "descripcion": "CHOPPED CERDO ESP. 1,7 KG.CRISMONA",
+      "pagina": 16,
+      "posicion": 1,
+      "archivo": "imagenes/6804_16-1.jpeg",
+      "sha256": "77186b271d6aa09e0b5efb3013951a17c971e2c6f52e0eb50fcf91332d8bcbde",
+      "ancho": 341,
+      "alto": 462,
+      "bbox": [
+        423.8,
+        30.4,
+        548.2,
+        198.6
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6812#16.2",
+      "codigo": "6812",
+      "descripcion": "SALCHICHAS 5 PARES CRISMONA",
+      "pagina": 16,
+      "posicion": 2,
+      "archivo": "imagenes/6812_16-2.jpeg",
+      "sha256": "6831c3238b5124383df7732a06665da5d01dbebcaf71c9b19adff9764adf0955",
+      "ancho": 238,
+      "alto": 314,
+      "bbox": [
+        422.2,
+        240.1,
+        549.5,
+        408.2
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "4100#16.3",
+      "codigo": "4100",
+      "descripcion": "ZURRAPA DE LOMO BLANCA 500 GM.",
+      "pagina": 16,
+      "posicion": 3,
+      "archivo": "imagenes/4100_16-3.jpeg",
+      "sha256": "b475df0e44a6449ec2632ef6c6e8db68b8f6208ed42e2f0df7d27623c0961c70",
+      "ancho": 1278,
+      "alto": 720,
+      "bbox": [
+        398.8,
+        484.9,
+        573.1,
+        583.1
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "4101#17.1",
+      "codigo": "4101",
+      "descripcion": "ZURRAPA DE LOMO COLORA 500 GM.",
+      "pagina": 17,
+      "posicion": 1,
+      "archivo": "imagenes/4101_17-1.png",
+      "sha256": "714eeeda2e00fa061739f0adaa8bf414be4968229486af71e7242c4968dfa988",
+      "ancho": 1278,
+      "alto": 720,
+      "bbox": [
+        398.8,
+        65.4,
+        573.1,
+        163.6
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "0000641#17.2",
+      "codigo": "0000641",
+      "descripcion": "FIAMBRE SANDW 4KG SIN LACTOSA EL POZO",
+      "pagina": 17,
+      "posicion": 2,
+      "archivo": "imagenes/0000641_17-2.jpeg",
+      "sha256": "477da047cd983e81af004da8238b74499e842508d2c0e36e24dbbc2d98a1c6d5",
+      "ancho": 187,
+      "alto": 345,
+      "bbox": [
+        440.4,
+        240.1,
+        531.4,
+        408.2
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "0005825#17.3",
+      "codigo": "0005825",
+      "descripcion": "JAMON COCIDO EN SU JUGO EL POZO",
+      "pagina": 17,
+      "posicion": 3,
+      "archivo": "imagenes/0005825_17-3.jpeg",
+      "sha256": "396362583b6017566e16d88f318089d10fc58b01e809b0c0a5c3b0b91ec565bd",
+      "ancho": 355,
+      "alto": 493,
+      "bbox": [
+        425.4,
+        449.9,
+        546.4,
+        618.0
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "10002#18.1",
+      "codigo": "10002",
+      "descripcion": "HARINA FREIR 5 KG. CUBO \"ESPIGA REAL\"",
+      "pagina": 18,
+      "posicion": 1,
+      "archivo": "imagenes/10002_18-1.jpeg",
+      "sha256": "555bae4aa8e5dc59239fe68cb794d4bade52163a5f93f6c1adc4e5aa8dfd3ca7",
+      "ancho": 312,
+      "alto": 364,
+      "bbox": [
+        413.8,
+        30.4,
+        558.2,
+        198.5
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "500203#18.2",
+      "codigo": "500203",
+      "descripcion": "UNIDAD PANCETA IBERICA TACOS",
+      "pagina": 18,
+      "posicion": 2,
+      "archivo": "imagenes/500203_18-2.jpeg",
+      "sha256": "b5a254a836123c3f15e5cb2acdeb48401ae7394a39edb7342e8c3a0b0db16687",
+      "ancho": 471,
+      "alto": 175,
+      "bbox": [
+        398.8,
+        291.8,
+        573.0,
+        356.4
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "53100P#18.3",
+      "codigo": "53100P",
+      "descripcion": "LACON COCIDO Y AHUMADO EXTRA",
+      "pagina": 18,
+      "posicion": 3,
+      "archivo": "imagenes/53100P_18-3.jpeg",
+      "sha256": "16220c4e21990b9ba60c5079b1776c540718cdbafbe7d174775b1c9333f8291c",
+      "ancho": 960,
+      "alto": 963,
+      "bbox": [
+        402.0,
+        449.9,
+        569.6,
+        618.1
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6708#19.1",
+      "codigo": "6708",
+      "descripcion": "CHOPPED 2.2 KG LATA C/2P FRIMANCHA",
+      "pagina": 19,
+      "posicion": 1,
+      "archivo": "imagenes/6708_19-1.jpeg",
+      "sha256": "87d38b6d702d9a917d37f841c62929b7bb8f7db7ce4cf59f0e75e565e2abefe0",
+      "ancho": 120,
+      "alto": 265,
+      "bbox": [
+        447.8,
+        30.4,
+        524.4,
+        198.8
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6710#19.2",
+      "codigo": "6710",
+      "descripcion": "HAMBURGUESAS CONG.(6KILOS) FRIMANCHA",
+      "pagina": 19,
+      "posicion": 2,
+      "archivo": "imagenes/6710_19-2.jpeg",
+      "sha256": "cf837a9f04e64d87431bbdc13d84cc839b16c7fe7700cc22079f45c22b0f6c7a",
+      "ancho": 350,
+      "alto": 237,
+      "bbox": [
+        398.8,
+        265.2,
+        573.1,
+        383.5
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6722#19.3",
+      "codigo": "6722",
+      "descripcion": "CABEZA DE JABALI FRIMANCHA",
+      "pagina": 19,
+      "posicion": 3,
+      "archivo": "imagenes/6722_19-3.jpeg",
+      "sha256": "026e25dce436b9820eae3709a9856cc954db5d4f49e9cf62cd63fdf650ad8c15",
+      "ancho": 158,
+      "alto": 360,
+      "bbox": [
+        449.0,
+        449.9,
+        522.8,
+        617.9
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "1100#20.1",
+      "codigo": "1100",
+      "descripcion": "HOT DOG DE POLLO",
+      "pagina": 20,
+      "posicion": 1,
+      "archivo": "imagenes/1100_20-1.jpeg",
+      "sha256": "64bf4699e0000ccd4e7ca523fcc5b50bc596f630a3731a0757c647e5bb166081",
+      "ancho": 225,
+      "alto": 175,
+      "bbox": [
+        398.8,
+        46.7,
+        573.0,
+        182.0
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "1106#20.2",
+      "codigo": "1106",
+      "descripcion": "SALCHICHAS DE POLLO MINI 400GM",
+      "pagina": 20,
+      "posicion": 2,
+      "archivo": "imagenes/1106_20-2.jpeg",
+      "sha256": "729d50d09ba44d5226144c722294d95279f0858e1af25f0e09787b37b579a942",
+      "ancho": 225,
+      "alto": 175,
+      "bbox": [
+        398.8,
+        256.4,
+        573.0,
+        391.8
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "3900#20.3",
+      "codigo": "3900",
+      "descripcion": "VIOLINES C/ 8 PACK 4 UD.CARLOS III",
+      "pagina": 20,
+      "posicion": 3,
+      "archivo": "imagenes/3900_20-3.jpeg",
+      "sha256": "f7ef43b8de5ff13affabda90674a093eaa2c4ce800f73ef7b702800dee8d5652",
+      "ancho": 888,
+      "alto": 500,
+      "bbox": [
+        398.8,
+        484.9,
+        573.0,
+        583.1
+      ],
+      "estado": "pending_review",
+      "motivo": "misma foto que 3911, OF3900",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "3901#21.1",
+      "codigo": "3901",
+      "descripcion": "OCHITOS C/ 8 PACK 4 UDS.HORNO CARLOS III",
+      "pagina": 21,
+      "posicion": 1,
+      "archivo": "imagenes/3901_21-1.jpeg",
+      "sha256": "df3f6f324f7330096185ef38f7e92496117fd155d5b41f27cf3d728860c40f20",
+      "ancho": 1279,
+      "alto": 1010,
+      "bbox": [
+        398.8,
+        45.6,
+        573.1,
+        183.2
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "3909#21.2",
+      "codigo": "3909",
+      "descripcion": "SACO DE ROSQUILLAS DE 7,5 KG.",
+      "pagina": 21,
+      "posicion": 2,
+      "archivo": "imagenes/3909_21-2.jpeg",
+      "sha256": "7c0eae9c4891a53eaef4e45665bb0416a9030023b76b1c8a8bd86e661a6bf56b",
+      "ancho": 225,
+      "alto": 300,
+      "bbox": [
+        422.9,
+        240.1,
+        548.9,
+        408.2
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "3911#21.3",
+      "codigo": "3911",
+      "descripcion": "INTEGRALES VIOLINES C/ 8 PACK 4 U.HORNO CARLOS III",
+      "pagina": 21,
+      "posicion": 3,
+      "archivo": "imagenes/3911_21-3.jpeg",
+      "sha256": "f7ef43b8de5ff13affabda90674a093eaa2c4ce800f73ef7b702800dee8d5652",
+      "ancho": 888,
+      "alto": 500,
+      "bbox": [
+        398.8,
+        484.9,
+        573.0,
+        583.1
+      ],
+      "estado": "pending_review",
+      "motivo": "misma foto que 3900, OF3900",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "OF3900#22.1",
+      "codigo": "OF3900",
+      "descripcion": "SIN CARGO VIOLINES C/ 8 PACK 4 UDS.H. CARLOS III",
+      "pagina": 22,
+      "posicion": 1,
+      "archivo": "imagenes/OF3900_22-1.jpeg",
+      "sha256": "f7ef43b8de5ff13affabda90674a093eaa2c4ce800f73ef7b702800dee8d5652",
+      "ancho": 888,
+      "alto": 500,
+      "bbox": [
+        398.8,
+        65.4,
+        573.0,
+        163.6
+      ],
+      "estado": "pending_review",
+      "motivo": "misma foto que 3900, 3911",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "CM01#22.2",
+      "codigo": "CM01",
+      "descripcion": "MEMBRILLO CREMA EXTRA 3.750KG.",
+      "pagina": 22,
+      "posicion": 2,
+      "archivo": "imagenes/CM01_22-2.jpeg",
+      "sha256": "31f2471bad235c504d927d31c9d094de9d860140b17afcdb4744979b7ab2d91e",
+      "ancho": 340,
+      "alto": 250,
+      "bbox": [
+        398.8,
+        260.2,
+        573.2,
+        388.1
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "CM02#22.3",
+      "codigo": "CM02",
+      "descripcion": "MEMBRILLO SIN AZUCAR 3,750 KG",
+      "pagina": 22,
+      "posicion": 3,
+      "archivo": "imagenes/CM02_22-3.jpeg",
+      "sha256": "0fa99c2f9bef2d76e00db1cc7e3853e5551466eb40b0f8d7dd637db86986a4c3",
+      "ancho": 708,
+      "alto": 432,
+      "bbox": [
+        398.8,
+        480.7,
+        573.1,
+        587.0
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "CM03#23.1",
+      "codigo": "CM03",
+      "descripcion": "CREMA MEMBRILLO 900GR 8/UC CON FRUCTOSA",
+      "pagina": 23,
+      "posicion": 1,
+      "archivo": "imagenes/CM03_23-1.jpeg",
+      "sha256": "68b9eb2c94dc87fcd0644e3159626b92bdb03ebe46bb9ae9eb258f471f1c72b1",
+      "ancho": 498,
+      "alto": 359,
+      "bbox": [
+        398.8,
+        51.6,
+        573.0,
+        177.4
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "CM05#23.2",
+      "codigo": "CM05",
+      "descripcion": "MEMBRILLO CASERO LA ABUELA FILO 3,75 KG NETO",
+      "pagina": 23,
+      "posicion": 2,
+      "archivo": "imagenes/CM05_23-2.jpeg",
+      "sha256": "695b785b853ac245b49c840634bc678f9af70d55ec53aada91e5fd9276191c35",
+      "ancho": 717,
+      "alto": 404,
+      "bbox": [
+        398.8,
+        275.2,
+        573.1,
+        373.3
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "CM07#23.3",
+      "codigo": "CM07",
+      "descripcion": "LATA MLLO CON FRUCTOSA 300GR 12/C",
+      "pagina": 23,
+      "posicion": 3,
+      "archivo": "imagenes/CM07_23-3.jpeg",
+      "sha256": "5fd83dbca6708fa6912c7f6dcae0f5cb4668ba9681ac83dadb41a08107c8056b",
+      "ancho": 500,
+      "alto": 536,
+      "bbox": [
+        407.4,
+        449.9,
+        564.5,
+        618.1
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "CMP1#24.1",
+      "codigo": "CMP1",
+      "descripcion": "CREMA DE MEMBRILLO 40GM. 98/UN",
+      "pagina": 24,
+      "posicion": 1,
+      "archivo": "imagenes/CMP1_24-1.jpeg",
+      "sha256": "6b7f225c935a7fe7af51b2825da945b8bcdf97b71d62c2cf63ad668472fdf089",
+      "ancho": 480,
+      "alto": 360,
+      "bbox": [
+        398.8,
+        49.1,
+        572.8,
+        179.9
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "30101#24.2",
+      "codigo": "30101",
+      "descripcion": "FILETES DE CABALLA A/G 1800 C/ 6",
+      "pagina": 24,
+      "posicion": 2,
+      "archivo": "imagenes/30101_24-2.jpeg",
+      "sha256": "59b1e0b57c12db1af069dce866a878c9ff3b35c0aef26b89d2fb347122e11762",
+      "ancho": 768,
+      "alto": 768,
+      "bbox": [
+        401.8,
+        240.1,
+        570.0,
+        408.2
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "30101#24.3",
+      "codigo": "30101",
+      "descripcion": "FILETES DE CABALLA A/G 1800 C/ 6",
+      "pagina": 24,
+      "posicion": 3,
+      "archivo": "imagenes/30101_24-3.jpeg",
+      "sha256": "59b1e0b57c12db1af069dce866a878c9ff3b35c0aef26b89d2fb347122e11762",
+      "ancho": 768,
+      "alto": 768,
+      "bbox": [
+        401.8,
+        449.9,
+        570.0,
+        618.0
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "30201#25.1",
+      "codigo": "30201",
+      "descripcion": "FILETES DE CABALLA A/G 250 C/24 PACK6PZAS",
+      "pagina": 25,
+      "posicion": 1,
+      "archivo": null,
+      "sha256": null,
+      "ancho": null,
+      "alto": null,
+      "bbox": null,
+      "estado": "missing",
+      "motivo": "no hay ninguna foto en la banda de esta ficha",
+      "candidatas": 0
+    },
+    {
+      "producto_id": "30201#25.2",
+      "codigo": "30201",
+      "descripcion": "FILETES DE CABALLA A/G 250 C/24 PACK6PZAS",
+      "pagina": 25,
+      "posicion": 2,
+      "archivo": null,
+      "sha256": null,
+      "ancho": null,
+      "alto": null,
+      "bbox": null,
+      "estado": "missing",
+      "motivo": "no hay ninguna foto en la banda de esta ficha",
+      "candidatas": 0
+    },
+    {
+      "producto_id": "30301#25.3",
+      "codigo": "30301",
+      "descripcion": "FILETES CABALLA RO 550 C/24 A/G",
+      "pagina": 25,
+      "posicion": 3,
+      "archivo": "imagenes/30301_25-3.jpeg",
+      "sha256": "0c627a1008d4c0d73f986c7ac60667f3f37c746adf53d77987846aeb5983e009",
+      "ancho": 400,
+      "alto": 400,
+      "bbox": [
+        401.8,
+        449.9,
+        569.8,
+        618.1
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "30301#26.1",
+      "codigo": "30301",
+      "descripcion": "FILETES CABALLA RO 550 C/24 A/G",
+      "pagina": 26,
+      "posicion": 1,
+      "archivo": "imagenes/30301_26-1.jpeg",
+      "sha256": "0c627a1008d4c0d73f986c7ac60667f3f37c746adf53d77987846aeb5983e009",
+      "ancho": 400,
+      "alto": 400,
+      "bbox": [
+        401.8,
+        30.4,
+        569.8,
+        198.6
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "30501#26.2",
+      "codigo": "30501",
+      "descripcion": "FTES. CABALLA 125G. 50 U.C/ 5 PZAS RETR.",
+      "pagina": 26,
+      "posicion": 2,
+      "archivo": "imagenes/30501_26-2.jpg",
+      "sha256": "48abbd0622080cb5a015a135c91abd723058f98bb7a0fec0e744e47b9d4ca29b",
+      "ancho": 1701,
+      "alto": 1701,
+      "bbox": [
+        401.8,
+        240.1,
+        570.1,
+        408.4
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "30501#26.3",
+      "codigo": "30501",
+      "descripcion": "FTES. CABALLA 125G. 50 U.C/ 5 PZAS RETR.",
+      "pagina": 26,
+      "posicion": 3,
+      "archivo": "imagenes/30501_26-3.jpg",
+      "sha256": "48abbd0622080cb5a015a135c91abd723058f98bb7a0fec0e744e47b9d4ca29b",
+      "ancho": 1701,
+      "alto": 1701,
+      "bbox": [
+        401.8,
+        449.9,
+        570.1,
+        618.1
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "30701#27.1",
+      "codigo": "30701",
+      "descripcion": "FILETES DE CABALLA A/G 1000 C/ 12",
+      "pagina": 27,
+      "posicion": 1,
+      "archivo": "imagenes/30701_27-1.jpeg",
+      "sha256": "46607cb120d5c6086786aee0c8a3554ac0fbdc57c1ea7a2a649f8888b70470d6",
+      "ancho": 768,
+      "alto": 768,
+      "bbox": [
+        401.8,
+        30.4,
+        570.0,
+        198.5
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "30701#27.2",
+      "codigo": "30701",
+      "descripcion": "FILETES DE CABALLA A/G 1000 C/ 12",
+      "pagina": 27,
+      "posicion": 2,
+      "archivo": "imagenes/30701_27-2.jpeg",
+      "sha256": "46607cb120d5c6086786aee0c8a3554ac0fbdc57c1ea7a2a649f8888b70470d6",
+      "ancho": 768,
+      "alto": 768,
+      "bbox": [
+        401.8,
+        240.1,
+        570.0,
+        408.2
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "5100#27.3",
+      "codigo": "5100",
+      "descripcion": "MELVA 1800 FILETE DE ALMADRABA RO C/6",
+      "pagina": 27,
+      "posicion": 3,
+      "archivo": "imagenes/5100_27-3.jpeg",
+      "sha256": "df78f9aa5ca99605fed3d7f0b24bf7b94e1707e6cf4f9c06786f70c0fb4f4286",
+      "ancho": 320,
+      "alto": 314,
+      "bbox": [
+        400.2,
+        449.9,
+        571.8,
+        617.8
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "5100#28.1",
+      "codigo": "5100",
+      "descripcion": "MELVA 1800 FILETE DE ALMADRABA RO C/6",
+      "pagina": 28,
+      "posicion": 1,
+      "archivo": "imagenes/5100_28-1.jpeg",
+      "sha256": "df78f9aa5ca99605fed3d7f0b24bf7b94e1707e6cf4f9c06786f70c0fb4f4286",
+      "ancho": 320,
+      "alto": 314,
+      "bbox": [
+        400.2,
+        30.4,
+        571.8,
+        198.2
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "5102#28.2",
+      "codigo": "5102",
+      "descripcion": "MELVA FILETE DE ALMADRABA 1000 C/ 12",
+      "pagina": 28,
+      "posicion": 2,
+      "archivo": "imagenes/5102_28-2.jpeg",
+      "sha256": "46cd3605771fecc92ca7b96e7335687d200ee8e979b9a1703ccc83dd3d663068",
+      "ancho": 768,
+      "alto": 768,
+      "bbox": [
+        401.8,
+        240.1,
+        570.0,
+        408.2
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "5102#28.3",
+      "codigo": "5102",
+      "descripcion": "MELVA FILETE DE ALMADRABA 1000 C/ 12",
+      "pagina": 28,
+      "posicion": 3,
+      "archivo": "imagenes/5102_28-3.jpeg",
+      "sha256": "46cd3605771fecc92ca7b96e7335687d200ee8e979b9a1703ccc83dd3d663068",
+      "ancho": 768,
+      "alto": 768,
+      "bbox": [
+        401.8,
+        449.9,
+        570.0,
+        618.0
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "307002#29.1",
+      "codigo": "307002",
+      "descripcion": "1/2 QUESO MEZCLA SEMI SIN LACTOSA PLAZA VIEJA",
+      "pagina": 29,
+      "posicion": 1,
+      "archivo": "imagenes/307002_29-1.jpeg",
+      "sha256": "33681624a951232acb88b3db73ddafad01a81b1d83c9eb46058dc9aeda618114",
+      "ancho": 451,
+      "alto": 298,
+      "bbox": [
+        398.8,
+        56.9,
+        573.1,
+        171.8
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6302#29.2",
+      "codigo": "6302",
+      "descripcion": "LOMITO IBERICO BELLOTA *MARCIAL*",
+      "pagina": 29,
+      "posicion": 2,
+      "archivo": "imagenes/6302_29-2.jpeg",
+      "sha256": "7e7ed8e583c1d16f7d0a030749a6db322e42cc7f791a4d04bca4cd88dc8ba406",
+      "ancho": 371,
+      "alto": 278,
+      "bbox": [
+        398.8,
+        259.0,
+        573.0,
+        389.6
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6302#29.3",
+      "codigo": "6302",
+      "descripcion": "LOMITO IBERICO BELLOTA *MARCIAL*",
+      "pagina": 29,
+      "posicion": 3,
+      "archivo": "imagenes/6302_29-3.jpeg",
+      "sha256": "7e7ed8e583c1d16f7d0a030749a6db322e42cc7f791a4d04bca4cd88dc8ba406",
+      "ancho": 371,
+      "alto": 278,
+      "bbox": [
+        398.8,
+        468.7,
+        573.0,
+        599.4
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6303#30.1",
+      "codigo": "6303",
+      "descripcion": "LOMO PLATA CEBO CAMPO 50% *MARCIAL*",
+      "pagina": 30,
+      "posicion": 1,
+      "archivo": "imagenes/6303_30-1.jpeg",
+      "sha256": "4811eb168cc113c12a6dfc2fd06afa3b1e226849a3a8011d532579cc38742ef8",
+      "ancho": 256,
+      "alto": 171,
+      "bbox": [
+        398.8,
+        56.3,
+        573.0,
+        172.6
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6303#30.2",
+      "codigo": "6303",
+      "descripcion": "LOMO PLATA CEBO CAMPO 50% *MARCIAL*",
+      "pagina": 30,
+      "posicion": 2,
+      "archivo": "imagenes/6303_30-2.jpeg",
+      "sha256": "4811eb168cc113c12a6dfc2fd06afa3b1e226849a3a8011d532579cc38742ef8",
+      "ancho": 256,
+      "alto": 171,
+      "bbox": [
+        398.8,
+        266.0,
+        573.0,
+        382.3
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6304#30.3",
+      "codigo": "6304",
+      "descripcion": "SALCHICHON CULAR PLATA IB. *MARCIAL*",
+      "pagina": 30,
+      "posicion": 3,
+      "archivo": "imagenes/6304_30-3.jpeg",
+      "sha256": "01fb14ccdc1c938965d0d3b17ec7721942d6008718066164e21ba4f936863048",
+      "ancho": 300,
+      "alto": 200,
+      "bbox": [
+        398.8,
+        475.9,
+        573.2,
+        591.8
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6304#31.1",
+      "codigo": "6304",
+      "descripcion": "SALCHICHON CULAR PLATA IB. *MARCIAL*",
+      "pagina": 31,
+      "posicion": 1,
+      "archivo": "imagenes/6304_31-1.jpeg",
+      "sha256": "01fb14ccdc1c938965d0d3b17ec7721942d6008718066164e21ba4f936863048",
+      "ancho": 300,
+      "alto": 200,
+      "bbox": [
+        398.8,
+        56.4,
+        573.2,
+        172.3
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6304#31.2",
+      "codigo": "6304",
+      "descripcion": "SALCHICHON CULAR PLATA IB. *MARCIAL*",
+      "pagina": 31,
+      "posicion": 2,
+      "archivo": "imagenes/6304_31-2.jpeg",
+      "sha256": "01fb14ccdc1c938965d0d3b17ec7721942d6008718066164e21ba4f936863048",
+      "ancho": 300,
+      "alto": 200,
+      "bbox": [
+        398.8,
+        266.2,
+        573.2,
+        382.1
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6305#31.3",
+      "codigo": "6305",
+      "descripcion": "CHORIZO CULAR PLATA IB. *MARCIAL*",
+      "pagina": 31,
+      "posicion": 3,
+      "archivo": "imagenes/6305_31-3.jpeg",
+      "sha256": "7026816345a06f9a2122c8e193655c48afbe35d443afe863d12e75cea81e3432",
+      "ancho": 310,
+      "alto": 265,
+      "bbox": [
+        398.8,
+        459.5,
+        572.9,
+        608.8
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6305#32.1",
+      "codigo": "6305",
+      "descripcion": "CHORIZO CULAR PLATA IB. *MARCIAL*",
+      "pagina": 32,
+      "posicion": 1,
+      "archivo": "imagenes/6305_32-1.jpeg",
+      "sha256": "7026816345a06f9a2122c8e193655c48afbe35d443afe863d12e75cea81e3432",
+      "ancho": 310,
+      "alto": 265,
+      "bbox": [
+        398.8,
+        40.0,
+        572.9,
+        189.2
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6305#32.2",
+      "codigo": "6305",
+      "descripcion": "CHORIZO CULAR PLATA IB. *MARCIAL*",
+      "pagina": 32,
+      "posicion": 2,
+      "archivo": "imagenes/6305_32-2.jpeg",
+      "sha256": "7026816345a06f9a2122c8e193655c48afbe35d443afe863d12e75cea81e3432",
+      "ancho": 310,
+      "alto": 265,
+      "bbox": [
+        398.8,
+        249.7,
+        572.9,
+        399.0
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6313#32.3",
+      "codigo": "6313",
+      "descripcion": "JAMON CEBO CAMPO IBERICO 50% RAZA IB.",
+      "pagina": 32,
+      "posicion": 3,
+      "archivo": "imagenes/6313_32-3.jpeg",
+      "sha256": "84f694ebb08b052da37705c604dd9f9820ee1ad23fea4b039872949c92f94f7f",
+      "ancho": 400,
+      "alto": 223,
+      "bbox": [
+        398.8,
+        485.4,
+        573.0,
+        582.5
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "6314#33.1",
+      "codigo": "6314",
+      "descripcion": "SALCHICHON IBERICO BELLOTA \"ORO\" MARCIAL",
+      "pagina": 33,
+      "posicion": 1,
+      "archivo": "imagenes/6314_33-1.jpeg",
+      "sha256": "03340ce14389573f6bbad9c50f26ff0b50bc08a919ec4ffa648ca854cebdbdf1",
+      "ancho": 555,
+      "alto": 277,
+      "bbox": [
+        398.8,
+        70.9,
+        573.0,
+        157.8
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "1503#33.2",
+      "codigo": "1503",
+      "descripcion": "CENTRO JAMON 2 PZAS C/ MUÑOZ ROJO",
+      "pagina": 33,
+      "posicion": 2,
+      "archivo": "imagenes/1503_33-2.jpeg",
+      "sha256": "2b507235182cd9c2ddb1b12dac12fa19b31c5e81a3550d1b209ae12cdb95a7a6",
+      "ancho": 183,
+      "alto": 163,
+      "bbox": [
+        398.8,
+        246.6,
+        573.7,
+        401.9
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "7001#33.3",
+      "codigo": "7001",
+      "descripcion": "QUESO CURADO OCAÑA",
+      "pagina": 33,
+      "posicion": 3,
+      "archivo": "imagenes/7001_33-3.jpeg",
+      "sha256": "edf55902543bb75ab54f847d402511a630214813838543c10c49897b2b5e5b5a",
+      "ancho": 250,
+      "alto": 307,
+      "bbox": [
+        417.4,
+        449.9,
+        554.3,
+        618.0
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "7001#34.1",
+      "codigo": "7001",
+      "descripcion": "QUESO CURADO OCAÑA",
+      "pagina": 34,
+      "posicion": 1,
+      "archivo": "imagenes/7001_34-1.jpeg",
+      "sha256": "edf55902543bb75ab54f847d402511a630214813838543c10c49897b2b5e5b5a",
+      "ancho": 250,
+      "alto": 307,
+      "bbox": [
+        417.4,
+        30.4,
+        554.3,
+        198.5
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "3500#34.2",
+      "codigo": "3500",
+      "descripcion": "CHORIZO PAMPLONA EXTRA 2 PIEZAS",
+      "pagina": 34,
+      "posicion": 2,
+      "archivo": "imagenes/3500_34-2.jpeg",
+      "sha256": "b23fa41790e1c0026132542bc8a42aa2c7b8541ab7f5c7f71f6f6e151d953f9f",
+      "ancho": 304,
+      "alto": 251,
+      "bbox": [
+        398.8,
+        252.2,
+        572.8,
+        396.2
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "3502#34.3",
+      "codigo": "3502",
+      "descripcion": "BARRA LUNCH 1.3 KG.PAMPLONICA",
+      "pagina": 34,
+      "posicion": 3,
+      "archivo": "imagenes/3502_34-3.jpeg",
+      "sha256": "8ea50db0b2710b74ae81901a9f92429ae403ce89fe57fd239b66a94f8c096655",
+      "ancho": 223,
+      "alto": 270,
+      "bbox": [
+        416.4,
+        449.9,
+        555.4,
+        618.5
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "3502#35.1",
+      "codigo": "3502",
+      "descripcion": "BARRA LUNCH 1.3 KG.PAMPLONICA",
+      "pagina": 35,
+      "posicion": 1,
+      "archivo": "imagenes/3502_35-1.jpeg",
+      "sha256": "8ea50db0b2710b74ae81901a9f92429ae403ce89fe57fd239b66a94f8c096655",
+      "ancho": 223,
+      "alto": 270,
+      "bbox": [
+        416.4,
+        30.4,
+        555.4,
+        199.0
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "3506#35.2",
+      "codigo": "3506",
+      "descripcion": "CALLOS L/T MADRILEÑA 380G PAMPLONICA",
+      "pagina": 35,
+      "posicion": 2,
+      "archivo": "imagenes/3506_35-2.jpeg",
+      "sha256": "f54b14305abe437ff7cb6979f67842adb0428f3f765e88983228bfae35a2386f",
+      "ancho": 225,
+      "alto": 225,
+      "bbox": [
+        401.8,
+        240.1,
+        570.6,
+        408.6
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "8003#35.3",
+      "codigo": "8003",
+      "descripcion": "QUESO \"EL HIDALGO\" ACEITE GRANDE",
+      "pagina": 35,
+      "posicion": 3,
+      "archivo": "imagenes/8003_35-3.jpeg",
+      "sha256": "7f74243df979c48ead024492e69678409a7c19cc5e5ef1783f131780250c2d66",
+      "ancho": 270,
+      "alto": 270,
+      "bbox": [
+        401.8,
+        449.9,
+        569.5,
+        618.4
+      ],
+      "estado": "pending_review",
+      "motivo": "misma foto que 8003, 8005",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "8003#36.1",
+      "codigo": "8003",
+      "descripcion": "QUESO \"EL HIDALGO\" ACEITE GRANDE",
+      "pagina": 36,
+      "posicion": 1,
+      "archivo": "imagenes/8003_36-1.jpeg",
+      "sha256": "7f74243df979c48ead024492e69678409a7c19cc5e5ef1783f131780250c2d66",
+      "ancho": 270,
+      "alto": 270,
+      "bbox": [
+        401.8,
+        30.4,
+        569.5,
+        198.8
+      ],
+      "estado": "pending_review",
+      "motivo": "misma foto que 8003, 8005",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "8005#36.2",
+      "codigo": "8005",
+      "descripcion": "QUESO \"EL HIDALGO\" MINI-ACEITE",
+      "pagina": 36,
+      "posicion": 2,
+      "archivo": "imagenes/8005_36-2.jpeg",
+      "sha256": "7f74243df979c48ead024492e69678409a7c19cc5e5ef1783f131780250c2d66",
+      "ancho": 270,
+      "alto": 270,
+      "bbox": [
+        401.8,
+        240.1,
+        569.5,
+        408.6
+      ],
+      "estado": "pending_review",
+      "motivo": "misma foto que 8003",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "8009#36.3",
+      "codigo": "8009",
+      "descripcion": "1/2 QUESO EL HIDALGO OVEJA CURADO",
+      "pagina": 36,
+      "posicion": 3,
+      "archivo": "imagenes/8009_36-3.jpeg",
+      "sha256": "2c5cb1fd9ff7717771cf84c7b422c2e17929b7765b2b97bd60902f526f41d19e",
+      "ancho": 300,
+      "alto": 300,
+      "bbox": [
+        401.8,
+        449.9,
+        569.8,
+        618.2
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "8103#37.1",
+      "codigo": "8103",
+      "descripcion": "1/2 QUESO MEZCLA CURADO VACIO EL HIDALGO",
+      "pagina": 37,
+      "posicion": 1,
+      "archivo": "imagenes/8103_37-1.jpeg",
+      "sha256": "056f3f5f37c9d3b22a7f2b5a282b23531c67e9de4d31b0c7cacbd34d579f3a04",
+      "ancho": 849,
+      "alto": 444,
+      "bbox": [
+        398.8,
+        68.9,
+        573.0,
+        159.8
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "4999#37.2",
+      "codigo": "4999",
+      "descripcion": "SOPAIPAS CONG. 1C/ 15 B/ RICARTE",
+      "pagina": 37,
+      "posicion": 2,
+      "archivo": "imagenes/4999_37-2.jpeg",
+      "sha256": "92c6632f91eb7cefa8449470918ac9df10468bd198c8fb4121711ca183165114",
+      "ancho": 246,
+      "alto": 205,
+      "bbox": [
+        398.8,
+        251.6,
+        573.4,
+        396.5
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "5000#37.3",
+      "codigo": "5000",
+      "descripcion": "CHURROS CONG.450GM. RICARTE",
+      "pagina": 37,
+      "posicion": 3,
+      "archivo": "imagenes/5000_37-3.jpeg",
+      "sha256": "3a69ec32f04304eeabd88f41565e5d79b9a894323b22e8b28f156d924ad9a980",
+      "ancho": 498,
+      "alto": 359,
+      "bbox": [
+        398.8,
+        471.1,
+        573.0,
+        596.9
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    },
+    {
+      "producto_id": "5000#38.1",
+      "codigo": "5000",
+      "descripcion": "CHURROS CONG.450GM. RICARTE",
+      "pagina": 38,
+      "posicion": 1,
+      "archivo": "imagenes/5000_38-1.jpeg",
+      "sha256": "3a69ec32f04304eeabd88f41565e5d79b9a894323b22e8b28f156d924ad9a980",
+      "ancho": 498,
+      "alto": 359,
+      "bbox": [
+        398.8,
+        51.6,
+        573.0,
+        177.4
+      ],
+      "estado": "verified",
+      "motivo": "única foto en la banda vertical de la ficha",
+      "candidatas": 1
+    }
+  ]
+}

@@ -35,6 +35,10 @@
     "api/chacon/panel.js": {
       "maxDuration": 30,
       "includeFiles": "chacon-alcantara/data/**"
+    },
+    "api/chacon/imagen.js": {
+      "maxDuration": 15,
+      "includeFiles": "chacon-alcantara/data/**"
     }
   }
 }

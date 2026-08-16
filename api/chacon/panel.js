@@ -18,6 +18,10 @@ const pedidoLib = require('../../lib/chacon/pedido');
 const fabrica = require('../../lib/chacon/fabrica');
 const ofertas = require('../../lib/chacon/ofertas');
 const repeticion = require('../../lib/chacon/repeticion');
+const categorias = require('../../lib/chacon/categorias');
+const navegacion = require('../../lib/chacon/navegacion');
+const imagenes = require('../../lib/chacon/imagenes');
+const formato = require('../../lib/chacon/wa-formato');
 
 const esc = (x) => String(x == null ? '' : x)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -98,6 +102,30 @@ module.exports = async function handler(req, res) {
           }
         }
 
+      } else if (accion === 'clasificar') {
+        if (!por) {
+          aviso = '<p class="bad">Escribe tu nombre: cada corrección queda firmada.</p>';
+        } else {
+          const pid = String(b.producto_id || '');
+          const p = catalogo.porId(pid);
+          if (!p) aviso = `<p class="bad">No existe el producto ${esc(pid)}.</p>`;
+          else {
+            await repo.guardarClasificacion({
+              producto_id: pid,
+              primary_category: b.primary_category || null,
+              subcategory: (b.subcategory || '').trim() || null,
+              tags: String(b.tags || '').split(/[,|]/).map((x) => x.trim()).filter(Boolean),
+              display_order: Number(b.display_order) || undefined,
+              revisado_por: por,
+              ts: new Date().toISOString(),
+            });
+            categorias.recargar();
+            await categorias.aplicarCorrecciones(repo);
+            aviso = `<p class="ok">${esc(p.codigo)} — ${esc(p.descripcion)} movido a `
+              + `<b>${esc(b.primary_category)}</b>, revisado por ${esc(por)}.</p>`;
+          }
+        }
+
       } else if (accion === 'duplicar') {
         const ped = await repo.getPedido(String(b.pedido || ''));
         if (!ped) aviso = '<p class="bad">No existe ese pedido.</p>';
@@ -127,6 +155,12 @@ module.exports = async function handler(req, res) {
       cuerpo = await vistaConflictos(tk);
     } else if (vista === 'ofertas') {
       cuerpo = await vistaOfertas(tk, req.query.q || '');
+    } else if (vista === 'clasificacion') {
+      cuerpo = await vistaClasificacion(tk, req.query.q || '', req.query.cat || '');
+    } else if (vista === 'imagenes') {
+      cuerpo = vistaImagenes(req.query.estado || '', tk);
+    } else if (vista === 'simulador') {
+      cuerpo = await vistaSimulador(req.query.msg || '', tk);
     } else if (vista === 'clientes') {
       cuerpo = vistaClientes(await repo.listarClientes());
     } else if (vista === 'config') {
@@ -142,7 +176,9 @@ module.exports = async function handler(req, res) {
   const problema = fabrica.revisarConfiguracion();
   const cfgAviso = problema ? `<br><span class="bad">⚠️ ${esc(problema.aviso)}</span>` : '';
 
-  const tabs = [['pedidos', 'Solicitudes'], ['ofertas', 'Ofertas y precios'], ['catalogo', 'Catálogo'],
+  const tabs = [['pedidos', 'Solicitudes'], ['clasificacion', 'Familias'],
+                ['imagenes', 'Imágenes'], ['simulador', 'Simulador'],
+                ['ofertas', 'Ofertas y precios'], ['catalogo', 'Catálogo'],
                 ['conflictos', 'Precios repetidos'], ['clientes', 'Clientes'],
                 ['config', 'Configuración pendiente']]
     .map(([k, t]) => `<a href="/api/chacon/panel?v=${k}&${tk}" class="${vista === k ? 'on' : ''}">${t}</a>`).join('');
@@ -182,6 +218,20 @@ module.exports = async function handler(req, res) {
  .pf input,.pf select{font-size:13px} .pf input[type=checkbox]{width:auto}
  .pf .row{display:flex;align-items:center;gap:12px;margin-top:11px;flex-wrap:wrap;font-size:12px}
  details{margin-top:9px} summary{cursor:pointer;font-size:12px}
+ .chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+ .chip{color:var(--muted);text-decoration:none;border:1px solid var(--line);padding:4px 11px;
+   border-radius:999px;font-size:12px} .chip.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+ .chip b{color:inherit;opacity:.75;margin-left:3px}
+ .mos{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+ .im{margin:0;background:#181c22;border:1px solid #262a31;border-radius:9px;overflow:hidden}
+ .im img{width:100%;height:150px;object-fit:contain;background:#fff;display:block}
+ .im .sin{height:150px;display:flex;align-items:center;justify-content:center;color:#6b7280;background:#0d1013;font-size:12px}
+ .im figcaption{padding:8px 10px;font-size:11.5px}
+ .chat{max-width:520px;display:flex;flex-direction:column;gap:11px}
+ .bu{background:#15321f;border:1px solid #22452c;border-radius:11px;padding:11px 13px;font-size:13px;position:relative}
+ .bu .tp{position:absolute;top:-8px;right:9px;background:#2a2e35;color:#c9ccd3;font-size:9.5px;
+   padding:1px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px}
+ .bu img{max-width:100%;border-radius:7px;margin-bottom:7px;background:#fff}
 </style></head><body>
 <h1>Chacón <span>Alcántara</span> — panel interno</h1>
 <div class="sub">Tarifa 1 · precios por kilo y sin IVA · almacenamiento ${esc(rd.backend)}
@@ -213,6 +263,141 @@ function celdaEnvio(p, tk) {
 }
 
 const eur = (n) => (n === null || n === undefined ? '—' : String(n).replace('.', ',') + ' €');
+
+
+/* ---- familias: revisar y corregir la clasificación ---------------------- */
+async function vistaClasificacion(tk, q, catFiltro) {
+  await categorias.aplicarCorrecciones(repo).catch(() => {});
+  const cats = categorias.categorias();
+  const busca = String(q || '').trim();
+
+  let lista = catalogo.todos();
+  if (busca) lista = catalogo.buscar(busca).candidatos;
+  if (catFiltro) {
+    lista = lista.filter((p) => (categorias.clasificacionDe(p.id) || {}).categoria_efectiva === catFiltro);
+  }
+  // Sin filtro se enseña primero lo que hace falta revisar: es el trabajo real.
+  if (!busca && !catFiltro) {
+    lista = lista.filter((p) => {
+      const c = categorias.clasificacionDe(p.id);
+      return c && c.classification_status === 'pending_review';
+    });
+  }
+
+  const porEstado = { auto_confirmado: 0, pending_review: 0, revisado_por_persona: 0 };
+  for (const p of catalogo.todos()) {
+    const c = categorias.clasificacionDe(p.id);
+    if (c && porEstado[c.classification_status] !== undefined) porEstado[c.classification_status] += 1;
+  }
+
+  const chips = cats.map((c) => {
+    const n = categorias.productosDe(c.clave).length;
+    return `<a class="chip${catFiltro === c.clave ? ' on' : ''}"
+      href="/api/chacon/panel?v=clasificacion&amp;cat=${c.clave}&amp;${tk}">${esc(c.nombre)} <b>${n}</b></a>`;
+  }).join('');
+
+  const fichas = lista.slice(0, 40).map((p) => {
+    const c = categorias.clasificacionDe(p.id) || {};
+    const revisado = c.classification_status === 'revisado_por_persona';
+    const dudoso = c.classification_status === 'pending_review';
+    const opciones = cats.map((x) => `<option value="${x.clave}"${
+      x.clave === (c.categoria_efectiva || 'otros') ? ' selected' : ''}>${esc(x.nombre)}</option>`).join('');
+    return `<div class="card">
+      <h3><code>${esc(p.codigo)}</code> ${esc(p.descripcion)}
+        ${revisado ? '<span class="ok">revisado por ' + esc(c.classification_reviewed_by || '') + '</span>'
+          : dudoso ? '<span class="warn">a revisar</span>' : '<span class="sub">automático</span>'}</h3>
+      <p class="sub">${esc(p.marca || 'sin marca')} · ${esc(c.classification_source || '')}
+        ${c.motivo ? ' · ' + esc(c.motivo) : ''}</p>
+      <form method="post" action="/api/chacon/panel?v=clasificacion&amp;${tk}" class="pf">
+        <input type="hidden" name="accion" value="clasificar">
+        <input type="hidden" name="producto_id" value="${esc(p.id)}">
+        <div class="g">
+          <label>Familia<select name="primary_category">${opciones}</select></label>
+          <label>Subcategoría<input name="subcategory" value="${esc(c.subcategory || '')}"></label>
+          <label class="w2">Etiquetas (separadas por comas)<input name="tags" value="${esc((c.tags || []).join(', '))}"></label>
+          <label>Orden<input name="display_order" value="${esc(c.display_order || '')}"></label>
+          <label>Tu nombre<input name="por" value="${esc(c.classification_reviewed_by || '')}" required></label>
+        </div>
+        <div class="row"><button type="submit">Guardar familia</button></div>
+      </form>
+    </div>`;
+  }).join('');
+
+  return `<p class="sub">${porEstado.auto_confirmado} automáticos ·
+    <b class="warn">${porEstado.pending_review} a revisar</b> ·
+    ${porEstado.revisado_por_persona} revisados por una persona.
+    <br>Lo que está <b>a revisar</b> se enseña en «Otros productos» hasta que alguien lo confirme:
+    es preferible eso a que una tienda busque quesos y le salga un membrillo.</p>
+  <div class="chips">${chips}</div>
+  <form method="get" action="/api/chacon/panel"><input type="hidden" name="v" value="clasificacion">
+    <input type="hidden" name="token" value="${esc(tk.replace('token=', ''))}">
+    <input name="q" value="${esc(busca)}" placeholder="Busca un producto por código o nombre">
+    <button type="submit">Buscar</button></form>
+  ${fichas || '<p class="sub">Nada pendiente de revisar aquí.</p>'}`;
+}
+
+/* ---- imágenes: qué se puede enviar y qué no ---------------------------- */
+function vistaImagenes(estadoFiltro, tk) {
+  const todas = imagenes.todas();
+  const t = imagenes.totales();
+  const filtro = estadoFiltro || '';
+  const lista = filtro ? todas.filter((r) => r.estado === filtro) : todas;
+
+  const COLOR = { verified: 'ok', pending_review: 'warn', conflict: 'bad', missing: 'sub' };
+  const chips = ['verified', 'pending_review', 'conflict', 'missing'].map((e) =>
+    `<a class="chip${filtro === e ? ' on' : ''}"
+       href="/api/chacon/panel?v=imagenes&amp;estado=${e}&amp;${tk}">${e} <b>${t[e] || 0}</b></a>`).join('');
+
+  const tarjetas = lista.slice(0, 120).map((r) => `<figure class="im">
+    ${r.archivo && imagenes.BASE ? `<img src="${esc(imagenes.BASE)}/${esc(r.archivo)}" loading="lazy" alt="">`
+      : '<div class="sin">sin foto que enviar</div>'}
+    <figcaption><b>[${esc(r.codigo)}]</b> ${esc(r.descripcion)}<br>
+      <span class="${COLOR[r.estado]}">${esc(r.estado)}</span>
+      <span class="sub">pág. ${esc(r.pagina)} · pos. ${esc(r.posicion)}</span><br>
+      <span class="sub">${esc(r.motivo || '')}</span></figcaption></figure>`).join('');
+
+  return `<p class="sub"><b>Solo se envían por WhatsApp las <span class="ok">verified</span>.</b>
+    Una foto equivocada es peor que ninguna: el resto va solo con texto.
+    ${imagenes.BASE ? '' : '<br><span class="warn">CHACON_IMAGENES_BASE_URL sin configurar: '
+      + 'ahora mismo NO se envía ninguna foto, aunque esté verificada.</span>'}</p>
+  <div class="chips">${chips}</div>
+  <div class="mos">${tarjetas}</div>`;
+}
+
+/* ---- simulador: ver el flujo sin gastar un WhatsApp -------------------- */
+async function vistaSimulador(msg, tk) {
+  const TEL = 'simulador';
+  const pantallas = [];
+
+  if (!msg) {
+    pantallas.push(formato.accesosRapidos('Hola, Carnicería de prueba. ¿Qué necesitas hoy?'));
+    pantallas.push(formato.menuCategorias(navegacion.listarCategorias()));
+  } else {
+    const r = await navegacion.mostrar(TEL, { consulta: msg });
+    if (r.ok) pantallas.push(...formato.paginaDeProductos(r, { titulo: `Esto tengo de «${msg}»:` }));
+    else {
+      pantallas.push(formato.texto('No he reconocido esa familia. Te enseño las que hay:'));
+      pantallas.push(formato.menuCategorias(r.categorias || navegacion.listarCategorias()));
+    }
+  }
+
+  const burbujas = pantallas.map((p) => {
+    const cuerpo = esc(formato.aTexto(p)).replace(/\n/g, '<br>');
+    const foto = p.type === 'image'
+      ? `<img src="${esc(p.image.link)}" alt="">` : '';
+    return `<div class="bu"><span class="tp">${p.type}</span>${foto}<div>${cuerpo}</div></div>`;
+  }).join('');
+
+  return `<p class="sub">Así se ve el flujo sin gastar un mensaje real. Cada burbuja es un mensaje
+    de WhatsApp; <b>${esc(formato.INTERACTIVO ? 'interactivos activados' : 'interactivos apagados')}</b>.
+    Debajo de cada una está su versión en texto, que es la que se envía si el proveedor
+    rechaza el formato.</p>
+  <form method="get" action="/api/chacon/panel"><input type="hidden" name="v" value="simulador">
+    <input type="hidden" name="token" value="${esc(tk.replace('token=', ''))}">
+    <input name="msg" value="${esc(msg)}" placeholder="Escribe lo que diría la tienda: quesos, chorizos, de pollo…">
+    <button type="submit">Simular</button></form>
+  <div class="chat">${burbujas}</div>`;
+}
 
 function vistaPedidos(pedidos, tk) {
   if (!pedidos.length) return '<p class="sub">Sin solicitudes todavía.</p>';

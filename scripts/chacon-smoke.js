@@ -99,6 +99,10 @@ const pedidoLib = require(path.join(ROOT, 'lib/chacon/pedido'));
 const ofertas = require(path.join(ROOT, 'lib/chacon/ofertas'));
 const consultas = require(path.join(ROOT, 'lib/chacon/consultas'));
 const repeticion = require(path.join(ROOT, 'lib/chacon/repeticion'));
+const categoriasLib = require(path.join(ROOT, 'lib/chacon/categorias'));
+const navegacion = require(path.join(ROOT, 'lib/chacon/navegacion'));
+const imagenesLib = require(path.join(ROOT, 'lib/chacon/imagenes'));
+const formato = require(path.join(ROOT, 'lib/chacon/wa-formato'));
 const fabrica = require(path.join(ROOT, 'lib/chacon/fabrica'));
 const agente = require(path.join(ROOT, 'lib/chacon/agente'));
 const webhook = require(path.join(ROOT, 'api/chacon/webhook'));
@@ -128,6 +132,9 @@ let mid = 0;
 const textMsg = (from, body, id = null) => ({ id: id || `wamid.C${++mid}`, from, type: 'text', text: { body } });
 const audioMsg = (from, id = null) => ({ id: id || `wamid.A${++mid}`, from, type: 'audio',
   audio: { id: 'MEDIA' + (++mid), mime_type: 'audio/ogg', voice: true } });
+const clicMsg = (from, botonId, id = null) => ({ id: id || `wamid.I${++mid}`, from,
+  type: 'interactive',
+  interactive: { type: 'button_reply', button_reply: { id: botonId, title: botonId } } });
 const texto = (t) => ({ role: 'assistant', content: t });
 const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
   tool_calls: [{ id: 'c_' + nombre + (++mid), type: 'function',
@@ -456,14 +463,16 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     const sys = agente.systemPrompt({ cliente: null });
     assert(/responde EXACTAMENTE esto/.test(sys), 'el saludo no puede quedar al criterio del modelo');
     assert(/Soy el asistente de pedidos de Chacón Alcántara/.test(sys), sys.slice(0, 400));
-    assert(/1\. Repetir mi último pedido/.test(sys));
-    assert(/4\. Hacer un pedido nuevo/.test(sys));
+    assert(/1\. Repetir último pedido/.test(sys));
+    assert(/2\. Ver catálogo/.test(sys));
+    assert(/3\. Precios y ofertas/.test(sys));
     assert(/sáltate el saludo/.test(sys), 'no debe saludar si ya traen pedido');
+    assert(/atajos, no un menú obligatorio/i.test(sys),
+      'los accesos son ayudas: el cliente puede escribir o mandar audio cuando quiera');
 
     // Con la tienda ya identificada, la saluda por su nombre.
     const conTienda = agente.systemPrompt({ cliente: { nombre: 'Carnicería Pepe' } });
-    assert(/¿Qué necesitas hoy, Carnicería Pepe\?/.test(conTienda), conTienda.slice(0, 400));
-    assert(/Soy el asistente de pedidos de Chacón Alcántara/.test(conTienda));
+    assert(/Hola, Carnicería Pepe\. ¿Qué necesitas hoy\?/.test(conTienda), conTienda.slice(0, 500));
   });
   await check('el prompt fija Tarifa 1, prohíbe stock y prohíbe inventar cifras', async () => {
     const sys = agente.systemPrompt({ cliente: null });
@@ -473,7 +482,7 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     assert(/Escribir una cifra que no venga de una herramienta/i.test(sys));
     assert(/Dar un total definitivo/i.test(sys));
     assert(/Prometer una fecha de entrega/i.test(sys));
-    assert(/Repetir mi último pedido/i.test(sys), 'faltan los comandos rápidos del saludo');
+    assert(/Repetir último pedido/i.test(sys), 'faltan los accesos rápidos del saludo');
     assert(/Un precio bajo \*\*no es una oferta\*\*/i.test(sys));
     assert(/CONFIRMAR para enviar la solicitud/i.test(sys));
   });
@@ -574,6 +583,20 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
       assert(!json.includes(String(p.tarifa)), `se filtró el precio ${p.tarifa}`);
     }
     assert.strictEqual(r.puede_pedirse, true, 'debe poder pedirse igualmente');
+  });
+
+  await check('07b· toda consulta de precio devuelve SIEMPRE una frase', async () => {
+    // Un `respuesta_exacta` undefined hace que el agente conteste
+    // literalmente "undefined". Pasó de verdad con el código 6302: la
+    // comprobación usaba un nombre de tipo de búsqueda que no existe.
+    for (const q of ['6302', '0003', 'piel de pollo', 'queso', 'OF3900',
+                     'chorizo', 'lomo', '30201', 'xyz-no-existe']) {
+      const r = await consultas.consultarPrecio(q);
+      if (!r.encontrado) { assert(r.nota, `"${q}" sin nota`); continue; }
+      assert(typeof r.respuesta_exacta === 'string' && r.respuesta_exacta.length > 10,
+        `"${q}" devolvió respuesta_exacta = ${r.respuesta_exacta}`);
+      assert(!/undefined|null|NaN/.test(r.respuesta_exacta), `"${q}": ${r.respuesta_exacta}`);
+    }
   });
 
   console.log('\n=== 10) Ofertas ===');
@@ -890,7 +913,221 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     assert(reg.historial.length >= 1);
   });
 
-  console.log('\n=== 14) Notas de voz ===');
+  console.log('\n=== 15) Navegación del catálogo por familias ===');
+
+  const TELNAV = '34600000060';
+
+  await check('24· entrada por CLIC: el botón entra por el mismo motor que el texto', async () => {
+    const cats = navegacion.listarCategorias();
+    assert(cats.length >= 8, 'faltan familias');
+    // Un clic se traduce a la frase que habría escrito la tienda.
+    assert.strictEqual(formato.textoDeId('ver_catalogo'), 'quiero ver el catálogo');
+    assert.strictEqual(formato.textoDeId('cat:quesos', { categorias: cats }), 'Quesos');
+
+    guion = [toolCall('ver_categorias', {}), texto('Estas son las familias:')];
+    const antes = SENT.length;
+    const r = makeRes();
+    await webhook(postReq(wh(clicMsg(TELNAV, 'ver_catalogo'))), r);
+    assert.strictEqual(r.statusCode, 200);
+    assert(SENT.length > antes, 'un clic debe contestar igual que un texto');
+  });
+
+  await check('25· entrada por TEXTO: sinónimo de familia', async () => {
+    const r = await navegacion.mostrar(TELNAV, { consulta: 'enséñame los quesos' });
+    assert.strictEqual(r.ok, true, JSON.stringify(r).slice(0, 200));
+    assert.strictEqual(r.vista.tipo, 'categoria');
+    assert.strictEqual(r.vista.clave, 'quesos');
+    assert(r.productos.every((p) => /queso/i.test(p.descripcion)), 'se coló algo que no es queso');
+  });
+
+  await check('26· entrada por AUDIO transcrito: misma navegación', async () => {
+    TRANSCRIPCION = { text: 'mándame las conservas', duration: 3 };
+    guion = [toolCall('ver_productos', { consulta: 'mándame las conservas' }),
+             texto('Estas son las conservas.')];
+    const antes = SENT.length;
+    const r = makeRes();
+    await webhook(postReq(wh(audioMsg(TELNAV))), r);
+    assert(SENT.length > antes);
+    assert(/🎤 Te he entendido/.test(SENT[SENT.length - 1].text) || SENT.length > antes + 1);
+    TRANSCRIPCION = { text: 'hola', duration: 3 };
+  });
+
+  await check('27· filtro por etiqueta y por subcategoría', async () => {
+    const pollo = await navegacion.mostrar(TELNAV, { consulta: '¿qué tienes de pollo?' });
+    assert.strictEqual(pollo.vista.tipo, 'etiqueta');
+    assert.strictEqual(pollo.vista.clave, 'pollo');
+
+    const chorizos = await navegacion.mostrar(TELNAV, { consulta: 'quiero chorizos' });
+    assert.strictEqual(chorizos.vista.tipo, 'subcategoria');
+    assert(chorizos.productos.every((p) => /chorizo/i.test(p.descripcion)), 'un no-chorizo se coló');
+
+    // "Sin lactosa" solo con el dato confirmado: nunca se infiere.
+    const sl = await navegacion.mostrar(TELNAV, { consulta: 'sin lactosa' });
+    assert.strictEqual(sl.vista.clave, 'sin_lactosa');
+    for (const p of sl.productos) {
+      const ficha = catalogo.porId(p.producto_id);
+      assert(ficha.lactosa === false || /sin lactosa/i.test(ficha.descripcion),
+        `${ficha.codigo} no tiene el dato de lactosa confirmado`);
+    }
+  });
+
+  await check('28· una sugerencia se marca como tal, no se afirma', async () => {
+    const r = await navegacion.mostrar(TELNAV, { consulta: 'algo para desayunar' });
+    assert.strictEqual(r.ok, true);
+    assert.strictEqual(r.es_sugerencia, true);
+    assert(/SUGERENCIA/i.test(r.nota_sugerencia));
+  });
+
+  await check('29· "lo más barato" ordena por precio validado, y barato no es oferta', async () => {
+    const r = await navegacion.mostrar(TELNAV, { consulta: 'lo más barato' });
+    assert.strictEqual(r.ok, true);
+    const precios2 = r.productos.map((p) => p.precio_kg_sin_iva);
+    assert(precios2.every((x) => x !== null), 'no se puede ordenar por un precio sin resolver');
+    assert.deepStrictEqual(precios2, [...precios2].sort((a, b) => a - b), 'no está ordenado');
+    // El más barato no se anuncia como oferta salvo que lo sea de verdad.
+    for (const p of r.productos) {
+      if (p.es_oferta) {
+        const reg = await ofertas.get(p.producto_id);
+        assert(reg.offer_validated_by, 'marcado como oferta sin validar');
+      }
+    }
+  });
+
+  await check('30· paginación: 4-5 por vez, nunca el catálogo entero', async () => {
+    const p1 = await navegacion.mostrar(TELNAV, { consulta: 'embutidos' });
+    assert(p1.mostrados <= 5, `mandó ${p1.mostrados} de golpe`);
+    assert(p1.total > p1.mostrados, 'esta familia debería tener más de una página');
+    assert.strictEqual(p1.hay_mas, true);
+
+    const p2 = await navegacion.mas(TELNAV);
+    assert.strictEqual(p2.ok, true);
+    const cod1 = p1.productos.map((x) => x.codigo);
+    const cod2 = p2.productos.map((x) => x.codigo);
+    assert(!cod2.some((c) => cod1.includes(c)), 'la segunda página repite productos');
+  });
+
+  await check('31· "el segundo de los que me enseñaste" se resuelve a un código real', async () => {
+    const pag = await navegacion.mostrar(TELNAV, { consulta: 'quesos' });
+    const esperado = pag.productos[1];
+
+    const r = await navegacion.resolverReferencia(TELNAV, 'ponme dos cajas del segundo');
+    assert.strictEqual(r.ok, true, JSON.stringify(r));
+    assert.strictEqual(r.codigo, esperado.codigo);
+    assert.strictEqual(r.por, 'posicion');
+    assert(/¿Te refieres al código/.test(r.confirmar), 'debe pedir confirmación de la posición');
+
+    // Un demostrativo con varios mostrados NO se resuelve solo.
+    const amb = await navegacion.resolverReferencia(TELNAV, 'ponme ese');
+    assert.strictEqual(amb.ok, false);
+    assert.strictEqual(amb.error, 'referencia_ambigua');
+    assert(/¿Cuál de ellos\?/.test(amb.pregunta));
+
+    // Un código explícito gana siempre.
+    const cod = await navegacion.resolverReferencia(TELNAV, 'ponme 2 cajas del 0052');
+    assert.strictEqual(cod.ok, true);
+    assert.strictEqual(cod.codigo, '0052');
+    assert.strictEqual(cod.por, 'codigo_explicito');
+  });
+
+  await check('32· cambiar de familia NO pierde el carrito', async () => {
+    const cliNav = await repo.crearCliente({ nombre: 'Tienda Navega', telefono: TELNAV });
+    await pedidoLib.vaciar(cliNav.id);
+    await navegacion.mostrar(TELNAV, { consulta: 'quesos' });
+    await pedidoLib.anadir(cliNav.id, { producto_id: PIEL.id, cantidad: 2, unidad_pedido: 'caja' });
+
+    await navegacion.mostrar(TELNAV, { consulta: 'conservas' });
+    await navegacion.mostrar(TELNAV, { consulta: 'embutidos' });
+    await navegacion.mas(TELNAV);
+
+    const c = await pedidoLib.ver(cliNav.id);
+    assert.strictEqual(c.lineas.length, 1, 'el carrito se perdió al navegar');
+    assert.strictEqual(c.lineas[0].cantidad, 2);
+  });
+
+  await check('33· imagen pendiente NO se envía; verificada SÍ', async () => {
+    const conFoto = imagenesLib.todas().find((r) => r.estado === 'verified');
+    const dudosa = imagenesLib.todas().find((r) => r.estado === 'pending_review');
+    const sinFoto = imagenesLib.todas().find((r) => r.estado === 'missing');
+    assert(conFoto && dudosa && sinFoto, 'hacen falta los tres casos para probar esto');
+
+    // Sin base pública no se manda NINGUNA, ni siquiera la verificada.
+    delete process.env.CHACON_IMAGENES_BASE_URL;
+    imagenesLib.recargar();
+    assert.strictEqual(imagenesLib.urlVerificada(conFoto.producto_id), null);
+
+    process.env.CHACON_IMAGENES_BASE_URL = 'https://ejemplo.test/img';
+    const fresco = require(path.join(ROOT, 'lib/chacon/imagenes'));
+    delete require.cache[require.resolve(path.join(ROOT, 'lib/chacon/imagenes'))];
+    const im2 = require(path.join(ROOT, 'lib/chacon/imagenes'));
+    assert(im2.urlVerificada(conFoto.producto_id), 'la verificada sí debe enviarse');
+    assert.strictEqual(im2.urlVerificada(dudosa.producto_id), null, 'una dudosa NO se envía');
+    assert.strictEqual(im2.urlVerificada(sinFoto.producto_id), null);
+    assert.strictEqual(im2.motivoSinFoto(dudosa.producto_id), 'pending_review');
+    void fresco;
+  });
+
+  await check('34· la clasificación está guardada, no la decide el modelo', async () => {
+    const fs2 = require('fs');
+    const ruta = path.join(ROOT, 'chacon-alcantara/data/clasificacion-productos.json');
+    assert(fs2.existsSync(ruta), 'falta el archivo de clasificación');
+    assert(fs2.existsSync(path.join(ROOT, 'chacon-alcantara/data/clasificacion-productos.csv')),
+      'falta el CSV de revisión');
+
+    // Lo dudoso vive en Otros hasta que una persona lo confirme.
+    const dudosos = JSON.parse(fs2.readFileSync(ruta, 'utf8')).productos
+      .filter((p) => p.classification_status === 'pending_review');
+    assert(dudosos.length > 0, 'esta prueba necesita algún caso dudoso');
+    for (const d of dudosos.slice(0, 5)) {
+      const c = categoriasLib.clasificacionDe(d.producto_id);
+      assert.strictEqual(c.categoria_efectiva, 'otros',
+        `${d.codigo} es dudoso pero se está enseñando en ${c.categoria_efectiva}`);
+    }
+  });
+
+  await check('35· toda pantalla interactiva tiene versión en texto', async () => {
+    const cats = navegacion.listarCategorias();
+    for (const m of [formato.accesosRapidos('Hola. ¿Qué necesitas hoy?'),
+                     formato.menuCategorias(cats)]) {
+      const t = formato.aTexto(m);
+      assert(t && t.length > 10, 'una pantalla sin alternativa textual deja a la tienda sin respuesta');
+    }
+    // Y respeta los límites de Meta: 3 botones, título de 20 caracteres.
+    const b = formato.accesosRapidos('x');
+    assert(b.interactive.action.buttons.length <= 3);
+    assert(b.interactive.action.buttons.every((x) => x.reply.title.length <= 20));
+    const l = formato.menuCategorias(cats);
+    assert(l.interactive.action.sections[0].rows.every((f) => f.title.length <= 24));
+  });
+
+  await check('36· el panel deja revisar familias, imágenes y simular el flujo', async () => {
+    for (const v of ['clasificacion', 'imagenes', 'simulador']) {
+      const r = makeRes();
+      await panel({ method: 'GET', headers: {}, query: { token: process.env.PANEL_TOKEN, v } }, r);
+      assert.strictEqual(r.statusCode, 200, `vista ${v}`);
+    }
+    const cl = makeRes();
+    await panel({ method: 'GET', headers: {}, query: { token: process.env.PANEL_TOKEN, v: 'clasificacion' } }, cl);
+    assert(/primary_category/.test(cl.body), 'no se puede cambiar la familia desde el panel');
+    assert(/a revisar/.test(cl.body));
+
+    const sim = makeRes();
+    await panel({ method: 'GET', headers: {},
+      query: { token: process.env.PANEL_TOKEN, v: 'simulador', msg: 'quesos' } }, sim);
+    assert(/QUESO/i.test(sim.body), 'el simulador no enseña los productos');
+
+    // Corregir una familia a mano la saca de "Otros".
+    const dudoso = catalogo.todos().find((p) =>
+      (categoriasLib.clasificacionDe(p.id) || {}).classification_status === 'pending_review');
+    const post = makeRes();
+    await panel({ method: 'POST', headers: {}, query: { token: process.env.PANEL_TOKEN },
+      body: { accion: 'clasificar', producto_id: dudoso.id, primary_category: 'quesos',
+              tags: 'queso', por: 'Fernando' } }, post);
+    await categoriasLib.aplicarCorrecciones(repo);
+    assert.strictEqual(categoriasLib.clasificacionDe(dudoso.id).categoria_efectiva, 'quesos');
+    assert.strictEqual(categoriasLib.clasificacionDe(dudoso.id).classification_reviewed_by, 'Fernando');
+  });
+
+  console.log('\n=== 16) Notas de voz ===');
 
   const voz = require(path.join(ROOT, 'lib/chacon/voz'));
 
@@ -970,7 +1207,7 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
       'Chacón no puede tocar el contador de audios de Sanmi');
   });
 
-  console.log('\n=== 15) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
+  console.log('\n=== 17) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
   await check('Chacón y Sanmi no comparten claves de Redis', async () => {
     const claves = [...mem.kv.keys(), ...mem.lists.keys(), ...mem.sets.keys(), ...mem.hashes.keys()];
     const deChacon = claves.filter((k) => k.startsWith('ch:'));

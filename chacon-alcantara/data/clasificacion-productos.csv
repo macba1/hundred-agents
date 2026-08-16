@@ -1,0 +1,113 @@
+producto_id,codigo,descripcion,marca,primary_category,subcategory,tags,category_aliases,display_order,classification_status,classification_source,classification_reviewed_by,motivo
+0001#1.1,0001,PELLA AÑEJA DEL MIO,DEL MIO,otros,,marca,,1,pending_review,sin_regla,,ninguna regla reconoce esta descripción
+0003#1.2,0003,PIEL DE POLLO,DEL MIO,otros,,marca|pollo|sin_lactosa,,2,pending_review,sin_regla,,ninguna regla reconoce esta descripción
+0052#1.3,0052,"CHORIZO PINCHO 1,5 KG APROX. DEL MIO",DEL MIO,embutidos_curados,chorizo,cerdo|marca,,3,auto_confirmado,regla:\bchorizo\b,,regla inequívoca
+0053#2.1,0053,CHORIZO PICANTE HRA. DEL MÍO,DEL MIO,embutidos_curados,chorizo,cerdo|marca|picante,,4,auto_confirmado,regla:\bchorizo\b,,regla inequívoca
+0072#2.2,0072,1/2 CAÑA DE LOMO REDONDA DEL MIO,DEL MIO,embutidos_curados,lomo,cerdo|marca,,5,auto_confirmado,regla:\bcaña de lomo\b|\bcana de lomo\b,,regla inequívoca
+0449#2.3,0449,EMBUTIDO DE POLLO DEL MIO,DEL MIO,embutidos_curados,,marca|pollo,,6,pending_review,regla:\bembutido\b,,señal débil: conviene confirmarlo
+1240#3.1,1240,HUESOS DE QUIJADA IBERICO,DEL MIO,otros,,iberico|marca,,7,pending_review,sin_regla,,ninguna regla reconoce esta descripción
+1241#3.2,1241,HUESOS DE TESTUZO IBERICO,DEL MIO,otros,,iberico|marca,,8,pending_review,sin_regla,,ninguna regla reconoce esta descripción
+2003#3.3,2003,1/2 FBRE. LOMO CDO. ADB. C/2P DEL MIO,DEL MIO,jamones_fiambres_cocidos,fiambre,cerdo|marca,,9,auto_confirmado,regla:\bfiambre\b|\bfbre\b,,regla inequívoca
+2003#4.1,2003,1/2 FBRE. LOMO CDO. ADB. C/2P DEL MIO,DEL MIO,jamones_fiambres_cocidos,fiambre,cerdo|marca,,10,auto_confirmado,regla:\bfiambre\b|\bfbre\b,,regla inequívoca
+21446#4.2,21446,SALAMI EXTRA BLANCO,DEL MIO,embutidos_curados,salami,marca,,11,auto_confirmado,regla:\bsalami\b,,regla inequívoca
+21446#4.3,21446,SALAMI EXTRA BLANCO,DEL MIO,embutidos_curados,salami,marca,,12,auto_confirmado,regla:\bsalami\b,,regla inequívoca
+3047#5.1,3047,LOTE: 3047,DEL MIO,otros,,marca,,13,pending_review,sin_regla,,ninguna regla reconoce esta descripción
+4315#5.2,4315,SALCHICHON CASERO PRIMERA,DEL MIO,embutidos_curados,salchichon,cerdo|marca,,14,auto_confirmado,regla:\bsalchichon\b,,regla inequívoca
+4316#5.3,4316,CHORIZO ROSARIO OREADO DEL MÍO,DEL MIO,embutidos_curados,chorizo,cerdo|marca,,15,auto_confirmado,regla:\bchorizo\b,,regla inequívoca
+4998#6.1,4998,VIOLINES 8 PACK DE 4 UN DEL MIO,DEL MIO,panaderia,violines,marca,,16,auto_confirmado,regla:\bviolines?\b,,regla inequívoca
+50537#6.2,50537,1/2 SALCHICHON TUNEL PMTA. PROLONGO,DEL MIO,embutidos_curados,salchichon,cerdo|marca,,17,auto_confirmado,regla:\bsalchichon\b,,regla inequívoca
+5076#6.3,5076,SALCHICHON DE AJO PROLONGO,DEL MIO,embutidos_curados,salchichon,cerdo|marca,,18,auto_confirmado,regla:\bsalchichon\b,,regla inequívoca
+5811#7.1,5811,SALCHICHON EXTRA DE PAVO DEL MIO,DEL MIO,embutidos_curados,salchichon,cerdo|marca|pavo,,19,auto_confirmado,regla:\bsalchichon\b,,regla inequívoca
+5812#7.2,5812,CHORIZO EXTRA DE PAVO DEL MIO,DEL MIO,embutidos_curados,chorizo,cerdo|marca|pavo,,20,auto_confirmado,regla:\bchorizo\b,,regla inequívoca
+5814#7.3,5814,SALCHICHON VELA EXTRA AL VACIO DEL MÍO,DEL MIO,embutidos_curados,salchichon,cerdo|marca,,21,auto_confirmado,regla:\bsalchichon\b,,regla inequívoca
+6701#8.1,6701,FIAMBRE MAGRETA CDA. ADOBADA DEL MIO,DEL MIO,jamones_fiambres_cocidos,fiambre,marca,,22,auto_confirmado,regla:\bfiambre\b|\bfbre\b,,regla inequívoca
+6702#8.2,6702,FIAMBRE MAGRETA CDA. BLANCA DEL MIO,DEL MIO,jamones_fiambres_cocidos,fiambre,marca,,23,auto_confirmado,regla:\bfiambre\b|\bfbre\b,,regla inequívoca
+6703#8.3,6703,BACON MOLDE MEDIOS DEL MIO,DEL MIO,jamones_fiambres_cocidos,bacon,cerdo|marca,,24,auto_confirmado,regla:\bbacon\b,,regla inequívoca
+6703#9.1,6703,BACON MOLDE MEDIOS DEL MIO,DEL MIO,jamones_fiambres_cocidos,bacon,cerdo|marca,,25,auto_confirmado,regla:\bbacon\b,,regla inequívoca
+6711#9.2,6711,"CODILLOS BLANCOS ""DEL MIO""",DEL MIO,jamones_fiambres_cocidos,codillo,cerdo|marca,,26,pending_review,regla:\bcodillos?\b,,señal débil: conviene confirmarlo
+6712#9.3,6712,"AÑEJO LOMITO CORTADO ""DEL MIO""",DEL MIO,embutidos_curados,lomo,marca,,27,auto_confirmado,regla:\blomito\b,,regla inequívoca
+6713#10.1,6713,"CORTEZA AÑEJA CORT. FINO ""DEL MIO""",DEL MIO,otros,,marca,,28,pending_review,sin_regla,,ninguna regla reconoce esta descripción
+6890#10.2,6890,CHORIZO EXTRA ROJO VELA AL VACIO DEL MIO,DEL MIO,embutidos_curados,chorizo,cerdo|marca,,29,auto_confirmado,regla:\bchorizo\b,,regla inequívoca
+6891#10.3,6891,CHORIZO EXTRA BLANCO VELA AL VACIO DEL MÍO,DEL MIO,embutidos_curados,chorizo,cerdo|marca,,30,auto_confirmado,regla:\bchorizo\b,,regla inequívoca
+8950#11.1,8950,CHOPPED DE PAVO DEL MIO,DEL MIO,jamones_fiambres_cocidos,chopped,cerdo|marca|pavo,,31,auto_confirmado,regla:\bchopped\b,,regla inequívoca
+MC01#11.2,MC01,MORCILLA DE CEBOLLA DEL MÍO,DEL MIO,salchichas_morcillas_preparados,morcilla,cerdo|marca,,32,auto_confirmado,regla:\bmorcilla\b,,regla inequívoca
+MC02#11.3,MC02,MORCILLA ASTIGITANA DEL MIO,DEL MIO,salchichas_morcillas_preparados,morcilla,cerdo|marca,,33,auto_confirmado,regla:\bmorcilla\b,,regla inequívoca
+SP01#12.1,SP01,SALCHICHAS AVE MINI DEL MIO,DEL MIO,salchichas_morcillas_preparados,salchichas,marca|pollo,,34,auto_confirmado,regla:\bsalchichas\b,,regla inequívoca
+025418#12.2,025418,CHOPPED PORK CAMPOFRIO 3 KG C/2U,CAMPOFRIO,jamones_fiambres_cocidos,chopped,cerdo|marca,,35,auto_confirmado,regla:\bchopped\b,,regla inequívoca
+025420#12.3,025420,"MORTADELA CLAS. CAMPOFRIO 3,5 KG. C/2U",CAMPOFRIO,jamones_fiambres_cocidos,mortadela,marca,,36,auto_confirmado,regla:\bmortadela\b,,regla inequívoca
+025433#13.1,025433,LUNCH 3 KG CAMPOFRIO C/2U,CAMPOFRIO,jamones_fiambres_cocidos,lunch,marca,,37,auto_confirmado,regla:\blunch\b,,regla inequívoca
+028012#13.2,028012,CHOPPED PORK CAMPOFRIO 330G C/15U,CAMPOFRIO,jamones_fiambres_cocidos,chopped,cerdo|marca,,38,auto_confirmado,regla:\bchopped\b,,regla inequívoca
+212#13.3,212,FIAMBRE PALETA HORNO CAMPOFRIO C/2U,CAMPOFRIO,jamones_fiambres_cocidos,fiambre,marca,,39,auto_confirmado,regla:\bfiambre\b|\bfbre\b,,regla inequívoca
+26644#14.1,26644,MORTADELA CLAS. CAMPOFRIO 330G C/15U,CAMPOFRIO,jamones_fiambres_cocidos,mortadela,marca,,40,auto_confirmado,regla:\bmortadela\b,,regla inequívoca
+2736#14.2,2736,SALCHICHAS FRAN. CAMPOFRIO 4 PACK C/12U,CAMPOFRIO,salchichas_morcillas_preparados,salchichas,marca,,41,auto_confirmado,regla:\bsalchichas\b,,regla inequívoca
+3286#14.3,3286,CENTRO DE JAMON NAVIDUL C/2 U,CAMPOFRIO,jamones_fiambres_cocidos,jamon,cerdo|marca,,42,pending_review,regla:\bcentro de jamon\b|\bcentro jamon\b,,señal débil: conviene confirmarlo
+6803#15.1,6803,CHOPPED CERDO ESP. 350 GRS.CRISMONA,CRISMONA,jamones_fiambres_cocidos,chopped,cerdo|marca,,43,auto_confirmado,regla:\bchopped\b,,regla inequívoca
+6803#15.2,6803,CHOPPED CERDO ESP. 350 GRS.CRISMONA,CRISMONA,jamones_fiambres_cocidos,chopped,cerdo|marca,,44,auto_confirmado,regla:\bchopped\b,,regla inequívoca
+6803#15.3,6803,CHOPPED CERDO ESP. 350 GRS.CRISMONA,CRISMONA,jamones_fiambres_cocidos,chopped,cerdo|marca,,45,auto_confirmado,regla:\bchopped\b,,regla inequívoca
+6804#16.1,6804,"CHOPPED CERDO ESP. 1,7 KG.CRISMONA",CRISMONA,jamones_fiambres_cocidos,chopped,cerdo|marca,,46,auto_confirmado,regla:\bchopped\b,,regla inequívoca
+6812#16.2,6812,SALCHICHAS 5 PARES CRISMONA,CRISMONA,salchichas_morcillas_preparados,salchichas,marca,,47,auto_confirmado,regla:\bsalchichas\b,,regla inequívoca
+4100#16.3,4100,ZURRAPA DE LOMO BLANCA 500 GM.,EL CASERITO,otros,,cerdo|marca,,48,pending_review,sin_regla,,ninguna regla reconoce esta descripción
+4101#17.1,4101,ZURRAPA DE LOMO COLORA 500 GM.,EL CASERITO,otros,,cerdo|marca,,49,pending_review,sin_regla,,ninguna regla reconoce esta descripción
+0000641#17.2,0000641,FIAMBRE SANDW 4KG SIN LACTOSA EL POZO,EL POZO,jamones_fiambres_cocidos,fiambre,marca|sin_lactosa,,50,auto_confirmado,regla:\bfiambre\b|\bfbre\b,,regla inequívoca
+0005825#17.3,0005825,JAMON COCIDO EN SU JUGO EL POZO,EL POZO,jamones_fiambres_cocidos,jamon_cocido,cerdo|marca,,51,auto_confirmado,regla:\bjamon cocido\b,,regla inequívoca
+10002#18.1,10002,"HARINA FREIR 5 KG. CUBO ""ESPIGA REAL""",ESPIGA REAL,otros,,marca,,52,pending_review,sin_regla,,ninguna regla reconoce esta descripción
+500203#18.2,500203,UNIDAD PANCETA IBERICA TACOS,FRABER,embutidos_curados,panceta,cerdo|iberico|marca,,53,pending_review,regla:\bpanceta\b,,señal débil: conviene confirmarlo
+53100P#18.3,53100P,LACON COCIDO Y AHUMADO EXTRA,FRIMANCHA,jamones_fiambres_cocidos,lacon,marca,,54,auto_confirmado,regla:\blacon\b,,regla inequívoca
+6708#19.1,6708,CHOPPED 2.2 KG LATA C/2P FRIMANCHA,FRIMANCHA,jamones_fiambres_cocidos,chopped,cerdo|marca,,55,auto_confirmado,regla:\bchopped\b,,regla inequívoca
+6710#19.2,6710,HAMBURGUESAS CONG.(6KILOS) FRIMANCHA,FRIMANCHA,congelados,,congelado|marca,,56,auto_confirmado,regla:\bcong\b|\bcongelad,,regla inequívoca
+6722#19.3,6722,CABEZA DE JABALI FRIMANCHA,FRIMANCHA,jamones_fiambres_cocidos,fiambre,marca,,57,auto_confirmado,regla:\bcabeza de jabali\b,,regla inequívoca
+1100#20.1,1100,HOT DOG DE POLLO,HERMANOS DEL RIO,salchichas_morcillas_preparados,salchichas,marca|pollo|sin_lactosa,,58,auto_confirmado,regla:\bhot dog\b,,regla inequívoca
+1106#20.2,1106,SALCHICHAS DE POLLO MINI 400GM,HERMANOS DEL RIO,salchichas_morcillas_preparados,salchichas,marca|pollo|sin_lactosa,,59,auto_confirmado,regla:\bsalchichas\b,,regla inequívoca
+3900#20.3,3900,VIOLINES C/ 8 PACK 4 UD.CARLOS III,HORNO CARLOS III,panaderia,violines,marca,,60,auto_confirmado,regla:\bviolines?\b,,regla inequívoca
+3901#21.1,3901,OCHITOS C/ 8 PACK 4 UDS.HORNO CARLOS III,HORNO CARLOS III,panaderia,ochitos,marca,,61,auto_confirmado,regla:\bochitos\b,,regla inequívoca
+3909#21.2,3909,"SACO DE ROSQUILLAS DE 7,5 KG.",HORNO CARLOS III,panaderia,rosquillas,marca,,62,auto_confirmado,regla:\brosquillas?\b,,regla inequívoca
+3911#21.3,3911,INTEGRALES VIOLINES C/ 8 PACK 4 U.HORNO CARLOS III,HORNO CARLOS III,panaderia,violines,marca,,63,auto_confirmado,regla:\bviolines?\b,,regla inequívoca
+OF3900#22.1,OF3900,SIN CARGO VIOLINES C/ 8 PACK 4 UDS.H. CARLOS III,HORNO CARLOS III,panaderia,violines,marca,,64,auto_confirmado,regla:\bviolines?\b,,regla inequívoca
+CM01#22.2,CM01,MEMBRILLO CREMA EXTRA 3.750KG.,LA GONDOLA,membrillo_dulces,membrillo,marca,,65,auto_confirmado,regla:\bmembrillo\b,,regla inequívoca
+CM02#22.3,CM02,"MEMBRILLO SIN AZUCAR 3,750 KG",LA GONDOLA,membrillo_dulces,membrillo,marca,,66,auto_confirmado,regla:\bmembrillo\b,,regla inequívoca
+CM03#23.1,CM03,CREMA MEMBRILLO 900GR 8/UC CON FRUCTOSA,LA GONDOLA,membrillo_dulces,membrillo,marca,,67,auto_confirmado,regla:\bmembrillo\b,,regla inequívoca
+CM05#23.2,CM05,"MEMBRILLO CASERO LA ABUELA FILO 3,75 KG NETO",LA GONDOLA,membrillo_dulces,membrillo,marca,,68,auto_confirmado,regla:\bmembrillo\b,,regla inequívoca
+CM07#23.3,CM07,LATA MLLO CON FRUCTOSA 300GR 12/C,LA GONDOLA,membrillo_dulces,membrillo,marca,,69,auto_confirmado,regla:\bmllo\b,,regla inequívoca
+CMP1#24.1,CMP1,CREMA DE MEMBRILLO 40GM. 98/UN,LA GONDOLA,membrillo_dulces,membrillo,marca,,70,auto_confirmado,regla:\bmembrillo\b,,regla inequívoca
+30101#24.2,30101,FILETES DE CABALLA A/G 1800 C/ 6,LA TARIFEÑA,conservas_pescado,caballa,marca|pescado,,71,auto_confirmado,regla:\bcaballa\b,,regla inequívoca
+30101#24.3,30101,FILETES DE CABALLA A/G 1800 C/ 6,LA TARIFEÑA,conservas_pescado,caballa,marca|pescado,,72,auto_confirmado,regla:\bcaballa\b,,regla inequívoca
+30201#25.1,30201,FILETES DE CABALLA A/G 250 C/24 PACK6PZAS,LA TARIFEÑA,conservas_pescado,caballa,marca|pescado,,73,auto_confirmado,regla:\bcaballa\b,,regla inequívoca
+30201#25.2,30201,FILETES DE CABALLA A/G 250 C/24 PACK6PZAS,LA TARIFEÑA,conservas_pescado,caballa,marca|pescado,,74,auto_confirmado,regla:\bcaballa\b,,regla inequívoca
+30301#25.3,30301,FILETES CABALLA RO 550 C/24 A/G,LA TARIFEÑA,conservas_pescado,caballa,marca|pescado,,75,auto_confirmado,regla:\bcaballa\b,,regla inequívoca
+30301#26.1,30301,FILETES CABALLA RO 550 C/24 A/G,LA TARIFEÑA,conservas_pescado,caballa,marca|pescado,,76,auto_confirmado,regla:\bcaballa\b,,regla inequívoca
+30501#26.2,30501,FTES. CABALLA 125G. 50 U.C/ 5 PZAS RETR.,LA TARIFEÑA,conservas_pescado,caballa,marca|pescado,,77,auto_confirmado,regla:\bcaballa\b,,regla inequívoca
+30501#26.3,30501,FTES. CABALLA 125G. 50 U.C/ 5 PZAS RETR.,LA TARIFEÑA,conservas_pescado,caballa,marca|pescado,,78,auto_confirmado,regla:\bcaballa\b,,regla inequívoca
+30701#27.1,30701,FILETES DE CABALLA A/G 1000 C/ 12,LA TARIFEÑA,conservas_pescado,caballa,marca|pescado,,79,auto_confirmado,regla:\bcaballa\b,,regla inequívoca
+30701#27.2,30701,FILETES DE CABALLA A/G 1000 C/ 12,LA TARIFEÑA,conservas_pescado,caballa,marca|pescado,,80,auto_confirmado,regla:\bcaballa\b,,regla inequívoca
+5100#27.3,5100,MELVA 1800 FILETE DE ALMADRABA RO C/6,LA TARIFEÑA,conservas_pescado,melva,marca|pescado,,81,auto_confirmado,regla:\bmelva\b,,regla inequívoca
+5100#28.1,5100,MELVA 1800 FILETE DE ALMADRABA RO C/6,LA TARIFEÑA,conservas_pescado,melva,marca|pescado,,82,auto_confirmado,regla:\bmelva\b,,regla inequívoca
+5102#28.2,5102,MELVA FILETE DE ALMADRABA 1000 C/ 12,LA TARIFEÑA,conservas_pescado,melva,marca|pescado,,83,auto_confirmado,regla:\bmelva\b,,regla inequívoca
+5102#28.3,5102,MELVA FILETE DE ALMADRABA 1000 C/ 12,LA TARIFEÑA,conservas_pescado,melva,marca|pescado,,84,auto_confirmado,regla:\bmelva\b,,regla inequívoca
+307002#29.1,307002,1/2 QUESO MEZCLA SEMI SIN LACTOSA PLAZA VIEJA,LAVEGA,quesos,queso,marca|queso|sin_lactosa,,85,auto_confirmado,regla:\bqueso,,regla inequívoca
+6302#29.2,6302,LOMITO IBERICO BELLOTA *MARCIAL*,MARCIAL CASTRO,embutidos_curados,lomo,iberico|marca,,86,auto_confirmado,regla:\blomito\b,,regla inequívoca
+6302#29.3,6302,LOMITO IBERICO BELLOTA *MARCIAL*,MARCIAL CASTRO,embutidos_curados,lomo,iberico|marca,,87,auto_confirmado,regla:\blomito\b,,regla inequívoca
+6303#30.1,6303,LOMO PLATA CEBO CAMPO 50% *MARCIAL*,MARCIAL CASTRO,embutidos_curados,lomo,cerdo|iberico|marca,,88,auto_confirmado,regla:\blomo plata\b,,regla inequívoca
+6303#30.2,6303,LOMO PLATA CEBO CAMPO 50% *MARCIAL*,MARCIAL CASTRO,embutidos_curados,lomo,cerdo|iberico|marca,,89,auto_confirmado,regla:\blomo plata\b,,regla inequívoca
+6304#30.3,6304,SALCHICHON CULAR PLATA IB. *MARCIAL*,MARCIAL CASTRO,embutidos_curados,salchichon,cerdo|marca,,90,auto_confirmado,regla:\bsalchichon\b,,regla inequívoca
+6304#31.1,6304,SALCHICHON CULAR PLATA IB. *MARCIAL*,MARCIAL CASTRO,embutidos_curados,salchichon,cerdo|marca,,91,auto_confirmado,regla:\bsalchichon\b,,regla inequívoca
+6304#31.2,6304,SALCHICHON CULAR PLATA IB. *MARCIAL*,MARCIAL CASTRO,embutidos_curados,salchichon,cerdo|marca,,92,auto_confirmado,regla:\bsalchichon\b,,regla inequívoca
+6305#31.3,6305,CHORIZO CULAR PLATA IB. *MARCIAL*,MARCIAL CASTRO,embutidos_curados,chorizo,cerdo|marca,,93,auto_confirmado,regla:\bchorizo\b,,regla inequívoca
+6305#32.1,6305,CHORIZO CULAR PLATA IB. *MARCIAL*,MARCIAL CASTRO,embutidos_curados,chorizo,cerdo|marca,,94,auto_confirmado,regla:\bchorizo\b,,regla inequívoca
+6305#32.2,6305,CHORIZO CULAR PLATA IB. *MARCIAL*,MARCIAL CASTRO,embutidos_curados,chorizo,cerdo|marca,,95,auto_confirmado,regla:\bchorizo\b,,regla inequívoca
+6313#32.3,6313,JAMON CEBO CAMPO IBERICO 50% RAZA IB.,MARCIAL CASTRO,embutidos_curados,jamon_curado,cerdo|iberico|marca,,96,auto_confirmado,regla:\bjamon cebo\b|\bjamon iberico\b,,regla inequívoca
+6314#33.1,6314,"SALCHICHON IBERICO BELLOTA ""ORO"" MARCIAL",MARCIAL CASTRO,embutidos_curados,salchichon,cerdo|iberico|marca,,97,auto_confirmado,regla:\bsalchichon\b,,regla inequívoca
+1503#33.2,1503,CENTRO JAMON 2 PZAS C/ MUÑOZ ROJO,MUÑOZ ROJO,jamones_fiambres_cocidos,jamon,cerdo|marca,,98,pending_review,regla:\bcentro de jamon\b|\bcentro jamon\b,,señal débil: conviene confirmarlo
+7001#33.3,7001,QUESO CURADO OCAÑA,OCAÑA,quesos,queso,marca|queso,,99,auto_confirmado,regla:\bqueso,,regla inequívoca
+7001#34.1,7001,QUESO CURADO OCAÑA,OCAÑA,quesos,queso,marca|queso,,100,auto_confirmado,regla:\bqueso,,regla inequívoca
+3500#34.2,3500,CHORIZO PAMPLONA EXTRA 2 PIEZAS,PAMPLONICA,embutidos_curados,chorizo,cerdo|marca,,101,auto_confirmado,regla:\bchorizo\b,,regla inequívoca
+3502#34.3,3502,BARRA LUNCH 1.3 KG.PAMPLONICA,PAMPLONICA,jamones_fiambres_cocidos,lunch,marca,,102,auto_confirmado,regla:\blunch\b,,regla inequívoca
+3502#35.1,3502,BARRA LUNCH 1.3 KG.PAMPLONICA,PAMPLONICA,jamones_fiambres_cocidos,lunch,marca,,103,auto_confirmado,regla:\blunch\b,,regla inequívoca
+3506#35.2,3506,CALLOS L/T MADRILEÑA 380G PAMPLONICA,PAMPLONICA,salchichas_morcillas_preparados,preparados,marca,,104,auto_confirmado,regla:\bcallos\b,,regla inequívoca
+8003#35.3,8003,"QUESO ""EL HIDALGO"" ACEITE GRANDE",QUESO EL HIDALGO,quesos,queso,marca|queso,,105,auto_confirmado,regla:\bqueso,,regla inequívoca
+8003#36.1,8003,"QUESO ""EL HIDALGO"" ACEITE GRANDE",QUESO EL HIDALGO,quesos,queso,marca|queso,,106,auto_confirmado,regla:\bqueso,,regla inequívoca
+8005#36.2,8005,"QUESO ""EL HIDALGO"" MINI-ACEITE",QUESO EL HIDALGO,quesos,queso,marca|queso,,107,auto_confirmado,regla:\bqueso,,regla inequívoca
+8009#36.3,8009,1/2 QUESO EL HIDALGO OVEJA CURADO,QUESO EL HIDALGO,quesos,queso,marca|queso,,108,auto_confirmado,regla:\bqueso,,regla inequívoca
+8103#37.1,8103,1/2 QUESO MEZCLA CURADO VACIO EL HIDALGO,QUESO EL HIDALGO,quesos,queso,marca|queso,,109,auto_confirmado,regla:\bqueso,,regla inequívoca
+4999#37.2,4999,SOPAIPAS CONG. 1C/ 15 B/ RICARTE,RICARTE,congelados,,congelado|marca,,110,auto_confirmado,regla:\bcong\b|\bcongelad,,regla inequívoca
+5000#37.3,5000,CHURROS CONG.450GM. RICARTE,RICARTE,congelados,,congelado|marca,,111,auto_confirmado,regla:\bcong\b|\bcongelad,,regla inequívoca
+5000#38.1,5000,CHURROS CONG.450GM. RICARTE,RICARTE,congelados,,congelado|marca,,112,auto_confirmado,regla:\bcong\b|\bcongelad,,regla inequívoca

@@ -13,6 +13,8 @@ const repo = require('../../lib/chacon/repo');
 const agente = require('../../lib/chacon/agente');
 const fabrica = require('../../lib/chacon/fabrica');
 const voz = require('../../lib/chacon/voz');
+const formato = require('../../lib/chacon/wa-formato');
+const navegacion = require('../../lib/chacon/navegacion');
 
 const MAX_RESPUESTAS_HORA = Number(process.env.CHACON_MAX_RESPUESTAS_HORA || 40);
 const HISTORIAL_MAX = Number(process.env.CHACON_HISTORIAL_MAX || 24);
@@ -102,6 +104,14 @@ async function handler(req, res) {
           if (inbound.esEcho(m, value, { phone_number_id: (value.metadata || {}).phone_number_id })) {
             console.warn('[chacon] eco ignorado'); continue;
           }
+          // Un clic en un botón o una lista es una intención más, no un
+          // camino aparte: se convierte en la frase que habría escrito.
+          if (m.type === 'interactive') {
+            if (await store.alreadySeen(m.id)) { console.log('[chacon] dedup', m.id); continue; }
+            pendientes.push(atender(value, m));
+            continue;
+          }
+
           const ATENDIBLES = new Set(['text', 'audio', 'voice']);
           if (cls.accion !== 'agente' || !ATENDIBLES.has(cls.tipo)) {
             if (cls.accion === 'no_soportado' || !ATENDIBLES.has(cls.tipo)) {
@@ -124,6 +134,42 @@ async function handler(req, res) {
   return res.status(200).json({ status: 'ok' });
 }
 
+/**
+ * Decide con qué formato se contesta.
+ *
+ * El texto de las fichas y de las familias sale de las herramientas, no de
+ * lo que redacte el modelo: así el precio y el peso que ve la tienda son
+ * exactamente los del catálogo. El modelo solo pone la frase de entrada.
+ *
+ * Si no hay ninguna pantalla que encaje, devuelve null y se contesta en
+ * texto plano, que es el camino de siempre.
+ */
+function componerPantallas(r, eco = '') {
+  const usadas = r.tools || [];
+  const ultima = (nombres) => [...usadas].reverse()
+    .find((t) => nombres.includes(t.nombre) && t.res && t.res.ok !== false);
+
+  const pagina = ultima(['ver_productos', 'ver_mas_productos']);
+  if (pagina && pagina.res.productos?.length) {
+    return formato.paginaDeProductos(pagina.res, { titulo: (eco + r.respuesta).trim() || null });
+  }
+
+  const cats = ultima(['ver_categorias']);
+  if (cats && cats.res.categorias?.length) {
+    const out = [];
+    const intro = (eco + r.respuesta).trim();
+    if (intro) out.push(formato.texto(intro));
+    out.push(formato.menuCategorias(cats.res.categorias));
+    return out;
+  }
+
+  // El saludo lleva sus tres accesos rápidos como botones.
+  if (!eco && r.respuesta && r.respuesta.includes('¿Qué necesitas hoy?')) {
+    return [formato.accesosRapidos(r.respuesta.split('\n')[0])];
+  }
+  return null;
+}
+
 async function responderTexto(value, telefono, texto) {
   const cliente = { phone_number_id: (value.metadata || {}).phone_number_id
     || process.env.CHACON_PHONE_NUMBER_ID || '' };
@@ -139,6 +185,11 @@ async function atender(value, m) {
     const esVoz = m.type === 'audio' || m.type === 'voice';
     let texto = esVoz ? null : (m.text || {}).body || null;
     let eco = '';
+
+    if (m.type === 'interactive') {
+      texto = formato.textoDeId(formato.idPulsado(m), { categorias: navegacion.listarCategorias() });
+      console.log('[chacon] clic "%s" -> "%s"', formato.idPulsado(m), texto);
+    }
     if (esVoz) {
       // WhatsApp manda las notas de voz como `audio`; `voice` existe en
       // algunos payloads. Los dos traen el media id en el mismo sitio.
@@ -161,7 +212,14 @@ async function atender(value, m) {
     if (r.consultas_alergeno_sin_dato.length) {
       console.warn('[chacon] consulta de alérgenos sin dato:', JSON.stringify(r.consultas_alergeno_sin_dato));
     }
-    await responderTexto(value, telefono, eco + r.respuesta);
+    const pantallas = componerPantallas(r, eco);
+    if (pantallas) {
+      const cliente = { phone_number_id: (value.metadata || {}).phone_number_id
+        || process.env.CHACON_PHONE_NUMBER_ID || '' };
+      await formato.enviar(cliente, telefono, pantallas);
+    } else {
+      await responderTexto(value, telefono, eco + r.respuesta);
+    }
   } catch (err) {
     console.error('[chacon] error atendiendo a', telefono, err.stack || err.message);
     await responderTexto(value, telefono, 'Hemos tenido un problema técnico. ¿Me repites el mensaje?');
