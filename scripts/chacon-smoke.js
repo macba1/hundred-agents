@@ -32,6 +32,7 @@ const fake = {
   async lRange(k, a, b) { const l = mem.lists.get(k) || []; return l.slice(a, b === -1 ? undefined : b + 1); },
   async sAdd(k, v) { const s = mem.sets.get(k) || new Set(); s.add(v); mem.sets.set(k, s); return 1; },
   async sMembers(k) { return [...(mem.sets.get(k) || new Set())]; },
+  async sRem(k, v) { const st = mem.sets.get(k); return st && st.delete(v) ? 1 : 0; },
   async hGet(k, f) { return (mem.hashes.get(k) || new Map()).get(f) ?? null; },
   async hSet(k, f, v) { const h = mem.hashes.get(k) || new Map(); h.set(f, v); mem.hashes.set(k, h); return 1; },
   async hGetAll(k) { return Object.fromEntries(mem.hashes.get(k) || new Map()); },
@@ -83,6 +84,9 @@ const repo = require(path.join(ROOT, 'lib/chacon/repo'));
 const catalogo = require(path.join(ROOT, 'lib/chacon/catalogo'));
 const precios = require(path.join(ROOT, 'lib/chacon/precios'));
 const pedidoLib = require(path.join(ROOT, 'lib/chacon/pedido'));
+const ofertas = require(path.join(ROOT, 'lib/chacon/ofertas'));
+const consultas = require(path.join(ROOT, 'lib/chacon/consultas'));
+const repeticion = require(path.join(ROOT, 'lib/chacon/repeticion'));
 const fabrica = require(path.join(ROOT, 'lib/chacon/fabrica'));
 const agente = require(path.join(ROOT, 'lib/chacon/agente'));
 const webhook = require(path.join(ROOT, 'api/chacon/webhook'));
@@ -160,7 +164,9 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     assert.strictEqual(p.estado, 'tariff_variant_unresolved');
     assert.strictEqual(p.nivel_tarifa, 'unknown');
     const l = precios.calcularLinea({ producto: p, cantidad: 1, unidadPedido: 'caja' });
+    assert.strictEqual(l.precio_kg_sin_iva, null);
     assert.strictEqual(l.importe_estimado_sin_iva, null);
+    assert.strictEqual(l.precio_pendiente_de_confirmacion, true);
     assert(l.bloqueos.includes('varios_precios_sin_nivel_identificado'));
     assert.strictEqual(l.estado_linea, 'pendiente_revision');
   });
@@ -190,12 +196,18 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     assert.strictEqual(l.importe_estimado_sin_iva, precios.redondear(15 * 3.972, 2));
     assert.strictEqual(l.iva_pct, null);                           // IVA nunca inventado
   });
-  await check('el nivel de tarifa lo decide código, y no se inventa', async () => {
+  await check('el MVP usa siempre la Tarifa 1 y no elige tramo', async () => {
     const p = catalogo.todos().find((x) => x.codigo === '0003');
-    const una = precios.elegirNivel({ cajas: 1, unidades: 1, und_caja: 1 });
-    assert.strictEqual(una.nivel, 3);                              // caja completa
-    const varias = precios.elegirNivel({ cajas: 4, unidades: 4, und_caja: 1 });
-    assert.strictEqual(varias.nivel, 4);                           // más de una caja
+    for (const cant of [0.5, 1, 3, 7]) {
+      const l = precios.calcularLinea({ producto: p, cantidad: cant, unidadPedido: 'caja' });
+      assert.strictEqual(l.nivel_tarifa, precios.TARIFA_MVP);
+      assert.strictEqual(l.nivel_tarifa, 1);
+      assert(!l.bloqueos.includes('nivel_de_tarifa_indeterminado'),
+        'el tramo ya no puede bloquear: el PDF es la Tarifa 1');
+    }
+  });
+  await check('las tarifas 2-8 siguen modeladas para más adelante', async () => {
+    assert.strictEqual(precios.NIVELES.length, 8);
     const fraccion = precios.elegirNivel({ cajas: 0.5, unidades: 6, und_caja: 12 });
     assert.strictEqual(fraccion.determinado, false);               // umbrales sin definir
     assert(fraccion.falta.includes('definicion_de_fraccion_de_caja'));
@@ -294,6 +306,7 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     const r = await fabrica.enviar(pedidoRef);
     assert.strictEqual(r.simulado, true);
     assert(/NUEVA SOLICITUD DE PEDIDO/.test(r.texto));
+    assert(/Productos con precio confirmado/.test(r.texto));
   });
   await check('la solicitud interna NUNCA se manda al teléfono de la tienda', async () => {
     process.env.FACTORY_WHATSAPP_NUMBER = pedidoRef.cliente.telefonos[0];
@@ -411,12 +424,16 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     assert.strictEqual(r.dato_disponible, false);
     assert.strictEqual(ctx.consultasAlergenoSinDato.length, 1);
   });
-  await check('el prompt prohíbe afirmar stock, precios y fecha de entrega', async () => {
+  await check('el prompt fija Tarifa 1, prohíbe stock y prohíbe inventar cifras', async () => {
     const sys = agente.systemPrompt({ cliente: null });
     assert(/no tenemos datos de stock/i.test(sys));
-    assert(/no maneja precios/i.test(sys));
-    assert(/Escribir cualquier cifra en euros/i.test(sys));
+    assert(/\*\*solo con la Tarifa 1\*\*/i.test(sys), 'el prompt debe fijar la Tarifa 1');
+    assert(/por kilo y sin/i.test(sys));
+    assert(/Escribir una cifra que no venga de una herramienta/i.test(sys));
+    assert(/Dar un total definitivo/i.test(sys));
     assert(/Prometer una fecha de entrega/i.test(sys));
+    assert(/Repetir mi último pedido/i.test(sys), 'faltan los comandos rápidos del saludo');
+    assert(/Un precio bajo \*\*no es una oferta\*\*/i.test(sys));
     assert(/CONFIRMAR para enviar la solicitud/i.test(sys));
   });
 
@@ -437,151 +454,402 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     assert(r.body.includes('6302'), 'el panel no lista los conflictos de tarifa');
   });
 
-  console.log('\n=== 9) MVP simplificado: solicitud de pedido sin cifras económicas ===');
+  console.log('\n=== 9) Consulta de precios de Tarifa 1 ===');
 
-  /** Busca cualquier cifra en euros o palabra económica en un texto. */
-  const CIFRA_ECONOMICA = /(\d[\d.,]*\s*€)|(€\s*\d)|(\bIVA\b)|(\bsubtotal\b)|(€\/kg)|(\bimporte\b)|(\btotal a pagar\b)|(\btarifa\s*\d)/i;
-  /** Campos económicos que no deben salir en nada que vea el modelo. */
-  const sinCamposEconomicos = (obj) => {
-    const json = JSON.stringify(obj);
-    for (const campo of ['precio_kg_sin_iva', 'importe_estimado_sin_iva', 'iva_pct',
-                         'nivel_tarifa', 'base_estimada_sin_iva', 'total_con_iva', '"tarifa"']) {
-      assert(!json.includes(campo), `se filtró el campo económico ${campo}: ${json.slice(0, 300)}`);
+  const PIEL = catalogo.todos().find((x) => x.codigo === '0003');       // 3,972 €/kg · 5 kg/ud · 1 ud/caja
+  const DUP = catalogo.buscar('6302').candidatos[0];                    // dos precios en el PDF
+  const OF3900 = catalogo.todos().find((x) => x.codigo === 'OF3900');
+  const SINPESO = catalogo.todos().find((x) => x.bloqueado_para_calculo_peso && !x.bloqueado_para_calculo_precio);
+
+  await check('01· consulta de precio por código', async () => {
+    const r = await consultas.consultarPrecio('0003');
+    assert.strictEqual(r.encontrado, true);
+    assert.strictEqual(r.precio_disponible, true);
+    assert.strictEqual(r.codigo, '0003');
+    assert.strictEqual(r.precio_kg_sin_iva, 3.972);
+    assert(/^El precio de Tarifa 1 de .+ es 3,972 €\/kg, sin IVA\./.test(r.respuesta_exacta), r.respuesta_exacta);
+  });
+
+  await check('02· consulta por nombre aproximado', async () => {
+    const r = await consultas.consultarPrecio('piel de pollo');
+    assert.strictEqual(r.encontrado, true);
+    // O responde el precio, o pregunta cuál es: nunca elige a ciegas.
+    if (r.requiere_aclaracion) assert(r.candidatos.length > 1);
+    else assert.strictEqual(r.precio_disponible, true);
+    const conErrata = await consultas.consultarPrecio('piel de poyo');
+    assert.strictEqual(conErrata.encontrado, true, 'debe tolerar erratas');
+  });
+
+  await check('03· el precio se da en €/kg y sin IVA, con su ficha', async () => {
+    const r = await consultas.consultarPrecio('0003');
+    assert(/€\/kg/.test(r.respuesta_exacta));
+    assert(/sin IVA/.test(r.respuesta_exacta));
+    assert(!/con IVA|IVA incluido/i.test(r.respuesta_exacta));
+    assert(new RegExp(`Código ${PIEL.codigo}`).test(r.respuesta_exacta), r.respuesta_exacta);
+    assert(/uds\/caja/.test(r.respuesta_exacta));
+    assert(/kg por unidad/.test(r.respuesta_exacta));
+  });
+
+  await check('04· importe aproximado de una unidad', async () => {
+    const r = await consultas.consultarPrecio('0003', { cantidad: 1, unidad: 'unidad' });
+    assert.strictEqual(r.estimacion.calculable, true);
+    assert.strictEqual(r.estimacion.peso_estimado_kg, PIEL.peso_und_kg);
+    assert.strictEqual(r.estimacion.importe_estimado_sin_iva,
+      precios.redondear(PIEL.peso_und_kg * PIEL.tarifa, 2));
+    assert(/importe estimado/i.test(r.respuesta_exacta));
+    assert(/se ajustará al peso real/i.test(r.respuesta_exacta), 'falta la advertencia del peso real');
+  });
+
+  await check('05· importe aproximado de una caja', async () => {
+    const conCaja = catalogo.todos().find((x) => x.und_caja > 1 && x.peso_und_kg > 0
+      && !x.bloqueado_para_calculo_precio);
+    const r = await consultas.precioDe(conCaja, { cantidad: 1, unidad: 'caja' });
+    assert.strictEqual(r.estimacion.calculable, true);
+    assert.strictEqual(r.estimacion.unidades, conCaja.und_caja);
+    assert.strictEqual(r.estimacion.importe_estimado_sin_iva,
+      precios.redondear(conCaja.und_caja * conCaja.peso_und_kg * conCaja.tarifa, 2));
+    assert(/Cada caja contiene/.test(r.respuesta_exacta), r.respuesta_exacta);
+    assert(/sin IVA/.test(r.respuesta_exacta));
+  });
+
+  await check('06· sin peso fiable NO se estima el importe', async () => {
+    assert(SINPESO, 'hace falta un artículo con precio y sin peso');
+    const r = await consultas.precioDe(SINPESO, { cantidad: 1, unidad: 'caja' });
+    assert.strictEqual(r.precio_disponible, true, 'el precio sí se conoce');
+    assert.strictEqual(r.estimacion.calculable, false);
+    assert.strictEqual(r.estimacion.motivo, 'peso_desconocido');
+    assert(/no puedo estimarte el importe/i.test(r.respuesta_exacta), r.respuesta_exacta);
+    assert(!/importe estimado de/i.test(r.respuesta_exacta), 'no puede colarse una estimación');
+  });
+
+  await check('07· un precio repetido sin clasificar no se enseña', async () => {
+    const r = await consultas.precioDe(DUP);
+    assert.strictEqual(r.precio_disponible, false);
+    assert.strictEqual(r.respuesta_exacta, consultas.MENSAJE_PRECIO_SIN_RESOLVER);
+    assert(/necesito que Chacón Alcántara confirme cuál está vigente/.test(r.respuesta_exacta));
+    // No puede filtrarse ninguno de los dos precios del PDF.
+    const json = JSON.stringify(r);
+    for (const p of catalogo.todos().filter((x) => x.codigo === DUP.codigo)) {
+      assert(!json.includes(String(p.tarifa)), `se filtró el precio ${p.tarifa}`);
     }
-  };
-
-  const mvpCli = await repo.crearCliente({ nombre: 'Carnicería MVP', telefono: '34600000010' });
-  const PIEL = catalogo.todos().find((x) => x.codigo === '0003');
-  const DUP = catalogo.buscar('6302').candidatos[0];              // tarifas repetidas
-  const SINPESO = catalogo.todos().find((p) => p.bloqueado_para_calculo_peso);
-
-  await check('1· se puede crear una solicitud completa sin precios', async () => {
-    await pedidoLib.anadir(mvpCli.id, { producto_id: PIEL.id, cantidad: 2, unidad_pedido: 'caja' });
-    const r = await pedidoLib.confirmar(mvpCli.id, { clave_idempotencia: 'wamid.MVP1',
-      observaciones: 'entregar por la mañana' });
-    assert.strictEqual(r.ok, true);
-    assert.strictEqual(r.pedido.lineas.length, 1);
-    assert.strictEqual(r.mensaje_cliente, pedidoLib.MENSAJE_RECEPCION);
+    assert.strictEqual(r.puede_pedirse, true, 'debe poder pedirse igualmente');
   });
 
-  await check('2· los productos con tarifas repetidas se piden con normalidad', async () => {
-    const r = await pedidoLib.anadir(mvpCli.id, { producto_id: DUP.id, cantidad: 1, unidad_pedido: 'caja' });
-    assert.strictEqual(r.ok, true, 'un precio repetido no puede impedir pedir');
-    // Y sin peso tampoco bloquea.
-    const r2 = await pedidoLib.anadir(mvpCli.id, { producto_id: SINPESO.id, cantidad: 1, unidad_pedido: 'caja' });
-    assert.strictEqual(r2.ok, true, 'la falta de peso no puede impedir pedir');
-    const c = await pedidoLib.confirmar(mvpCli.id, { clave_idempotencia: 'wamid.MVP2' });
-    assert.strictEqual(c.ok, true);
-    // La marca interna se conserva para la fase siguiente.
-    assert.strictEqual(DUP.estado, 'tariff_variant_unresolved');
-    const guardado = await repo.getPedido(c.pedido.id);
-    const l = guardado.lineas.find((x) => x.producto_id === DUP.id);
-    assert(l.bloqueos.includes('varios_precios_sin_nivel_identificado'), 'se perdió la marca interna');
+  console.log('\n=== 10) Ofertas ===');
+
+  await check('08· una oferta sin validar NUNCA se muestra', async () => {
+    // Precio de oferta cargado, pero sin firma de administrador.
+    await repo.guardarPrecio({ ...ofertas.vacio(PIEL.id),
+      standard_price_per_kg: 3.972, offer_price_per_kg: 2.5, offer_active: true });
+    const est = ofertas.estadoOferta(await ofertas.get(PIEL.id));
+    assert.strictEqual(est.visible, false);
+    assert.strictEqual(est.motivo, 'sin_validar_por_administrador');
+    assert.strictEqual((await ofertas.activas()).length, 0);
+    const r = await consultas.precioDe(PIEL);
+    assert.strictEqual(r.precio_kg_sin_iva, 3.972, 'debe seguir el precio normal');
+    assert.strictEqual(r.es_oferta, false);
+
+    // Validada pero desactivada: tampoco.
+    await ofertas.guardar(PIEL.id, { offer_active: false }, { por: 'Fernando' });
+    assert.strictEqual(ofertas.estadoOferta(await ofertas.get(PIEL.id)).motivo, 'desactivada');
+
+    // Validada, activa, pero caducada: tampoco.
+    await ofertas.guardar(PIEL.id, { offer_active: true, offer_end_date: '2020-01-01' }, { por: 'Fernando' });
+    assert.strictEqual(ofertas.estadoOferta(await ofertas.get(PIEL.id)).motivo, 'caducada');
   });
 
-  await check('3· una cantidad ambigua se sigue rechazando', async () => {
-    const r = await pedidoLib.anadir(mvpCli.id, { producto_id: PIEL.id, cantidad: 3, unidad_pedido: 'ninguna' });
+  await check('09· OF3900 no se presenta como oferta activa', async () => {
+    assert.strictEqual(OF3900.estado, 'promotion_requires_validation');
+    // Aunque alguien le cargue una oferta válida, sigue fuera del listado:
+    // sus condiciones no están definidas.
+    await ofertas.guardar(OF3900.id, { offer_price_per_kg: 0.001, offer_active: true }, { por: 'Fernando' });
+    assert(!(await ofertas.activas()).some((o) => o.codigo === 'OF3900'));
+    const r = await consultas.precioDe(OF3900);
+    assert.strictEqual(r.precio_disponible, false);
+    assert.strictEqual(r.respuesta_exacta, consultas.MENSAJE_PROMOCION_SIN_CONDICIONES);
+    assert.strictEqual(r.puede_pedirse, false, 'no puede pedirse hasta que definan condiciones');
+  });
+
+  await check('10· sin ofertas activas responde la frase acordada', async () => {
+    await ofertas.guardar(PIEL.id, { offer_active: false }, { por: 'Fernando' });
+    const r = await consultas.consultarOfertas();
+    assert.strictEqual(r.hay_ofertas, false);
+    assert.strictEqual(r.respuesta_exacta, consultas.MENSAJE_SIN_OFERTAS);
+    assert(/no tengo ninguna oferta activa registrada/.test(r.respuesta_exacta));
+  });
+
+  await check('11· con ofertas activas se listan solo esas', async () => {
+    await ofertas.guardar(PIEL.id, {
+      standard_price_per_kg: 3.972, offer_price_per_kg: 2.5, offer_active: true,
+      offer_start_date: '2020-01-01', offer_end_date: '2099-12-31',
+      offer_conditions: 'Hasta fin de existencias',
+    }, { por: 'Fernando' });
+
+    const r = await consultas.consultarOfertas();
+    assert.strictEqual(r.hay_ofertas, true);
+    assert.strictEqual(r.total, 1, 'solo la que está validada y activa');
+    assert.strictEqual(r.ofertas[0].codigo, '0003');
+    assert(/2,5 €\/kg sin IVA/.test(r.respuesta_exacta), r.respuesta_exacta);
+    assert(/habitual 3,972/.test(r.respuesta_exacta));
+    assert(/Hasta fin de existencias/.test(r.respuesta_exacta));
+
+    // Y el precio del producto pasa a ser el de oferta, con su firma.
+    const pr = await consultas.precioDe(PIEL);
+    assert.strictEqual(pr.precio_kg_sin_iva, 2.5);
+    assert.strictEqual(pr.es_oferta, true);
+    assert.strictEqual((await ofertas.get(PIEL.id)).offer_validated_by, 'Fernando');
+
+    // Y llega al carrito como oferta.
+    const ofCli = await repo.crearCliente({ nombre: 'Tienda Oferta', telefono: '34600000020' });
+    const a = await pedidoLib.anadir(ofCli.id, { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' });
+    assert.strictEqual(a.linea.precio_kg_sin_iva, 2.5);
+    assert.strictEqual(a.linea.es_oferta, true);
+  });
+
+  await check('11b· una oferta con cantidad mínima no se aplica por debajo', async () => {
+    await ofertas.guardar(PIEL.id, { offer_min_quantity: 5, offer_unit: 'caja' }, { por: 'Fernando' });
+    const poco = await ofertas.precioVigente(PIEL, { cantidad: 2, unidad: 'caja' });
+    assert.strictEqual(poco.es_oferta, false);
+    assert.strictEqual(poco.precio_kg, 3.972);
+    const bastante = await ofertas.precioVigente(PIEL, { cantidad: 5, unidad: 'caja' });
+    assert.strictEqual(bastante.es_oferta, true);
+    assert.strictEqual(bastante.precio_kg, 2.5);
+    await ofertas.guardar(PIEL.id, { offer_min_quantity: '', offer_unit: '' }, { por: 'Fernando' });
+  });
+
+  await check('11c· resolver un precio repetido lo desbloquea', async () => {
+    let l = precios.calcularLinea({ producto: DUP, cantidad: 1, unidadPedido: 'caja' });
+    assert.strictEqual(l.precio_kg_sin_iva, null);
+
+    await ofertas.guardar(DUP.id, { standard_price_per_kg: 21 }, { por: 'Fernando', nota: 'vigente según Chacón' });
+    const vig = await ofertas.precioVigente(DUP);
+    assert.strictEqual(vig.precio_kg, 21);
+    assert.strictEqual(vig.origen, 'tarifa_1_resuelta_por_administrador');
+
+    const r = await consultas.precioDe(DUP);
+    assert.strictEqual(r.precio_disponible, true);
+    assert(/21,00 €\/kg, sin IVA/.test(r.respuesta_exacta), r.respuesta_exacta);
+
+    l = precios.calcularLinea({ producto: DUP, cantidad: 1, unidadPedido: 'caja',
+      precioAplicado: { precio_kg: 21, es_oferta: false, origen: vig.origen } });
+    assert.strictEqual(l.precio_kg_sin_iva, 21);
+    assert.strictEqual(l.precio_pendiente_de_confirmacion, false);
+    // Y queda rastro de quién lo decidió y cuándo.
+    const regDup = await ofertas.get(DUP.id);
+    assert(regDup.historial.length >= 1, 'debe quedar historial de la decisión');
+    assert.strictEqual(regDup.historial[0].por, 'Fernando');
+    assert.strictEqual(regDup.historial[0].nota, 'vigente según Chacón');
+  });
+
+  console.log('\n=== 11) Repetir un pedido anterior ===');
+
+  const repCli = await repo.crearCliente({ nombre: 'Carnicería Repite', telefono: '34600000030' });
+
+  await check('12· sin historial se responde la frase acordada, sin inventar nada', async () => {
+    const r = await repeticion.preparar(repCli.id, {});
     assert.strictEqual(r.ok, false);
-    assert.strictEqual(r.error, 'unidad_ambigua');
-    assert(/3 cajas o 3 unidades/.test(r.pregunta));
+    assert.strictEqual(r.error, 'sin_historial');
+    assert.strictEqual(r.respuesta_exacta, repeticion.MENSAJE_SIN_HISTORIAL);
+    assert(/Todavía no tengo registrado tu pedido anterior/.test(r.respuesta_exacta));
   });
 
-  await check('4· caja y unidad siempre se distinguen en lo que se muestra', async () => {
-    await pedidoLib.vaciar(mvpCli.id);
-    await pedidoLib.anadir(mvpCli.id, { producto_id: PIEL.id, cantidad: 2, unidad_pedido: 'caja' });
-    await pedidoLib.anadir(mvpCli.id, { producto_id: PIEL.id, cantidad: 3, unidad_pedido: 'unidad' });
-    const c = await pedidoLib.ver(mvpCli.id);
-    assert.strictEqual(c.lineas.length, 2, 'caja y unidad son líneas distintas');
-    assert(c.lineas.every((l) => ['caja', 'unidad', 'kg'].includes(l.unidad_pedido)));
-    const carrito = await repo.getCarrito(mvpCli.id);
-    const t = pedidoLib.textoResumen(carrito, { nombre: 'Carnicería MVP' });
-    assert(/2 cajas/.test(t), t);
-    assert(/3 unidades/.test(t), t);
+  let pedidoPrevio = null;
+  let OTRO = null;
+  await check('13· se repite el último pedido con su fecha e identificador', async () => {
+    // El pedido previo se hace con la oferta APAGADA, para que en la prueba 15
+    // se pueda comprobar el aviso de cambio de precio.
+    await ofertas.guardar(PIEL.id, { offer_active: false }, { por: 'Fernando' });
+    OTRO = catalogo.todos().find((x) => x.codigo !== PIEL.codigo
+      && !x.bloqueado_para_calculo_precio && x.peso_und_kg > 0);
+
+    await pedidoLib.anadir(repCli.id, { producto_id: PIEL.id, cantidad: 2, unidad_pedido: 'caja' });
+    await pedidoLib.anadir(repCli.id, { producto_id: OTRO.id, cantidad: 1, unidad_pedido: 'caja' });
+    const conf = await pedidoLib.confirmar(repCli.id, { clave_idempotencia: 'wamid.REP1' });
+    pedidoPrevio = conf.pedido;
+    assert.strictEqual(pedidoPrevio.lineas.length, 2);
+    assert.strictEqual(pedidoPrevio.lineas[0].precio_kg_sin_iva, 3.972, 'sin oferta activa');
+
+    const r = await repeticion.preparar(repCli.id, {});
+    assert.strictEqual(r.ok, true, JSON.stringify(r));
+    assert.strictEqual(r.pedido_origen.id, pedidoPrevio.id);
+    assert(r.pedido_origen.fecha, 'hay que poder decirle al cliente de cuándo era');
+    const c = await pedidoLib.ver(repCli.id);
+    assert.strictEqual(c.lineas.length, 2);
+    assert.strictEqual(c.repite_pedido, pedidoPrevio.id);
   });
 
-  await check('5· no aparece ninguna cifra económica en nada que se muestre', async () => {
-    const carrito = await repo.getCarrito(mvpCli.id);
-    const resumen = pedidoLib.textoResumen(carrito, { nombre: 'Carnicería MVP' },
-      { observaciones: 'entregar por la mañana' });
-    assert(!CIFRA_ECONOMICA.test(resumen), 'cifra económica en el resumen: ' + resumen);
-    assert(/^SOLICITUD DE PEDIDO$/m.test(resumen), resumen);
-    assert(/\[0003\]/.test(resumen), 'falta el código entre corchetes');
-    assert(/Responde CONFIRMAR para enviar la solicitud o MODIFICAR/.test(resumen));
+  await check('14· repetición con modificaciones: doble, quitar y añadir', async () => {
+    const doble = await repeticion.preparar(repCli.id, {
+      modificaciones: [{ accion: 'multiplicar', factor: 2 }] });
+    assert.strictEqual(doble.ok, true, JSON.stringify(doble));
+    let c = await pedidoLib.ver(repCli.id);
+    assert.strictEqual(c.lineas.find((l) => l.codigo === PIEL.codigo).cantidad, 4, '2 cajas ×2 = 4');
 
-    // Lo que ve el modelo: carrito, búsqueda y líneas.
-    sinCamposEconomicos(await pedidoLib.ver(mvpCli.id));
-    const ctx = { telefono: '34600000010', clienteId: mvpCli.id, consultasAlergenoSinDato: [] };
-    sinCamposEconomicos(await agente.ejecutar(ctx, 'buscar_productos', { consulta: 'pollo' }));
-    sinCamposEconomicos(await agente.ejecutar(ctx, 'ver_carrito', {}));
-    sinCamposEconomicos(await agente.ejecutar(ctx, 'anadir_al_carrito',
-      { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' }));
+    // "Lo mismo, pero sin el salami": quitar una línea deja la otra.
+    const sinPiel = await repeticion.preparar(repCli.id, {
+      modificaciones: [{ accion: 'quitar', codigo: PIEL.codigo }] });
+    assert.strictEqual(sinPiel.ok, true, JSON.stringify(sinPiel));
+    assert(sinPiel.modificaciones_aplicadas.some((m) => /quitado/.test(m)));
+    c = await pedidoLib.ver(repCli.id);
+    assert.strictEqual(c.lineas.length, 1);
+    assert(!c.lineas.some((l) => l.codigo === PIEL.codigo));
 
-    // Y el mensaje interno tampoco lleva importes.
-    const ped = await repo.getPedido(pedidoRef.id);
-    const interno = fabrica.componerMensaje(ped);
-    assert(!CIFRA_ECONOMICA.test(interno), 'cifra económica en el mensaje interno: ' + interno);
-    assert(/^📦 NUEVA SOLICITUD DE PEDIDO$/m.test(interno), interno);
-    for (const campo of ['Pedido:', 'Tienda:', 'Teléfono:', 'Fecha:', 'Productos:', 'Observaciones:',
-                         'Estado: pendiente de revisión por Chacón Alcántara.']) {
-      assert(interno.includes(campo), `falta "${campo}" en el mensaje interno`);
-    }
+    // "Añade dos cajas más de piel de pollo": se suma sobre lo que ya había.
+    const masPiel = await repeticion.preparar(repCli.id, {
+      modificaciones: [{ accion: 'anadir', producto_id: PIEL.id, cantidad: 2, unidad_pedido: 'caja' }] });
+    assert.strictEqual(masPiel.ok, true, JSON.stringify(masPiel));
+    c = await pedidoLib.ver(repCli.id);
+    assert.strictEqual(c.lineas.find((l) => l.codigo === PIEL.codigo).cantidad, 4, '2 del pedido + 2 añadidas');
+
+    // Quitarlo todo no deja un pedido vacío: se avisa.
+    const vacia = await repeticion.preparar(repCli.id, {
+      modificaciones: [{ accion: 'quitar', codigo: PIEL.codigo }, { accion: 'quitar', codigo: OTRO.codigo }] });
+    assert.strictEqual(vacia.ok, false);
+    assert.strictEqual(vacia.error, 'no_queda_ninguna_linea');
+
+    // Una modificación imposible se rechaza, no se ignora en silencio.
+    const mala = await repeticion.preparar(repCli.id, {
+      modificaciones: [{ accion: 'quitar', codigo: 'NO-EXISTE' }] });
+    assert.strictEqual(mala.modificaciones_rechazadas.length, 1);
+    assert.strictEqual(mala.modificaciones_rechazadas[0].motivo, 'linea_no_encontrada');
   });
 
-  await check('6· no se promete stock en ningún sitio', async () => {
-    const ctx = { telefono: '34600000010', clienteId: mvpCli.id, consultasAlergenoSinDato: [] };
-    const r = await agente.ejecutar(ctx, 'buscar_productos', { consulta: 'pollo' });
-    assert(r.candidatos.every((c) => c.disponibilidad === 'pendiente_de_revision'));
-    assert(/no afirmes que hay stock/i.test(r.nota));
-    assert(/no tenemos datos de stock/i.test(agente.systemPrompt({ cliente: null })));
+  await check('15· se avisa cuando el precio ha cambiado desde el pedido anterior', async () => {
+    // Se enciende la oferta DESPUÉS del pedido previo: eso es un cambio real.
+    await ofertas.guardar(PIEL.id, { offer_active: true }, { por: 'Fernando' });
+    const r = await repeticion.preparar(repCli.id, { pedido_id: pedidoPrevio.id });
+    assert.strictEqual(r.ok, true);
+    assert.strictEqual(r.cambios_de_precio.length, 1, JSON.stringify(r.cambios_de_precio));
+
+    const c = r.cambios_de_precio[0];
+    assert.strictEqual(c.codigo, PIEL.codigo);
+    assert.strictEqual(c.antes, 3.972);
+    assert.strictEqual(c.ahora, 2.5);
+    assert.strictEqual(c.direccion, 'baja');
+    assert.strictEqual(c.es_oferta, true);
+    assert(/3,972 → 2,5/.test(repeticion.textoCambios(r.cambios_de_precio)));
+
+    // Y el pedido nuevo usa el precio de HOY, no el histórico.
+    const carrito = await repo.getCarrito(repCli.id);
+    assert.strictEqual(carrito.lineas.find((l) => l.codigo === PIEL.codigo).precio_kg_sin_iva, 2.5);
+    assert.strictEqual(pedidoPrevio.lineas[0].precio_kg_sin_iva, 3.972, 'el pedido antiguo no se toca');
   });
 
-  await check('7· no se promete aceptación ni fecha de entrega', async () => {
-    const m = pedidoLib.MENSAJE_RECEPCION;
-    assert(/Hemos recibido tu solicitud de pedido correctamente/.test(m));
-    assert(/Chacón Alcántara la revisará/.test(m));
-    assert(!/acept|prepar|disponible|entrega el|mañana|fecha/i.test(m), m);
-    const ped = await repo.getPedido(pedidoRef.id);
-    assert(/pendiente de revisión/i.test(fabrica.componerMensaje(ped)));
-    // Ni siquiera se le dice a la tienda a quién ha ido internamente.
-    const ctx = { telefono: '34600000010', clienteId: mvpCli.id, consultasAlergenoSinDato: [],
-                  claveIdempotencia: 'wamid.MVP7' };
-    const conf = await agente.ejecutar(ctx, 'confirmar_pedido', {});
+  await check('16· un pedido repetido exige confirmación nueva y crea un ID distinto', async () => {
+    const r = await repeticion.preparar(repCli.id, { pedido_id: pedidoPrevio.id });
+    assert.strictEqual(r.ok, true);
+    // `preparar` NO confirma: el pedido sigue siendo el mismo hasta que se confirme.
+    const antes = (await repo.pedidosDeCliente(repCli.id)).length;
+    assert(/pide una NUEVA confirmación/i.test(r.nota));
+
+    const conf = await pedidoLib.confirmar(repCli.id, { clave_idempotencia: 'wamid.REP2' });
     assert.strictEqual(conf.ok, true);
-    assert.strictEqual(conf.envio_interno.entregado, false);
-    const json = JSON.stringify(conf);
-    assert(!json.includes('Fernando'), 'no se puede filtrar el nombre del receptor');
-    assert(!/\d{9,}/.test(json.replace(/PED-\d+-\d+/g, '')), 'no se puede filtrar un teléfono');
+    assert.notStrictEqual(conf.pedido.id, pedidoPrevio.id, 'debe ser un pedido nuevo');
+    assert.strictEqual(conf.pedido.repite_pedido, pedidoPrevio.id, 'debe guardar de cuál salió');
+    assert.strictEqual((await repo.pedidosDeCliente(repCli.id)).length, antes + 1);
   });
 
-  await check('8· una confirmación duplicada no duplica la solicitud', async () => {
-    await pedidoLib.anadir(mvpCli.id, { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' });
-    const a = await pedidoLib.confirmar(mvpCli.id, { clave_idempotencia: 'wamid.MVP8' });
-    await pedidoLib.anadir(mvpCli.id, { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' });
-    const b = await pedidoLib.confirmar(mvpCli.id, { clave_idempotencia: 'wamid.MVP8' });
-    assert.strictEqual(b.idempotente, true);
-    assert.strictEqual(b.pedido.id, a.pedido.id);
-    const ids = (await repo.listarPedidos({ limite: 100, cliente: mvpCli.id })).map((x) => x.id);
-    assert.strictEqual(new Set(ids).size, ids.length, 'la lista de pedidos tiene duplicados');
-  });
+  console.log('\n=== 12) Envío al responsable interno ===');
 
-  await check('9· el panel enseña la solicitud sin importes y permite reintentar', async () => {
-    const r = makeRes();
-    await panel({ method: 'GET', headers: {}, query: { token: process.env.PANEL_TOKEN, v: 'pedidos' } }, r);
-    assert.strictEqual(r.statusCode, 200);
-    assert(/Reintentar env/.test(r.body), 'falta el botón de reintento');
-    assert(!/Estimado s\/IVA/.test(r.body), 'el panel sigue mostrando importes estimados');
-    // El número del receptor nunca se pinta en el panel.
-    process.env.FACTORY_WHATSAPP_NUMBER = '34600000997';
+  await check('17· la solicitud llega con precios confirmados, pendientes y repetición', async () => {
+    // Un pedido con una línea con precio y otra pendiente.
+    const mixCli = await repo.crearCliente({ nombre: 'Tienda Mixta', telefono: '34600000040' });
+    const sinResolver = catalogo.todos().find((x) => x.estado === 'tariff_variant_unresolved'
+      && x.id !== DUP.id);
+    await pedidoLib.anadir(mixCli.id, { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' });
+    await pedidoLib.anadir(mixCli.id, { producto_id: sinResolver.id, cantidad: 1, unidad_pedido: 'caja' });
+    const conf = await pedidoLib.confirmar(mixCli.id, { clave_idempotencia: 'wamid.MIX' });
+
+    process.env.FACTORY_WHATSAPP_NUMBER = '34600000900';
     process.env.FACTORY_CONTACT_NAME = 'Fernando';
-    const r2 = makeRes();
-    await panel({ method: 'GET', headers: {}, query: { token: process.env.PANEL_TOKEN, v: 'pedidos' } }, r2);
-    assert(r2.body.includes('Fernando'), 'el panel sí debe nombrar al receptor');
-    assert(!r2.body.includes('34600000997'), 'el panel no debe pintar el número del receptor');
+    const antes = SENT.length;
+    const env = await fabrica.enviar(conf.pedido);
+    assert.strictEqual(env.ok, true);
+    assert.strictEqual(SENT.length, antes + 1);
+    assert.strictEqual(SENT[SENT.length - 1].to, '34600000900');
+
+    const t = SENT[SENT.length - 1].text;
+    assert(/^📦 NUEVA SOLICITUD DE PEDIDO$/m.test(t), t);
+    assert(t.includes(conf.pedido.id));
+    assert(t.includes('Tienda Mixta'));
+    assert(/Productos con precio confirmado:/.test(t));
+    assert(/Productos con precio PENDIENTE de confirmar:/.test(t));
+    assert(/🏷️ Solicitados con precio de oferta:/.test(t), 'falta la sección de ofertas');
+    assert(/Estado: pendiente de revisión por Chacón Alcántara\./.test(t));
+    assert(!/total a pagar/i.test(t), 'no puede darse un total definitivo');
+
+    // Y sigue siendo "aceptado", no "entregado".
+    assert.strictEqual(env.entregado, false);
     delete process.env.FACTORY_WHATSAPP_NUMBER;
     delete process.env.FACTORY_CONTACT_NAME;
   });
 
-  console.log('\n=== 10) Aislamiento entre tenants ===');
+  await check('17b· un pedido repetido se marca como tal para el responsable', async () => {
+    const ped = (await repo.pedidosDeCliente(repCli.id))[0];
+    assert(ped.repite_pedido, 'el pedido de la prueba 16 repite otro');
+    const t = fabrica.componerMensaje(ped);
+    assert(/🔁 Repite el pedido /.test(t), t);
+    assert(t.includes(ped.repite_pedido));
+  });
+
+  await check('17c· el número del responsable no se le enseña nunca a la tienda', async () => {
+    process.env.FACTORY_WHATSAPP_NUMBER = '34600000900';
+    process.env.FACTORY_CONTACT_NAME = 'Fernando';
+    const ctx = { telefono: '34600000030', clienteId: repCli.id, consultasAlergenoSinDato: [],
+                  claveIdempotencia: 'wamid.FUGA' };
+    await pedidoLib.anadir(repCli.id, { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' });
+    const r = await agente.ejecutar(ctx, 'confirmar_pedido', {});
+    const json = JSON.stringify(r);
+    assert(!json.includes('34600000900'), 'se filtró el número del responsable');
+    assert(!json.includes('Fernando'), 'se filtró el nombre del responsable');
+    delete process.env.FACTORY_WHATSAPP_NUMBER;
+    delete process.env.FACTORY_CONTACT_NAME;
+  });
+
+  console.log('\n=== 13) Panel: ofertas, precios repetidos e historial ===');
+
+  await check('18· el panel permite cargar ofertas y resolver precios repetidos', async () => {
+    for (const v of ['pedidos', 'ofertas', 'conflictos', 'catalogo', 'clientes', 'config']) {
+      const r = makeRes();
+      await panel({ method: 'GET', headers: {}, query: { token: process.env.PANEL_TOKEN, v } }, r);
+      assert.strictEqual(r.statusCode, 200, `vista ${v}`);
+    }
+    const of = makeRes();
+    await panel({ method: 'GET', headers: {}, query: { token: process.env.PANEL_TOKEN, v: 'ofertas' } }, of);
+    assert(/offer_price_per_kg/.test(of.body), 'falta el formulario de oferta');
+    assert(/offer_end_date/.test(of.body), 'falta la vigencia');
+    assert(/Oferta activa/.test(of.body), 'falta el activar/desactivar');
+    assert(/validado por Fernando/.test(of.body), 'falta el registro de quién validó');
+
+    const co = makeRes();
+    await panel({ method: 'GET', headers: {}, query: { token: process.env.PANEL_TOKEN, v: 'conflictos' } }, co);
+    assert(co.body.includes('6302'), 'faltan los códigos repetidos');
+    assert(/standard_price_per_kg/.test(co.body), 'no se pueden resolver desde el panel');
+
+    const pe = makeRes();
+    await panel({ method: 'GET', headers: {}, query: { token: process.env.PANEL_TOKEN, v: 'pedidos' } }, pe);
+    assert(/Duplicar como borrador/.test(pe.body), 'falta duplicar un pedido');
+    assert(/Reintentar env/.test(pe.body), 'falta el reintento');
+    assert(/Carnicería Repite/.test(pe.body), 'falta el historial por tienda');
+  });
+
+  await check('18b· guardar un precio exige firma y queda registrado', async () => {
+    const sinFirma = makeRes();
+    await panel({ method: 'POST', headers: {}, query: { token: process.env.PANEL_TOKEN },
+      body: { accion: 'precio', producto_id: PIEL.id, offer_price_per_kg: '1,99' } }, sinFirma);
+    assert(/Escribe tu nombre/.test(sinFirma.body), 'debe exigir quién valida');
+
+    const conFirma = makeRes();
+    await panel({ method: 'POST', headers: {}, query: { token: process.env.PANEL_TOKEN },
+      body: { accion: 'precio', producto_id: PIEL.id, standard_price_per_kg: '3,972',
+              offer_price_per_kg: '1,99', offer_active: 'on', por: 'Fernando' } }, conFirma);
+    const reg = await ofertas.get(PIEL.id);
+    assert.strictEqual(reg.offer_price_per_kg, 1.99, 'la coma decimal debe interpretarse');
+    assert.strictEqual(reg.offer_validated_by, 'Fernando');
+    assert(reg.historial.length >= 1);
+  });
+
+  console.log('\n=== 14) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
   await check('Chacón y Sanmi no comparten claves de Redis', async () => {
     const claves = [...mem.kv.keys(), ...mem.lists.keys(), ...mem.sets.keys(), ...mem.hashes.keys()];
     const deChacon = claves.filter((k) => k.startsWith('ch:'));

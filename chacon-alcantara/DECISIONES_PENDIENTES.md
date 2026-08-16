@@ -217,44 +217,115 @@ el cálculo automático del precio.
 
 ---
 
-# Actualización — MVP simplificado
+# Actualización — alcance comercial definitivo del MVP
 
-El objetivo de esta primera versión **no es cotizar**. Es que una tienda prepare y
-envíe por WhatsApp una **solicitud de pedido estructurada**.
+## El MVP trabaja solo con la Tarifa 1
 
-## Qué deja de intervenir
+Chacón confirma que **el precio del PDF es la Tarifa 1** y que es la vigente. Eso
+cierra el bloqueo que arrastrábamos: ya no hay que adivinar el tramo, así que el
+cálculo deja de devolver `indeterminada`.
 
-Precios, tarifas, subtotales, IVA, importes estimados y conversión de cajas a euros
-**siguen calculándose y guardándose**, pero se recortan antes de llegar al modelo y a
-la tienda (`lib/chacon/mvp.js`). Si el modelo no recibe una cifra, no puede enseñarla
-ni construir un total con ella.
+Las tarifas 2 a 8 **siguen modeladas** (`NIVELES`, `elegirNivel`, `aplicarUmbrales`)
+pero no intervienen en la conversación y el agente no las menciona. P-01 a P-04
+dejan de bloquear el MVP; harán falta cuando se quieran activar.
 
-Poner `CHACON_MOSTRAR_PRECIOS=1` los devuelve al flujo cuando estén confirmados, sin
-tocar la lógica de negocio.
+## Las tres funciones prioritarias
 
-## Qué deja de bloquear
+Por frecuencia real de uso, y en este orden:
 
-| Antes | Ahora |
+1. **Consultar el precio** de un producto — `consultar_precio`
+2. **Repetir el pedido anterior** — `repetir_pedido`
+3. **Ver las ofertas** — `consultar_ofertas`
+
+Después, el pedido nuevo. El saludo ofrece las cuatro opciones sin obligar a usarlas.
+
+## Cómo se resuelven los 19 precios repetidos
+
+**No se resuelven solos, y no deben.** Se comprobó en el PDF y ninguna regla se
+sostiene:
+
+| Hipótesis | Resultado |
 |---|---|
-| Los 19 códigos con varios precios no podían valorarse | **Se piden con normalidad.** Siguen marcados `tariff_variant_unresolved` internamente y salen como aviso en el mensaje a Fernando. |
-| Las 6 fichas sin peso bloqueaban el importe | **Se piden con normalidad.** El peso sigue registrado como desconocido. |
-| `OF3900` promocional | Se pide con normalidad, con aviso interno. |
+| Hay una etiqueta `OF`, `OG` u "oferta" | No existe en ninguno de los 19 |
+| El orden de aparición identifica cuál es cuál | No |
+| El precio más bajo es la oferta | No se puede asumir |
+| La primera aparición es el precio normal | No se puede asumir |
 
-## Qué sigue bloqueando, igual que antes
+Quedan como `tariff_variant_unresolved`. Mientras sigan así:
 
-- Una cantidad sin unidad ("ponme 3") → se pregunta caja o unidad, no se adivina.
-- Un producto que no existe en el catálogo.
-- Una tienda sin nombre.
-- Un carrito vacío.
-- Afirmar stock, aceptación o fecha de entrega.
-- Afirmar que algo no lleva un alérgeno cuando el dato no consta.
+- La tienda **puede buscarlos y pedirlos** con normalidad.
+- El agente responde exactamente: *"Tengo dos precios registrados para este producto
+  y necesito que Chacón Alcántara confirme cuál está vigente. Puedo añadirlo a tu
+  solicitud y Fernando revisará el precio."*
+- **Nunca se le enseñan los dos precios** ni se le deja elegir.
+- En el mensaje a Fernando salen en la sección *Productos con precio PENDIENTE*.
 
-## Decisiones que dejan de ser urgentes
+Se resuelven en **Panel → Precios repetidos**: se escribe el precio normal de Tarifa 1
+y, si el otro era una oferta, se carga como tal. Queda firmado con quién y cuándo.
 
-D-01 a D-04, D-08, D-09, D-16 y P-01 a P-05 **ya no bloquean el MVP**: sin cálculo
-económico no hacen falta para tomar una solicitud. Siguen abiertas y vuelven a ser
-necesarias en cuanto se quiera valorar el pedido.
+## Modelo de ofertas
 
-Las que **siguen bloqueando el lanzamiento con clientes reales** son las de riesgo,
-no las de dinero: **D-06 (alérgenos sin informar)**, D-07 (stock), D-10 (reparto),
-D-11 (alta de clientes) y D-18 (imágenes).
+Cada producto puede tener precio normal y precio de oferta, con los campos
+`standard_price_per_kg`, `offer_price_per_kg`, `offer_active`, `offer_start_date`,
+`offer_end_date`, `offer_min_quantity`, `offer_unit`, `offer_conditions`,
+`offer_source`, `offer_validated_by`, `offer_validated_at`.
+
+Una oferta solo se enseña si se cumplen **las cinco condiciones a la vez**: existe un
+precio de oferta · está validada por un administrador · está activa · está dentro de
+fechas · se cumple la cantidad mínima cuando la haya. Si falla alguna, el panel dice
+cuál.
+
+**Un precio bajo no es una oferta.** Nada convierte un precio en promoción salvo que
+alguien la dé de alta.
+
+## ~~D-13 · OF3900~~ — sigue pendiente, y bloquea ese artículo
+
+Única referencia con `OF` en todo el PDF: `OF3900` "SIN CARGO VIOLINES C/8 PACK 4 UDS.
+H. CARLOS III" a `0,001`. El PDF no dice qué hay que comprar, en qué cantidad, quién
+puede recibirlo, entre qué fechas, si se añade solo, ni si `0,001` es un valor técnico.
+
+Queda como `promotion_requires_validation`: **no aparece entre las ofertas, no se puede
+pedir y no se le da precio**, ni siquiera si alguien le carga una oferta por el panel.
+Se desbloquea cuando Fernando defina sus condiciones.
+
+## Repetición de pedidos
+
+El historial va asociado al ID interno de la tienda y a su teléfono
+(`ch:pedidos:cliente:{id}`). El agente entiende "lo mismo que la última vez", "el
+doble", "sin el salami" y "dos cajas más de X".
+
+Un pedido repetido **nunca se reenvía solo**: se localiza, se enseña con su fecha y su
+identificador, se revalida contra el catálogo de hoy, se avisa de los precios que han
+cambiado y de los productos retirados, y se pide una **confirmación nueva**. El pedido
+resultante es nuevo, con identificador propio, al precio de hoy y con referencia al que
+copió.
+
+Si no hay historial, el agente responde exactamente: *"Todavía no tengo registrado tu
+pedido anterior. Dime qué productos necesitas y guardaré este pedido para que puedas
+repetirlo fácilmente la próxima vez."* No reconstruye pedidos que no tiene.
+
+## Qué sigue bloqueando el lanzamiento con clientes reales
+
+Las de riesgo, no las de dinero:
+
+| # | Qué falta |
+|---|---|
+| **D-06** | **Alérgenos**: 97 de 112 fichas sin dato. El riesgo más serio del proyecto. |
+| D-07 | Stock: sin fuente. El agente nunca afirma disponibilidad. |
+| D-10 | Reparto: días, zonas, hora límite, gastos. |
+| D-11 | Alta de clientes: hoy quedan `pendiente_aprobacion`. |
+| D-16 | 6 fichas con peso 0: se piden, pero no se les puede estimar importe. |
+| D-18 | Imágenes: fuera del flujo hasta poder verificar que cada una es la correcta. |
+
+## Qué necesitamos de Fernando, en concreto
+
+1. **Los 19 precios repetidos**: cuál es el vigente en cada código. Es lo que más
+   desbloquea, y se hace desde el panel en unos minutos.
+2. **`OF3900`**: qué hay que comprar para recibirlo, en qué cantidad, entre qué fechas
+   y si `0,001` es un valor técnico del sistema.
+3. **Ofertas reales**, si las hay ahora mismo, con su vigencia y sus condiciones.
+4. **IVA por producto** (P-05): hoy todo se muestra sin IVA y no se calcula ningún total.
+5. **Alérgenos** (D-06): de dónde salen los 97 que faltan y quién los confirma.
+6. **Reparto y pedido mínimo** (D-08, D-10): para poder contestar cuándo llega.
+7. Que **escriba una vez** al número del agente, para abrir la ventana de 24 horas y
+   poder probar el envío de extremo a extremo. Ver `PLANTILLA_WHATSAPP.md`.
