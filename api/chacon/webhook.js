@@ -12,6 +12,7 @@ const store = require('../../lib/wa/store');
 const repo = require('../../lib/chacon/repo');
 const agente = require('../../lib/chacon/agente');
 const fabrica = require('../../lib/chacon/fabrica');
+const voz = require('../../lib/chacon/voz');
 
 const MAX_RESPUESTAS_HORA = Number(process.env.CHACON_MAX_RESPUESTAS_HORA || 40);
 const HISTORIAL_MAX = Number(process.env.CHACON_HISTORIAL_MAX || 24);
@@ -101,10 +102,11 @@ async function handler(req, res) {
           if (inbound.esEcho(m, value, { phone_number_id: (value.metadata || {}).phone_number_id })) {
             console.warn('[chacon] eco ignorado'); continue;
           }
-          if (cls.accion !== 'agente' || cls.tipo !== 'text') {
-            if (cls.accion === 'no_soportado' || cls.tipo !== 'text') {
+          const ATENDIBLES = new Set(['text', 'audio', 'voice']);
+          if (cls.accion !== 'agente' || !ATENDIBLES.has(cls.tipo)) {
+            if (cls.accion === 'no_soportado' || !ATENDIBLES.has(cls.tipo)) {
               pendientes.push(responderTexto(value, m.from,
-                'Por ahora solo puedo leer mensajes de texto. ¿Me escribes tu pedido?'));
+                'Por ahora solo puedo leer mensajes de texto y notas de voz. ¿Me escribes tu pedido?'));
             }
             continue;
           }
@@ -131,9 +133,26 @@ async function responderTexto(value, telefono, texto) {
 async function atender(value, m) {
   const telefono = m.from;
   try {
+    // Una nota de voz se convierte en texto y sigue exactamente el mismo
+    // camino que un mensaje escrito. No abre ninguna puerta: el precio lo
+    // sigue dando la herramienta y el pedido sigue exigiendo CONFIRMAR.
+    const esVoz = m.type === 'audio' || m.type === 'voice';
+    let texto = esVoz ? null : (m.text || {}).body || null;
+    let eco = '';
+    if (esVoz) {
+      // WhatsApp manda las notas de voz como `audio`; `voice` existe en
+      // algunos payloads. Los dos traen el media id en el mismo sitio.
+      const media = m.audio || m.voice || {};
+      const t = await voz.transcribir(telefono, media.id);
+      if (!t.texto) return responderTexto(value, telefono, t.aviso);
+      texto = t.texto;
+      eco = voz.ecoDeTranscripcion(t.texto) + '\n\n';
+    }
+    if (!texto) return;
+
     const historial = await getHistorial(telefono);
     const r = await agente.responder({
-      telefono, texto: m.text.body, historial,
+      telefono, texto, historial,
       // El wamid hace la confirmación idempotente: reenviar el mismo mensaje
       // no puede generar dos pedidos.
       claveIdempotencia: m.id,
@@ -142,7 +161,7 @@ async function atender(value, m) {
     if (r.consultas_alergeno_sin_dato.length) {
       console.warn('[chacon] consulta de alérgenos sin dato:', JSON.stringify(r.consultas_alergeno_sin_dato));
     }
-    await responderTexto(value, telefono, r.respuesta);
+    await responderTexto(value, telefono, eco + r.respuesta);
   } catch (err) {
     console.error('[chacon] error atendiendo a', telefono, err.stack || err.message);
     await responderTexto(value, telefono, 'Hemos tenido un problema técnico. ¿Me repites el mensaje?');
