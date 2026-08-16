@@ -1,9 +1,10 @@
 {
   "clave": "sanmi",
   "nombre": "Sanmi Café",
-  "activo": true,
+  "activo": false,
+  "_activo_nota": "APARCADO el 2026-08-16: el número demo de Meta se ha cedido a la demo de Chacón Alcántara. Nada de Sanmi se ha borrado —catálogo, prompt, sesiones y leads siguen intactos—: solo deja de enrutar. PARA RECUPERARLO hacen falta las dos cosas, no una: (1) poner un phone_number_id propio aquí y activo=true; (2) devolver la URL del webhook de Meta a /api/wa/webhook. Con activo=true y el mismo phone_number_id que Chacón, el arranque falla a propósito.",
   "phone_number_id": "1211779025353605",
-  "_phone_number_id_nota": "NÚMERO DEMO DE META (prestado). Al migrar al número real de Sanmi, este es el ÚNICO campo que cambia. Ver README.md de esta carpeta.",
+  "_phone_number_id_nota": "NÚMERO DEMO DE META (prestado, hoy en uso por Chacón). Al migrar al número real de Sanmi, este es el ÚNICO campo que cambia. Ver README.md de esta carpeta.",
   "human_notify_wa": "16503849019",
   "_human_notify_wa_nota": "E.164 sin '+'. Dado de alta y verificado en la lista 'To' de Meta (2026-07-28). Los números de prueba de Meta solo entregan a destinatarios de esa lista; con el número real de Sanmi la restricción desaparece.",
   "human_notify_wa_alt": "523471053350",

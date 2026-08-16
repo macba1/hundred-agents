@@ -157,6 +157,19 @@ const TEST = (n) => TEST_PREFIX + n;
 const SANMI = clientsLib.get('sanmi');
 const PNID = SANMI.phone_number_id;
 
+/* Sanmi está APARCADO en producción: cedió el número demo a Chacón. Pero
+   aparcar es una decisión de enrutado, no un cambio de comportamiento: su
+   agente tiene que seguir demostrando que funciona para poder devolverlo sin
+   sorpresas. Así que el estado real se comprueba con el JSON en disco, y el
+   resto de la batería se ejecuta con Sanmi reactivado EN MEMORIA. */
+const CONFIG_SANMI = JSON.parse(require('fs').readFileSync(
+  path.join(ROOT, 'lib/wa/clients/sanmi/config.json'), 'utf8'));
+const APARCADO = CONFIG_SANMI.activo === false;
+if (APARCADO) {
+  SANMI.activo = true;
+  clientsLib.load().byPnid[PNID] = SANMI;   // reenrutado solo dentro de esta prueba
+}
+
 function wh(msg, pnid = PNID) {
   return {
     object: 'whatsapp_business_account',
@@ -192,12 +205,29 @@ async function main() {
   for (const c of clientsLib.all()) {
     console.log(`  - ${c.clave.padEnd(12)} activo=${String(c.activo).padEnd(5)} pnid=${c.phone_number_id} folio=${c.folio_prefix}- productos=${c.productos.length}`);
   }
-  await check('sanmi activo, demo-dulces inactivo', async () => {
-    assert(SANMI.activo && !clientsLib.get('demo-dulces').activo);
+  // Sanmi está APARCADO: cedió el número demo a Chacón. La prueba no da eso
+  // por bueno en silencio — exige que el aparcado esté documentado y que el
+  // número ya no enrute a nadie, para que nadie lo desactive sin querer.
+  await check('el aparcado de sanmi está declarado y razonado en su config', async () => {
+    assert.strictEqual(CONFIG_SANMI.activo, false, 'sanmi debería estar aparcado');
+    assert(CONFIG_SANMI._activo_nota,
+      'aparcar un cliente exige dejar escrito por qué y cómo se recupera');
+    assert(/Chac[oó]n/i.test(CONFIG_SANMI._activo_nota));
+    assert(/webhook/i.test(CONFIG_SANMI._activo_nota),
+      'hay que recordar que recuperarlo exige devolver la URL del webhook, no solo activo=true');
+    assert(!clientsLib.get('demo-dulces').activo);
   });
-  await check('el número demo enruta a sanmi', async () => {
+  await check('aparcado NO es borrado: sanmi sigue entero para volver', async () => {
+    assert(CONFIG_SANMI.phone_number_id, 'no se pierde el número de referencia');
+    assert.strictEqual(CONFIG_SANMI.folio_prefix, 'SNM');
+    assert(SANMI.productos.length > 0, 'se perdió el catálogo de Sanmi');
+    assert(SANMI.prompt && SANMI.prompt.length > 200, 'se perdió el prompt de Sanmi');
+  });
+  await check('el resto de la batería corre con sanmi reactivado en memoria', async () => {
+    // Si esto falla, las ~50 pruebas siguientes no estarían probando nada.
     assert.strictEqual(clientsLib.resolve(PNID).clave, 'sanmi');
   });
+
   await check('phone_number_id desconocido → null (no contesta por nadie)', async () => {
     assert.strictEqual(clientsLib.resolve('999999'), null);
   });

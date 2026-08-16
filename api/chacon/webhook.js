@@ -80,6 +80,18 @@ async function handler(req, res) {
               .catch((e) => console.error('[chacon] confirmarEntrega:', e.message)));
           }
         }
+        // Enrutado fail-closed. La app de Meta puede tener varios números y
+        // este endpoint no debe contestar por ninguno que no sea el suyo:
+        // respondería como Chacón a clientes de otro negocio. Si
+        // CHACON_PHONE_NUMBER_ID está configurado, manda él.
+        const esperado = process.env.CHACON_PHONE_NUMBER_ID || '';
+        const recibido = (value.metadata || {}).phone_number_id || '';
+        if (esperado && recibido && recibido !== esperado) {
+          console.warn('[chacon] mensaje de otro phone_number_id (%s ≠ %s): se ignora',
+            recibido, esperado);
+          continue;
+        }
+
         const mensajes = Array.isArray(value.messages) ? value.messages : [];
         if (!mensajes.length) { console.log('[status-ignored] payload sin messages'); continue; }
 

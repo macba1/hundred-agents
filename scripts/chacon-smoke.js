@@ -377,6 +377,18 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
       'hub.mode': 'subscribe', 'hub.verify_token': process.env.CHACON_VERIFY_TOKEN, 'hub.challenge': 'RETO' } }, r);
     assert.strictEqual(r.body, 'RETO');
   });
+  await check('no contesta por un phone_number_id que no es el suyo', async () => {
+    const TEL = '34600000077';
+    const otro = JSON.parse(JSON.stringify(wh(textMsg(TEL, 'hola', 'wamid.OTRONUM'))));
+    otro.entry[0].changes[0].value.metadata.phone_number_id = '000-de-otro-negocio';
+    const antes = SENT.length;
+    guion = [texto('no debería llegar aquí')];
+    const r = makeRes();
+    await webhook(postReq(otro), r);
+    assert.strictEqual(r.statusCode, 200, 'a Meta siempre se le responde 200');
+    assert.strictEqual(SENT.length, antes, 'no puede contestar por otro número');
+    assert.strictEqual(await repo.clientePorTelefono(TEL), null, 'ni dar de alta la tienda');
+  });
   await check('firma inválida se rechaza en producción', async () => {
     process.env.VERCEL_ENV = 'production';
     const r = makeRes();
