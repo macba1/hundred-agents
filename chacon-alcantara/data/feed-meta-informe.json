@@ -1,0 +1,203 @@
+{
+  "generado": "2026-08-16T19:59:51.591596+00:00",
+  "base_url": "https://www.thehagentic.com",
+  "sin_precio": true,
+  "por_que_sin_precio": "Se cobra por kilo y el cliente pide cajas o unidades. Con precio, WhatsApp multiplicaría por la cantidad y enseñaría un total que no es el que se va a facturar. Sin precio, el carrito indica que la empresa proporcionará el total.",
+  "en_el_feed": 1,
+  "excluidos": 31,
+  "motivos_de_exclusion": {
+    "código repetido en el PDF": 20,
+    "imagen en estado pending_review": 7,
+    "imagen en estado missing": 3,
+    "promoción sin condiciones definidas (OF3900)": 1
+  },
+  "detalle_excluidos": [
+    {
+      "codigo": "2003",
+      "producto_id": "2003#4.1",
+      "descripcion": "1/2 FBRE. LOMO CDO. ADB. C/2P DEL MIO",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "21446",
+      "producto_id": "21446#4.3",
+      "descripcion": "SALAMI EXTRA BLANCO",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "6703",
+      "producto_id": "6703#9.1",
+      "descripcion": "BACON MOLDE MEDIOS DEL MIO",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "6712",
+      "producto_id": "6712#9.3",
+      "descripcion": "AÑEJO LOMITO CORTADO \"DEL MIO\"",
+      "motivo": "imagen en estado pending_review: en el catálogo visual la foto ES el producto"
+    },
+    {
+      "codigo": "6713",
+      "producto_id": "6713#10.1",
+      "descripcion": "CORTEZA AÑEJA CORT. FINO \"DEL MIO\"",
+      "motivo": "imagen en estado pending_review: en el catálogo visual la foto ES el producto"
+    },
+    {
+      "codigo": "2736",
+      "producto_id": "2736#14.2",
+      "descripcion": "SALCHICHAS FRAN. CAMPOFRIO 4 PACK C/12U",
+      "motivo": "imagen en estado missing: en el catálogo visual la foto ES el producto"
+    },
+    {
+      "codigo": "6803",
+      "producto_id": "6803#15.2",
+      "descripcion": "CHOPPED CERDO ESP. 350 GRS.CRISMONA",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "6803",
+      "producto_id": "6803#15.3",
+      "descripcion": "CHOPPED CERDO ESP. 350 GRS.CRISMONA",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "3900",
+      "producto_id": "3900#20.3",
+      "descripcion": "VIOLINES C/ 8 PACK 4 UD.CARLOS III",
+      "motivo": "imagen en estado pending_review: en el catálogo visual la foto ES el producto"
+    },
+    {
+      "codigo": "3911",
+      "producto_id": "3911#21.3",
+      "descripcion": "INTEGRALES VIOLINES C/ 8 PACK 4 U.HORNO CARLOS III",
+      "motivo": "imagen en estado pending_review: en el catálogo visual la foto ES el producto"
+    },
+    {
+      "codigo": "OF3900",
+      "producto_id": "OF3900#22.1",
+      "descripcion": "SIN CARGO VIOLINES C/ 8 PACK 4 UDS.H. CARLOS III",
+      "motivo": "promoción sin condiciones definidas (OF3900)"
+    },
+    {
+      "codigo": "30101",
+      "producto_id": "30101#24.3",
+      "descripcion": "FILETES DE CABALLA A/G 1800 C/ 6",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "30201",
+      "producto_id": "30201#25.1",
+      "descripcion": "FILETES DE CABALLA A/G 250 C/24 PACK6PZAS",
+      "motivo": "imagen en estado missing: en el catálogo visual la foto ES el producto"
+    },
+    {
+      "codigo": "30201",
+      "producto_id": "30201#25.2",
+      "descripcion": "FILETES DE CABALLA A/G 250 C/24 PACK6PZAS",
+      "motivo": "imagen en estado missing: en el catálogo visual la foto ES el producto"
+    },
+    {
+      "codigo": "30301",
+      "producto_id": "30301#26.1",
+      "descripcion": "FILETES CABALLA RO 550 C/24 A/G",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "30501",
+      "producto_id": "30501#26.3",
+      "descripcion": "FTES. CABALLA 125G. 50 U.C/ 5 PZAS RETR.",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "30701",
+      "producto_id": "30701#27.2",
+      "descripcion": "FILETES DE CABALLA A/G 1000 C/ 12",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "5100",
+      "producto_id": "5100#28.1",
+      "descripcion": "MELVA 1800 FILETE DE ALMADRABA RO C/6",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "5102",
+      "producto_id": "5102#28.3",
+      "descripcion": "MELVA FILETE DE ALMADRABA 1000 C/ 12",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "6302",
+      "producto_id": "6302#29.3",
+      "descripcion": "LOMITO IBERICO BELLOTA *MARCIAL*",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "6303",
+      "producto_id": "6303#30.2",
+      "descripcion": "LOMO PLATA CEBO CAMPO 50% *MARCIAL*",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "6304",
+      "producto_id": "6304#31.1",
+      "descripcion": "SALCHICHON CULAR PLATA IB. *MARCIAL*",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "6304",
+      "producto_id": "6304#31.2",
+      "descripcion": "SALCHICHON CULAR PLATA IB. *MARCIAL*",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "6305",
+      "producto_id": "6305#32.1",
+      "descripcion": "CHORIZO CULAR PLATA IB. *MARCIAL*",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "6305",
+      "producto_id": "6305#32.2",
+      "descripcion": "CHORIZO CULAR PLATA IB. *MARCIAL*",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "7001",
+      "producto_id": "7001#34.1",
+      "descripcion": "QUESO CURADO OCAÑA",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "3502",
+      "producto_id": "3502#35.1",
+      "descripcion": "BARRA LUNCH 1.3 KG.PAMPLONICA",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    },
+    {
+      "codigo": "8003",
+      "producto_id": "8003#35.3",
+      "descripcion": "QUESO \"EL HIDALGO\" ACEITE GRANDE",
+      "motivo": "imagen en estado pending_review: en el catálogo visual la foto ES el producto"
+    },
+    {
+      "codigo": "8003",
+      "producto_id": "8003#36.1",
+      "descripcion": "QUESO \"EL HIDALGO\" ACEITE GRANDE",
+      "motivo": "imagen en estado pending_review: en el catálogo visual la foto ES el producto"
+    },
+    {
+      "codigo": "8005",
+      "producto_id": "8005#36.2",
+      "descripcion": "QUESO \"EL HIDALGO\" MINI-ACEITE",
+      "motivo": "imagen en estado pending_review: en el catálogo visual la foto ES el producto"
+    },
+    {
+      "codigo": "5000",
+      "producto_id": "5000#38.1",
+      "descripcion": "CHURROS CONG.450GM. RICARTE",
+      "motivo": "código repetido en el PDF: ya está en el feed"
+    }
+  ],
+  "nota": "Todo lo excluido sigue disponible por búsqueda conversacional: el agente lo encuentra y lo añade al pedido igual."
+}

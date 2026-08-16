@@ -103,6 +103,7 @@ const categoriasLib = require(path.join(ROOT, 'lib/chacon/categorias'));
 const navegacion = require(path.join(ROOT, 'lib/chacon/navegacion'));
 const imagenesLib = require(path.join(ROOT, 'lib/chacon/imagenes'));
 const formato = require(path.join(ROOT, 'lib/chacon/wa-formato'));
+const carritoNativo = require(path.join(ROOT, 'lib/chacon/carrito-nativo'));
 const fabrica = require(path.join(ROOT, 'lib/chacon/fabrica'));
 const agente = require(path.join(ROOT, 'lib/chacon/agente'));
 const webhook = require(path.join(ROOT, 'api/chacon/webhook'));
@@ -132,6 +133,12 @@ let mid = 0;
 const textMsg = (from, body, id = null) => ({ id: id || `wamid.C${++mid}`, from, type: 'text', text: { body } });
 const audioMsg = (from, id = null) => ({ id: id || `wamid.A${++mid}`, from, type: 'audio',
   audio: { id: 'MEDIA' + (++mid), mime_type: 'audio/ogg', voice: true } });
+/** Mensaje `order`: lo que manda WhatsApp al pulsar "Realizar pedido". */
+const orderMsg = (from, items, id = null) => ({ id: id || `wamid.O${++mid}`, from,
+  type: 'order',
+  order: { catalog_id: 'CAT_CHACON_TEST', text: '',
+           product_items: items.map((i) => ({ product_retailer_id: i.cod, quantity: i.n,
+             item_price: i.precio ?? 0, currency: 'EUR' })) } });
 const clicMsg = (from, botonId, id = null) => ({ id: id || `wamid.I${++mid}`, from,
   type: 'interactive',
   interactive: { type: 'button_reply', button_reply: { id: botonId, title: botonId } } });
@@ -1127,7 +1134,197 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     assert.strictEqual(categoriasLib.clasificacionDe(dudoso.id).classification_reviewed_by, 'Fernando');
   });
 
-  console.log('\n=== 16) Notas de voz ===');
+  console.log('\n=== 16) Catálogo y carrito nativos de WhatsApp ===');
+
+  const TELCAR = '34600000070';
+  const cliCar = await repo.crearCliente({ nombre: 'Tienda Catálogo', telefono: TELCAR });
+  // 0052: caja de 1 unidad -> sin ambigüedad. 8005: caja de 6 -> ambiguo.
+  const UNICA = catalogo.todos().find((p) => p.codigo === '0052');
+  const MULTI = catalogo.todos().find((p) => p.und_caja > 1 && !p.bloqueado_para_calculo_precio);
+
+  await check('37· el feed de Meta va SIN precio, para no enseñar un total falso', async () => {
+    const fs2 = require('fs');
+    const ruta = path.join(ROOT, 'chacon-alcantara/data/feed-meta.csv');
+    assert(fs2.existsSync(ruta), 'falta el feed');
+    const cab = fs2.readFileSync(ruta, 'utf8').split('\n')[0];
+    assert(!/\bprice\b/.test(cab), 'el feed no puede llevar precio: se cobra por kilo');
+    assert(/product_type/.test(cab) && /image_link/.test(cab) && /^id,/.test(cab));
+
+    const inf = JSON.parse(fs2.readFileSync(
+      path.join(ROOT, 'chacon-alcantara/data/feed-meta-informe.json'), 'utf8'));
+    assert.strictEqual(inf.sin_precio, true);
+    // Nada sin imagen verificada, ni la promoción sin condiciones.
+    const excl = inf.detalle_excluidos.map((x) => x.codigo);
+    assert(excl.includes('OF3900'), 'OF3900 no puede salir en el catálogo');
+    const enFeed = fs2.readFileSync(ruta, 'utf8');
+    assert(!/\bOF3900\b/.test(enFeed));
+    for (const r of imagenesLib.todas().filter((x) => x.estado !== 'verified')) {
+      const linea = new RegExp(`^${r.codigo},`, 'm');
+      if (linea.test(enFeed)) {
+        // Solo vale si otro registro del MISMO código sí tiene foto verificada.
+        const otra = imagenesLib.todas().some((x) => x.codigo === r.codigo && x.estado === 'verified');
+        assert(otra, `${r.codigo} está en el feed con imagen ${r.estado}`);
+      }
+    }
+  });
+
+  await check('38· producto individual: código y cantidad se validan contra NUESTRO catálogo', async () => {
+    const inter = await carritoNativo.interpretar(
+      orderMsg(TELCAR, [{ cod: '0052', n: 2, precio: 999 }]).order);
+    assert.strictEqual(inter.lineas.length, 1);
+    const l = inter.lineas[0];
+    assert.strictEqual(l.codigo, '0052');
+    assert.strictEqual(l.descripcion, UNICA.descripcion, 'la descripción sale de nuestro catálogo');
+    assert.strictEqual(l.precio_recibido_de_meta, 999, 'se guarda como traza');
+    assert.notStrictEqual(l.precio_kg_sin_iva, 999, 'pero NUNCA se usa el precio de Meta');
+    assert.strictEqual(l.precio_kg_sin_iva, UNICA.tarifa);
+  });
+
+  await check('39· un código que no existe se rechaza, no se inventa', async () => {
+    const inter = await carritoNativo.interpretar(
+      orderMsg(TELCAR, [{ cod: 'NO-EXISTE-999', n: 1 }, { cod: '0052', n: 1 }]).order);
+    assert.strictEqual(inter.lineas.length, 1);
+    assert.strictEqual(inter.rechazadas.length, 1);
+    assert.strictEqual(inter.rechazadas[0].motivo, 'codigo_no_esta_en_el_catalogo');
+  });
+
+  await check('40· cantidad cero o no válida se rechaza', async () => {
+    for (const n of [0, -3, 1.5, NaN]) {
+      const inter = await carritoNativo.interpretar(orderMsg(TELCAR, [{ cod: '0052', n }]).order);
+      assert.strictEqual(inter.lineas.length, 0, `cantidad ${n} debería rechazarse`);
+      assert.strictEqual(inter.rechazadas[0].motivo, 'cantidad_no_valida');
+    }
+  });
+
+  await check('41· caja de 1 unidad no pregunta; caja de varias sí', async () => {
+    assert.strictEqual(carritoNativo.modalidades(UNICA).ambiguo, false,
+      'con 1 ud/caja preguntar solo molesta');
+    assert.strictEqual(carritoNativo.modalidades(MULTI).ambiguo, true);
+
+    const inter = await carritoNativo.interpretar(
+      orderMsg(TELCAR, [{ cod: UNICA.codigo, n: 2 }, { cod: MULTI.codigo, n: 3 }]).order);
+    assert.strictEqual(inter.ambiguas.length, 1);
+    assert.strictEqual(inter.ambiguas[0].codigo, MULTI.codigo);
+    assert(/¿3 cajas o 3 unidades\?/.test(carritoNativo.preguntaDeModalidad(inter.ambiguas)));
+  });
+
+  await check('42· el carrito nativo se vuelca al carrito interno de Chacón', async () => {
+    await pedidoLib.vaciar(cliCar.id);
+    const msg = orderMsg(TELCAR, [{ cod: UNICA.codigo, n: 2 }, { cod: MULTI.codigo, n: 3 }]);
+    const inter = await carritoNativo.interpretar(msg.order);
+    const r = await carritoNativo.volcar(cliCar.id, TELCAR, inter, { wamid: msg.id });
+
+    assert.strictEqual(r.lineas_añadidas, 1, 'solo entra lo que no es ambiguo');
+    assert.strictEqual(r.pendientes_de_modalidad, 1);
+    const c = await pedidoLib.ver(cliCar.id);
+    assert.strictEqual(c.lineas.length, 1);
+    assert.strictEqual(c.lineas[0].codigo, UNICA.codigo);
+
+    // El carrito original se conserva como prueba de lo que pidió la tienda.
+    const carrito = await repo.getCarrito(cliCar.id);
+    assert.strictEqual(carrito.carrito_whatsapp.wamid, msg.id);
+    assert.strictEqual(carrito.carrito_whatsapp.catalog_id, 'CAT_CHACON_TEST');
+    assert.strictEqual(carrito.carrito_whatsapp.lineas.length, 2);
+  });
+
+  await check('43· un carrito repetido no duplica líneas', async () => {
+    const msg = orderMsg(TELCAR, [{ cod: UNICA.codigo, n: 2 }], 'wamid.CARRITO-REPE');
+    const inter = await carritoNativo.interpretar(msg.order);
+    await carritoNativo.volcar(cliCar.id, TELCAR, inter, { wamid: msg.id });
+    const antes = (await pedidoLib.ver(cliCar.id)).lineas.length;
+
+    const otra = await carritoNativo.volcar(cliCar.id, TELCAR, inter, { wamid: msg.id });
+    assert.strictEqual(otra.idempotente, true);
+    assert.strictEqual((await pedidoLib.ver(cliCar.id)).lineas.length, antes);
+  });
+
+  await check('44· un pedido ambiguo NO se puede confirmar', async () => {
+    const msg = orderMsg(TELCAR, [{ cod: MULTI.codigo, n: 3 }], 'wamid.AMBIGUO');
+    const inter = await carritoNativo.interpretar(msg.order);
+    await carritoNativo.volcar(cliCar.id, TELCAR, inter, { wamid: msg.id });
+
+    const ctx = { telefono: TELCAR, clienteId: cliCar.id, consultasAlergenoSinDato: [],
+                  claveIdempotencia: 'wamid.NOCONF' };
+    const r = await agente.ejecutar(ctx, 'confirmar_pedido', {});
+    assert.strictEqual(r.ok, false);
+    assert.strictEqual(r.error, 'faltan_cajas_o_unidades');
+    assert(/cajas o \d+ unidades|cajas o unidades/i.test(r.pregunta), r.pregunta);
+    assert.strictEqual(r.pendientes.length, 1);
+  });
+
+  await check('45· al aclarar caja/unidad, la línea entra con su precio', async () => {
+    const r = await carritoNativo.resolverModalidad(cliCar.id, TELCAR, 'caja');
+    assert.strictEqual(r.ok, true);
+    assert.strictEqual(r.quedan_pendientes, 0);
+    const c = await pedidoLib.ver(cliCar.id);
+    const l = c.lineas.find((x) => x.codigo === MULTI.codigo);
+    assert(l, 'la línea aclarada debe estar en el carrito');
+    assert.strictEqual(l.unidad_pedido, 'caja');
+    assert.strictEqual(l.precio_kg_sin_iva, MULTI.tarifa);
+  });
+
+  await check('46· carrito nativo + producto añadido por texto conviven', async () => {
+    await pedidoLib.anadir(cliCar.id, { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' });
+    const c = await pedidoLib.ver(cliCar.id);
+    const origenes = (await repo.getCarrito(cliCar.id)).lineas.map((l) => l.origen || 'conversacion');
+    assert(origenes.includes('carrito_whatsapp'), 'falta lo que vino del catálogo');
+    assert(origenes.includes('conversacion') || origenes.includes(undefined),
+      'falta lo añadido por texto');
+    assert(c.lineas.length >= 2);
+  });
+
+  await check('47· se puede consultar el precio de algo visto en el catálogo', async () => {
+    const r = await consultas.consultarPrecio(UNICA.codigo);
+    assert.strictEqual(r.precio_disponible, true);
+    assert(/€\/kg, sin IVA/.test(r.respuesta_exacta));
+  });
+
+  await check('48· el resumen dice quién confirma el importe final', async () => {
+    const carrito = await repo.getCarrito(cliCar.id);
+    const t = pedidoLib.textoResumen(carrito, cliCar);
+    assert(/Tarifa 1 por kilo, sin IVA/.test(t), t);
+    assert(/confirmará el importe final según el peso real preparado/.test(t), t);
+    assert(/Responde CONFIRMAR para enviar la solicitud o MODIFICAR/.test(t));
+    assert(!/total a pagar|total:/i.test(t), 'no puede haber un total definitivo');
+  });
+
+  await check('49· confirmado, llega a Fernando con el carrito original guardado', async () => {
+    const conf = await pedidoLib.confirmar(cliCar.id, { clave_idempotencia: 'wamid.CARR-CONF' });
+    assert.strictEqual(conf.ok, true);
+    assert(/confirmará el importe final/.test(conf.mensaje_cliente), conf.mensaje_cliente);
+
+    process.env.FACTORY_WHATSAPP_NUMBER = '34600000901';
+    const antes = SENT.length;
+    const env = await fabrica.enviar(conf.pedido);
+    assert.strictEqual(env.ok, true);
+    assert.strictEqual(SENT.length, antes + 1);
+    const t = SENT[SENT.length - 1].text;
+    assert(/NUEVA SOLICITUD DE PEDIDO/.test(t));
+    assert(t.includes(UNICA.codigo), 'falta el producto del catálogo nativo');
+    delete process.env.FACTORY_WHATSAPP_NUMBER;
+  });
+
+  await check('50· un pedido nacido del catálogo se puede repetir después', async () => {
+    const r = await repeticion.preparar(cliCar.id, {});
+    assert.strictEqual(r.ok, true, JSON.stringify(r).slice(0, 200));
+    assert(r.pedido_origen.id, 'debe encontrar el pedido anterior');
+    const c = await pedidoLib.ver(cliCar.id);
+    assert(c.lineas.length >= 1);
+    assert.strictEqual(c.repite_pedido, r.pedido_origen.id);
+  });
+
+  await check('51· el webhook atiende un mensaje `order` de punta a punta', async () => {
+    const TEL2 = '34600000071';
+    await repo.crearCliente({ nombre: 'Tienda Order', telefono: TEL2 });
+    const antes = SENT.length;
+    const r = makeRes();
+    await webhook(postReq(wh(orderMsg(TEL2, [{ cod: UNICA.codigo, n: 2 }], 'wamid.WH-ORDER'))), r);
+    assert.strictEqual(r.statusCode, 200);
+    assert.strictEqual(SENT.length, antes + 1, 'no contestó al carrito');
+    assert(/He recibido tu pedido del catálogo/.test(SENT[SENT.length - 1].text));
+  });
+
+  console.log('\n=== 17) Notas de voz ===');
 
   const voz = require(path.join(ROOT, 'lib/chacon/voz'));
 
@@ -1207,7 +1404,7 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
       'Chacón no puede tocar el contador de audios de Sanmi');
   });
 
-  console.log('\n=== 17) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
+  console.log('\n=== 18) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
   await check('Chacón y Sanmi no comparten claves de Redis', async () => {
     const claves = [...mem.kv.keys(), ...mem.lists.keys(), ...mem.sets.keys(), ...mem.hashes.keys()];
     const deChacon = claves.filter((k) => k.startsWith('ch:'));

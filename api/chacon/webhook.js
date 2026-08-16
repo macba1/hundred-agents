@@ -15,6 +15,8 @@ const fabrica = require('../../lib/chacon/fabrica');
 const voz = require('../../lib/chacon/voz');
 const formato = require('../../lib/chacon/wa-formato');
 const navegacion = require('../../lib/chacon/navegacion');
+const carritoNativo = require('../../lib/chacon/carrito-nativo');
+const pedidoLib = require('../../lib/chacon/pedido');
 
 const MAX_RESPUESTAS_HORA = Number(process.env.CHACON_MAX_RESPUESTAS_HORA || 40);
 const HISTORIAL_MAX = Number(process.env.CHACON_HISTORIAL_MAX || 24);
@@ -104,6 +106,13 @@ async function handler(req, res) {
           if (inbound.esEcho(m, value, { phone_number_id: (value.metadata || {}).phone_number_id })) {
             console.warn('[chacon] eco ignorado'); continue;
           }
+          // El carrito nativo entra por la misma puerta que todo lo demás.
+          if (m.type === 'order') {
+            if (await store.alreadySeen(m.id)) { console.log('[chacon] dedup', m.id); continue; }
+            pendientes.push(atenderCarrito(value, m));
+            continue;
+          }
+
           // Un clic en un botón o una lista es una intención más, no un
           // camino aparte: se convierte en la frase que habría escrito.
           if (m.type === 'interactive') {
@@ -132,6 +141,52 @@ async function handler(req, res) {
     console.error('[chacon] error procesando webhook:', err.stack || err.message);
   }
   return res.status(200).json({ status: 'ok' });
+}
+
+/**
+ * Carrito enviado desde el catálogo nativo de WhatsApp.
+ *
+ * Se procesa en código, no por el modelo: los códigos y las cantidades ya
+ * vienen estructurados y dejar que un LLM los reinterprete solo puede
+ * empeorarlos. El modelo entra después, para lo que sí es conversación.
+ */
+async function atenderCarrito(value, m) {
+  const telefono = m.from;
+  try {
+    const cliente = await repo.clientePorTelefono(telefono);
+    if (!cliente) {
+      // Sin tienda identificada no hay carrito donde volcarlo.
+      return responderTexto(value, telefono,
+        'He recibido tu pedido del catálogo. Antes de seguir, ¿cómo se llama tu tienda?');
+    }
+
+    const interpretado = await carritoNativo.interpretar(m.order || {});
+    const r = await carritoNativo.volcar(cliente.id, telefono, interpretado, { wamid: m.id });
+    console.log('[chacon] carrito nativo de %s: %s líneas, %s ambiguas, %s rechazadas',
+      telefono, r.lineas_añadidas, r.pendientes_de_modalidad, (r.rechazadas || []).length);
+
+    if (r.idempotente) return;
+
+    const L = [];
+    L.push(`He recibido tu pedido del catálogo: ${interpretado.lineas.length} producto(s).`);
+    if (r.rechazadas?.length) {
+      L.push('');
+      L.push('No he podido añadir estos, revisa conmigo cuáles quieres:');
+      for (const x of r.rechazadas) L.push(`• ${x.product_retailer_id || '(sin código)'}`);
+    }
+    if (r.pregunta) { L.push(''); L.push(r.pregunta); }
+    else {
+      const carrito = await repo.getCarrito(cliente.id);
+      L.push('');
+      L.push(pedidoLib.textoResumen(carrito, cliente));
+    }
+    await responderTexto(value, telefono, L.join('\n'));
+  } catch (err) {
+    console.error('[chacon] error con el carrito de', telefono, err.stack || err.message);
+    await responderTexto(value, telefono,
+      'He recibido tu pedido del catálogo pero he tenido un problema al leerlo. '
+      + '¿Me lo confirmas por aquí?');
+  }
 }
 
 /**
