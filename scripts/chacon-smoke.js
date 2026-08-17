@@ -1404,7 +1404,333 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
       'Chacón no puede tocar el contador de audios de Sanmi');
   });
 
-  console.log('\n=== 18) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
+  console.log('\n=== 19) Tarifas: ocho tramos, ofertas y versionado ===');
+
+  /* La versión importada queda PENDIENTE a propósito. Para probar el motor se
+     hace una copia aprobada en un directorio temporal: así se demuestra que
+     funciona sin activar nada en producción. */
+  const os = require('os');
+  const fsT = require('fs');
+  const DIR_T = fsT.mkdtempSync(path.join(os.tmpdir(), 'chacon-tarifas-'));
+  const V1 = path.join(ROOT, 'chacon-alcantara/data/tarifas/version-1.json');
+
+  let tarifas = null; let tramos = null; let facturacion = null;
+  const conMotor = fsT.existsSync(V1);
+  if (conMotor) {
+    const doc = JSON.parse(fsT.readFileSync(V1, 'utf8'));
+    for (const f of doc.filas) {
+      f.approved = true;
+      f.active = !['ALI', 'COO', 'OFC', 'S'].includes(f.tariff_code);
+    }
+    doc.approved = true; doc.approved_by = 'suite';
+    fsT.writeFileSync(path.join(DIR_T, 'version-1.json'), JSON.stringify(doc));
+    fsT.writeFileSync(path.join(DIR_T, 'estado.json'), JSON.stringify({
+      version_activa: 1, versiones: [{ version: 1, approved: true, registros: doc.registros }] }));
+    process.env.CHACON_TARIFAS_DIR = DIR_T;
+    process.env.CHACON_TARIFAS_V2 = '1';
+    tarifas = require(path.join(ROOT, 'lib/chacon/tarifas'));
+    tramos = require(path.join(ROOT, 'lib/chacon/tramos'));
+    facturacion = require(path.join(ROOT, 'lib/chacon/facturacion'));
+    tarifas.recargar();
+  }
+
+  const siMotor = (label, fn) => conMotor
+    ? check(label, fn)
+    : check(label + ' [SIN version-1.json: importa las tarifas primero]',
+            async () => { throw new Error('falta chacon-alcantara/data/tarifas/version-1.json'); });
+
+  await siMotor('52· importa 649 registros y las 12 tarifas', async () => {
+    const r = tarifas.resumen();
+    assert.strictEqual(r.registros, 649);
+    assert.deepStrictEqual(r.invariantes_fallidos, [], 'una versión con invariantes rotos no vale');
+    const t = r.resumen_por_tarifa;
+    for (const k of ['1', '2', '3', '4']) assert.strictEqual(t[k], 133, `tarifa ${k}`);
+    for (const k of ['1OF', '2OF', '3OF', '4OF']) assert.strictEqual(t[k], 19, `tarifa ${k}`);
+    assert.strictEqual(t.ALI, 8); assert.strictEqual(t.COO, 20);
+    assert.strictEqual(t.OFC, 6); assert.strictEqual(t.S, 7);
+  });
+
+  await siMotor('53· los ceros iniciales sobreviven, y el dinero es entero', async () => {
+    for (const cod of ['0001', '0003', '0052', '0000641', '0005825']) {
+      const p = tarifas.precioDe(cod, '1');
+      assert.strictEqual(p.encontrado, true, `${cod} debería estar en la tarifa 1`);
+      assert.strictEqual(p.product_code, cod, 'el código perdió sus ceros');
+      assert.strictEqual(typeof p.aplicado_e4, 'number');
+      assert(Number.isInteger(p.aplicado_e4), 'el dinero no puede ser fraccionario');
+    }
+    // 0,0001 € sobrevive: con float se habría perdido.
+    const cuatro = tarifas.precioDe('10000', '1');
+    assert.strictEqual(cuatro.aplicado_e4, 1, '0,0001 € = 1 diezmilésima');
+    assert.strictEqual(tarifas.mostrar(1), '0,0001');
+    assert.strictEqual(tarifas.mostrar(138890), '13,889');
+  });
+
+  await siMotor('54· los 19 códigos con oferta son exactamente los del PDF', async () => {
+    const ESPERADOS = ['2003', '21446', '2503', '30101', '30201', '30301', '30501',
+      '30701', '3502', '5100', '5102', '6304', '6305', '6703', '6803', '7001',
+      '8003', 'M6304', 'M6305'].sort();
+    assert.deepStrictEqual(tarifas.codigosConOferta(), ESPERADOS);
+    // Y cada uno tiene oferta en los CUATRO tramos.
+    for (const cod of ESPERADOS) {
+      for (const t of ['1', '2', '3', '4']) {
+        const p = tarifas.precioDe(cod, t);
+        assert.strictEqual(p.es_oferta, true, `${cod} sin oferta en el tramo ${t}`);
+        assert(p.oferta_e4 < p.normal_e4, `${cod} tramo ${t}: la oferta no es más baja`);
+      }
+    }
+  });
+
+  await siMotor('55· la oferta se aplica sola en cada tramo, y se informa del normal', async () => {
+    const t3 = tarifas.precioDe('6305', '3');
+    assert.strictEqual(t3.es_oferta, true);
+    assert.strictEqual(t3.tier_label, '1 CAJA OFERTA');
+    assert.strictEqual(t3.aplicado_e4, t3.oferta_e4);
+    assert(t3.normal_e4 !== null, 'hay que poder decir el precio habitual');
+    // Los precios de 6305 por tramo, tal cual salen del PDF:
+    //   T1 PIEZA 13,889 / oferta 12,5   ·   T3 1 CAJA 12,5 / oferta 11,25
+    // El par 13,889 / 12,5 es el de PIEZA, no el de "1 caja".
+    assert.strictEqual(tarifas.mostrar(t3.normal_e4), '12,5');
+    assert.strictEqual(tarifas.mostrar(t3.oferta_e4), '11,25');
+    const t1 = tarifas.precioDe('6305', '1');
+    assert.strictEqual(tarifas.mostrar(t1.normal_e4), '13,889');
+    assert.strictEqual(tarifas.mostrar(t1.oferta_e4), '12,5');
+
+    // Un producto sin oferta aplica su normal, sin inventarse ninguna.
+    const sinOferta = tarifas.precioDe('0052', '3');
+    assert.strictEqual(sinOferta.es_oferta, false);
+    assert.strictEqual(sinOferta.oferta_e4, null);
+    assert.strictEqual(sinOferta.aplicado_e4, sinOferta.normal_e4);
+  });
+
+  await siMotor('56· el tramo se elige por unidades y por cajas, no por el modelo', async () => {
+    const T = (cantidad, unidadPedido, unidadesPorCaja) =>
+      tramos.elegirTramo({ cantidad, unidadPedido, unidadesPorCaja }).tier;
+    assert.strictEqual(T(3, 'unidad', 12), '1');       // menos de media
+    assert.strictEqual(T(6, 'unidad', 12), '2');       // media exacta
+    assert.strictEqual(T(12, 'unidad', 12), '3');      // una caja
+    assert.strictEqual(T(18, 'unidad', 12), '4');      // más de una
+    assert.strictEqual(T(1, 'caja', 12), '3');
+    assert.strictEqual(T(2, 'caja', 12), '4');
+    assert.strictEqual(T(5, 'caja', 12), '4');
+  });
+
+  await siMotor('57· media caja con caja par e impar', async () => {
+    const T = (c, u) => tramos.elegirTramo({ cantidad: c, unidadPedido: 'unidad', unidadesPorCaja: u });
+    // Par: 6 de 12 es media exacta -> T2.
+    assert.strictEqual(T(6, 12).tier, '2');
+    assert.strictEqual(T(5, 12).tier, '1');
+    // Impar: 15 unidades. 7 se queda por debajo de media, 8 la pasa.
+    assert.strictEqual(T(7, 15).tier, '1');
+    assert.strictEqual(T(8, 15).tier, '2');
+    // Y no se redondea a caja completa por error.
+    assert.strictEqual(T(14, 15).tier, '2');
+    assert.strictEqual(T(15, 15).tier, '3');
+  });
+
+  await siMotor('58· cantidades por encima de una caja van a la tarifa 4', async () => {
+    for (const [c, u] of [[13, 12], [24, 12], [16, 15], [100, 12]]) {
+      assert.strictEqual(tramos.elegirTramo({ cantidad: c, unidadPedido: 'unidad',
+        unidadesPorCaja: u }).tier, '4', `${c} de ${u}`);
+    }
+    // La discrepancia del PDF queda registrada, no tapada.
+    const a = tramos.ADVERTENCIA_TARIFA_4;
+    assert.strictEqual(a.etiqueta_pdf, '+ 2 CAJAS');
+    assert.strictEqual(a.instruccion_comercial, 'más de una caja');
+    assert.strictEqual(a.aplicado_en_el_mvp, 'más de una caja');
+    assert.strictEqual(a.pendiente_de, 'Fernando');
+  });
+
+  await siMotor('59· sin tramo determinable se pregunta, no se aproxima', async () => {
+    // Sin unidades por caja no hay proporción posible.
+    const r = tarifas.precioParaCantidad('0052', { cantidad: 6, unidadPedido: 'unidad',
+      unidadesPorCaja: null });
+    assert.strictEqual(r.ok, false);
+    assert.strictEqual(r.error, 'tramo_indeterminado');
+    assert(/cajas o.*unidades/i.test(r.pregunta), r.pregunta);
+    // En kilos tampoco: el tramo va por cajas.
+    const k = tarifas.precioParaCantidad('0052', { cantidad: 3, unidadPedido: 'kg',
+      unidadesPorCaja: 12 });
+    assert.strictEqual(k.ok, false);
+  });
+
+  await siMotor('60· consultar el precio no toca el carrito', async () => {
+    const cliT = await repo.crearCliente({ nombre: 'Tienda Tarifas', telefono: '34600000080' });
+    await pedidoLib.vaciar(cliT.id);
+    const antes = (await pedidoLib.ver(cliT.id)).lineas.length;
+    const t = tarifas.tramosDe('6305');
+    assert.strictEqual(Object.keys(t).length, 4, 'los cuatro tramos consultables');
+    assert.strictEqual((await pedidoLib.ver(cliT.id)).lineas.length, antes);
+  });
+
+  await siMotor('61· las ofertas se listan solo desde la versión aprobada', async () => {
+    const ofs = tarifas.ofertasActivas({ tier: '3' });
+    assert.strictEqual(ofs.length, 19);
+    for (const o of ofs) {
+      assert.strictEqual(o.tier, '3');
+      assert.strictEqual(o.tier_label, '1 CAJA OFERTA');
+      assert(o.oferta_e4 < o.normal_e4);
+      assert.strictEqual(o.catalog_version, 1);
+    }
+  });
+
+  await siMotor('62· al cambiar la cantidad, cambia el tramo y el precio', async () => {
+    const conCaja = tarifas.precioDe('6304', '1');
+    assert(conCaja.encontrado);
+    const p1 = tarifas.precioParaCantidad('6304', { cantidad: 1, unidadPedido: 'caja', unidadesPorCaja: 2 });
+    const p4 = tarifas.precioParaCantidad('6304', { cantidad: 4, unidadPedido: 'caja', unidadesPorCaja: 2 });
+    assert.strictEqual(p1.tramo.tier, '3');
+    assert.strictEqual(p4.tramo.tier, '4');
+    assert.notStrictEqual(p1.precio.aplicado_e4, p4.precio.aplicado_e4,
+      'pedir más cajas tiene que cambiar el precio de tarifa');
+  });
+
+  await siMotor('63· el pedido confirmado congela su precio y su versión', async () => {
+    const cliS = await repo.crearCliente({ nombre: 'Tienda Snapshot', telefono: '34600000081' });
+    await pedidoLib.anadir(cliS.id, { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' });
+    const conf = await pedidoLib.confirmar(cliS.id, { clave_idempotencia: 'wamid.SNAP-TAR' });
+    assert.strictEqual(conf.ok, true);
+    const congelado = conf.pedido.lineas[0].precio_kg_sin_iva;
+    assert(conf.pedido.version_catalogo, 'el pedido guarda la versión que usó');
+
+    // Se "reimporta": la copia temporal cambia de precio.
+    const doc = JSON.parse(fsT.readFileSync(path.join(DIR_T, 'version-1.json'), 'utf8'));
+    for (const f of doc.filas) if (f.product_code === PIEL.codigo) f.price_e4 = 999999;
+    fsT.writeFileSync(path.join(DIR_T, 'version-1.json'), JSON.stringify(doc));
+    tarifas.recargar();
+
+    const guardado = await repo.getPedido(conf.pedido.id);
+    assert.strictEqual(guardado.lineas[0].precio_kg_sin_iva, congelado,
+      'una reimportación no puede cambiar un pedido de ayer');
+    // Se deja como estaba para las pruebas siguientes.
+    for (const f of doc.filas) if (f.product_code === PIEL.codigo) f.price_e4 = 39720;
+    fsT.writeFileSync(path.join(DIR_T, 'version-1.json'), JSON.stringify(doc));
+    tarifas.recargar();
+  });
+
+  await siMotor('64· los 6 precios antiguos sin correspondencia quedan inactivos', async () => {
+    const ESPERADOS = { 5000: '0,633', 6302: '21', 6303: '21',
+                        6304: '7,81', 6305: '7,81', 6803: '1,257' };
+    const huerfanos = tarifas.legadoSinCorrespondencia();
+    assert.strictEqual(huerfanos.length, 6, JSON.stringify(huerfanos.map((h) => h.product_code)));
+    for (const h of huerfanos) {
+      assert.strictEqual(h.estado, 'legacy_unmatched');
+      assert.strictEqual(h.active, false);
+      assert.strictEqual(h.requires_review, true);
+      assert.strictEqual(h.price_display, ESPERADOS[h.product_code],
+        `${h.product_code}: ${h.price_display}`);
+    }
+    // Y ninguno se puede cobrar: no es un precio de tarifa.
+    for (const cod of Object.keys(ESPERADOS)) {
+      for (const t of ['1', '2', '3', '4']) {
+        const p = tarifas.precioDe(cod, t);
+        if (p.encontrado) {
+          assert.notStrictEqual(tarifas.mostrar(p.aplicado_e4), ESPERADOS[cod],
+            `${cod} está cobrando el precio huérfano`);
+        }
+      }
+    }
+  });
+
+  await siMotor('65· un código OFxxxx no es una tarifa xOF', async () => {
+    // Las tablas de oferta son 1OF-4OF; OF3900/OF6804/OF6812 son artículos.
+    for (const cod of ['OF3900', 'OF6804', 'OF6812']) {
+      const p = tarifas.precioDe(cod, '1');
+      assert.strictEqual(p.encontrado, true, `${cod} debería existir como artículo`);
+      assert.strictEqual(p.es_oferta, false, `${cod} NO es una oferta por empezar por OF`);
+      assert.strictEqual(p.promotion_rule_required, true,
+        `${cod} tiene que exigir que Fernando defina sus condiciones`);
+      assert(!tarifas.codigosConOferta().includes(cod),
+        `${cod} no puede aparecer en la lista de ofertas`);
+    }
+    // Y no se pueden facturar solos: 0,001 € no es un precio comercial.
+    const internos = tarifas.articulosInternos().map((x) => x.product_code);
+    for (const cod of ['OF3900', 'OF6804', 'OF6812']) assert(internos.includes(cod));
+    for (const cod of ['OF3900', 'OF6804', 'OF6812']) {
+      assert.strictEqual(facturacion.baseDe(cod).billing_unit, 'unknown');
+      assert.strictEqual(facturacion.baseDe(cod).approved, false);
+    }
+  });
+
+  await siMotor('66· las tarifas especiales quedan fuera del flujo público', async () => {
+    const esp = tarifas.tarifasEspeciales();
+    assert.strictEqual(esp.length, 8 + 20 + 6 + 7, 'ALI+COO+OFC+S');
+    for (const e of esp) assert.strictEqual(e.activa_en_flujo_publico, false);
+    // Un precio especial nunca se devuelve por el camino normal.
+    for (const e of esp.slice(0, 12)) {
+      const p = tarifas.precioDe(e.product_code, '1');
+      if (p.encontrado) {
+        assert(!['ALI', 'COO', 'OFC', 'S'].includes(p.tariff_code),
+          `${e.product_code} devolvió la tarifa especial ${p.tariff_code}`);
+      }
+    }
+  });
+
+  await siMotor('67· base de facturación desconocida: precio sí, subtotal no', async () => {
+    const nuevo = tarifas.codigosNuevosPendientesDeRevision()
+      .find((c) => facturacion.baseDe(c).billing_unit === 'unknown');
+    assert(nuevo, 'hacen falta códigos nuevos sin base confirmada');
+
+    const p = tarifas.precioDe(nuevo, '1');
+    assert.strictEqual(p.encontrado, true, 'el precio de tarifa SÍ se puede decir');
+
+    const imp = facturacion.importe(p.aplicado_e4, 'unknown', { unidades: 3, cajas: 1, peso_kg: 2 });
+    assert.strictEqual(imp.calculable, false);
+    assert.strictEqual(imp.centimos, null, 'sin base confirmada no hay subtotal');
+    assert.strictEqual(imp.motivo, 'base_de_facturacion_sin_confirmar');
+
+    // Con base kg sí, y siempre con el aviso del peso real.
+    const kg = facturacion.importe(p.aplicado_e4, 'kg', { peso_kg: 2 });
+    assert.strictEqual(kg.calculable, true);
+    assert(/peso real/i.test(kg.aviso));
+    // Redondeo a céntimos solo al final: 0,0001 €/kg × 2 kg = 0 céntimos.
+    assert.strictEqual(facturacion.importe(1, 'kg', { peso_kg: 2 }).centimos, 0);
+    assert.strictEqual(facturacion.importe(138890, 'unit', { unidades: 3 }).centimos, 4167);
+  });
+
+  await siMotor('68b· el panel enseña versiones, ofertas, huérfanos y base de facturación', async () => {
+    for (const v of ['tarifas', 'facturacion']) {
+      const r = makeRes();
+      await panel({ method: 'GET', headers: {}, query: { token: process.env.PANEL_TOKEN, v } }, r);
+      assert.strictEqual(r.statusCode, 200, `vista ${v}`);
+    }
+    const t = makeRes();
+    await panel({ method: 'GET', headers: {}, query: { token: process.env.PANEL_TOKEN, v: 'tarifas' } }, t);
+    assert(/Umbral de la tarifa 4/.test(t.body), 'falta la advertencia del umbral');
+    assert(/\+ 2 CAJAS/.test(t.body) && /más de una caja/.test(t.body),
+      'las dos evidencias tienen que estar a la vista');
+    assert(/legacy_unmatched/.test(t.body), 'faltan los precios huérfanos');
+    assert(/FUERA del flujo público/.test(t.body), 'faltan las tarifas especiales');
+    assert(/OF3900/.test(t.body), 'faltan los códigos OF marcados');
+
+    const f = makeRes();
+    await panel({ method: 'GET', headers: {}, query: { token: process.env.PANEL_TOKEN, v: 'facturacion' } }, f);
+    assert(/billing_unit/.test(f.body), 'no se puede fijar la base desde el panel');
+    assert(/no se deduce/.test(f.body));
+
+    // Corregir una base a mano queda firmada y pisa el archivo.
+    const cod = tarifas.codigosNuevosPendientesDeRevision()[0];
+    const post = makeRes();
+    await panel({ method: 'POST', headers: {}, query: { token: process.env.PANEL_TOKEN },
+      body: { accion: 'facturacion', product_code: cod, billing_unit: 'unit', por: 'Fernando' } }, post);
+    const ov = await repo.facturacionesRevisadas();
+    assert.strictEqual(ov[cod].billing_unit, 'unit');
+    assert.strictEqual(ov[cod].revisado_por, 'Fernando');
+    assert(ov[cod].historial.length >= 1, 'falta la auditoría del cambio');
+    assert.strictEqual(facturacion.baseDe(cod, ov).billing_unit, 'unit',
+      'la corrección del panel debe pisar el archivo');
+  });
+
+  await siMotor('68· los 43 códigos nuevos no se publican solos', async () => {
+    const nuevos = tarifas.codigosNuevosPendientesDeRevision();
+    assert.strictEqual(nuevos.length, 43);
+    const base = facturacion.todas();
+    for (const c of nuevos) {
+      assert.strictEqual(base[c].customer_visible, false, `${c} no puede publicarse solo`);
+      assert(base[c].review_status, `${c} debe estar marcado para revisión`);
+    }
+  });
+
+  console.log('\n=== 20) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
   await check('Chacón y Sanmi no comparten claves de Redis', async () => {
     const claves = [...mem.kv.keys(), ...mem.lists.keys(), ...mem.sets.keys(), ...mem.hashes.keys()];
     const deChacon = claves.filter((k) => k.startsWith('ch:'));

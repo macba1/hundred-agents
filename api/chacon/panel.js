@@ -22,6 +22,9 @@ const categorias = require('../../lib/chacon/categorias');
 const navegacion = require('../../lib/chacon/navegacion');
 const imagenes = require('../../lib/chacon/imagenes');
 const formato = require('../../lib/chacon/wa-formato');
+const tarifas = require('../../lib/chacon/tarifas');
+const tramos = require('../../lib/chacon/tramos');
+const facturacion = require('../../lib/chacon/facturacion');
 
 const esc = (x) => String(x == null ? '' : x)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -126,6 +129,23 @@ module.exports = async function handler(req, res) {
           }
         }
 
+      } else if (accion === 'facturacion') {
+        if (!por) {
+          aviso = '<p class="bad">Escribe tu nombre: cada base de facturación queda firmada.</p>';
+        } else if (!facturacion.BASES.includes(b.billing_unit)) {
+          aviso = '<p class="bad">Base de facturación no válida.</p>';
+        } else {
+          await repo.guardarFacturacion({
+            product_code: String(b.product_code || ''),
+            billing_unit: b.billing_unit,
+            approved: b.billing_unit !== 'unknown',
+            customer_visible: b.customer_visible === 'on',
+            origen: 'panel', revisado_por: por, ts: new Date().toISOString(),
+          });
+          aviso = `<p class="ok">${esc(b.product_code)} → <b>${esc(b.billing_unit)}</b>, `
+            + `revisado por ${esc(por)}.</p>`;
+        }
+
       } else if (accion === 'duplicar') {
         const ped = await repo.getPedido(String(b.pedido || ''));
         if (!ped) aviso = '<p class="bad">No existe ese pedido.</p>';
@@ -159,6 +179,10 @@ module.exports = async function handler(req, res) {
       cuerpo = await vistaClasificacion(tk, req.query.q || '', req.query.cat || '');
     } else if (vista === 'imagenes') {
       cuerpo = vistaImagenes(req.query.estado || '', tk);
+    } else if (vista === 'tarifas') {
+      cuerpo = vistaTarifas(tk, req.query.v2 || '');
+    } else if (vista === 'facturacion') {
+      cuerpo = await vistaFacturacion(tk, req.query.q || '');
     } else if (vista === 'simulador') {
       cuerpo = await vistaSimulador(req.query.msg || '', tk);
     } else if (vista === 'clientes') {
@@ -176,7 +200,8 @@ module.exports = async function handler(req, res) {
   const problema = fabrica.revisarConfiguracion();
   const cfgAviso = problema ? `<br><span class="bad">⚠️ ${esc(problema.aviso)}</span>` : '';
 
-  const tabs = [['pedidos', 'Solicitudes'], ['clasificacion', 'Familias'],
+  const tabs = [['pedidos', 'Solicitudes'], ['tarifas', 'Tarifas'],
+                ['facturacion', 'Base de facturación'], ['clasificacion', 'Familias'],
                 ['imagenes', 'Imágenes'], ['simulador', 'Simulador'],
                 ['ofertas', 'Ofertas y precios'], ['catalogo', 'Catálogo'],
                 ['conflictos', 'Precios repetidos'], ['clientes', 'Clientes'],
@@ -397,6 +422,158 @@ async function vistaSimulador(msg, tk) {
     <input name="msg" value="${esc(msg)}" placeholder="Escribe lo que diría la tienda: quesos, chorizos, de pollo…">
     <button type="submit">Simular</button></form>
   <div class="chat">${burbujas}</div>`;
+}
+
+
+/* ---- tarifas: versiones, diff, aprobación, ofertas --------------------- */
+function vistaTarifas(tk, verV2) {
+  const r = tarifas.resumen();
+  const vs = tarifas.versiones();
+  const adv = r.advertencia_tarifa_4;
+
+  const estado = r.motor_v2_encendido
+    ? (r.aprobada
+      ? `<p class="ok">Motor de tarifas <b>ENCENDIDO</b> · versión activa ${esc(r.version_activa)}
+         aprobada por ${esc(r.aprobada_por || '?')}.</p>`
+      : '<p class="bad">Motor encendido pero SIN versión aprobada: el agente no tiene precios.</p>')
+    : `<p class="warn">Motor de tarifas <b>APAGADO</b> (<code>CHACON_TARIFAS_V2</code> sin poner a 1).
+       El agente sigue con el comportamiento anterior. Hay ${vs.length} versión(es) importada(s).</p>`;
+
+  const filasV = vs.map((v) => {
+    const activa = v.version === r.version_activa;
+    const marca = activa ? '<span class="ok">ACTIVA</span>'
+      : v.approved ? '<span class="pill">aprobada</span>'
+        : '<span class="warn">pendiente</span>';
+    const inv = v.invariantes_fallidos
+      ? `<span class="bad">${esc(v.invariantes_fallidos)} invariantes fallidos</span>`
+      : '<span class="ok">invariantes en verde</span>';
+    return `<tr><td><code>v${esc(v.version)}</code></td>
+      <td>${esc(String(v.generado).slice(0, 16).replace('T', ' '))}</td>
+      <td>${esc(v.registros)}</td><td>${inv}</td><td>${marca}</td>
+      <td><span class="sub">${esc(String(v.source_sha256 || '').slice(0, 12))}</span></td></tr>`;
+  }).join('');
+
+  const porTarifa = Object.entries(r.resumen_por_tarifa || {})
+    .map(([k, n]) => `<tr><td><code>${esc(k)}</code></td><td>${esc(n)}</td></tr>`).join('');
+
+  const ofs = r.aprobada ? tarifas.ofertasActivas({ tier: '1' }) : [];
+  const filasOf = ofs.map((o) => {
+    const t = tarifas.tramosDe(o.product_code);
+    const celdas = ['1', '2', '3', '4'].map((n) => {
+      const p = t[n];
+      if (!p) return '<td class="sub">—</td>';
+      return `<td>${esc(tarifas.mostrar(p.normal_e4))}<br>
+        <span class="ok">${esc(tarifas.mostrar(p.oferta_e4))}</span></td>`;
+    }).join('');
+    return `<tr><td><code>${esc(o.product_code)}</code></td>
+      <td>${esc(o.product_name)}</td>${celdas}</tr>`;
+  }).join('');
+
+  const huerfanos = r.aprobada ? tarifas.legadoSinCorrespondencia() : [];
+  const filasH = huerfanos.map((h) => `<tr><td><code>${esc(h.product_code)}</code></td>
+    <td>${esc(h.price_display)} €</td><td><span class="bad">${esc(h.estado)}</span></td>
+    <td class="sub">${esc(h.motivo)}</td></tr>`).join('');
+
+  const esp = r.aprobada ? tarifas.tarifasEspeciales() : [];
+  const porEsp = {};
+  for (const e of esp) porEsp[e.tariff_code] = (porEsp[e.tariff_code] || 0) + 1;
+
+  const internos = r.aprobada ? tarifas.articulosInternos() : [];
+  const filasI = internos.map((x) => `<tr><td><code>${esc(x.product_code)}</code></td>
+    <td>${esc(x.product_name)}</td><td>${esc(x.price_display)} €</td>
+    <td><span class="warn">${esc(x.review_status || 'revisar')}</span></td></tr>`).join('');
+
+  return `${estado}
+  <div class="card"><h3>⚠️ Umbral de la tarifa 4 — pendiente de ${esc(adv.pendiente_de)}</h3>
+    <p class="sub">El PDF la titula <b>«${esc(adv.etiqueta_pdf)}»</b>; la instrucción comercial
+    dice <b>«${esc(adv.instruccion_comercial)}»</b>. ${esc(adv.por_que_importa)}
+    <br>En el MVP se aplica: <b>${esc(adv.aplicado_en_el_mvp)}</b>
+    (<code>CHACON_UMBRAL_TARIFA_4=${esc(adv.umbral_actual)}</code>).</p></div>
+
+  <h3>Versiones</h3>
+  <div class="wrap"><table><thead><tr><th>Versión</th><th>Importada</th><th>Registros</th>
+    <th>Invariantes</th><th>Estado</th><th>SHA del PDF</th></tr></thead><tbody>${filasV
+    || '<tr><td colspan="6" class="sub">Ninguna importada.</td></tr>'}</tbody></table></div>
+  <p class="sub">Para aprobar y activar una versión:
+    <code>python3 chacon-alcantara/import/extraer_tarifas.py --aprobar N --por "Nombre"</code>.
+    Una versión con invariantes fallidos no se puede activar.</p>
+
+  <h3>Registros por tarifa</h3>
+  <div class="wrap"><table><thead><tr><th>Tarifa</th><th>Registros</th></tr></thead>
+    <tbody>${porTarifa || '<tr><td colspan="2" class="sub">—</td></tr>'}</tbody></table></div>
+
+  <h3>Ofertas — ${ofs.length} códigos, precio normal / <span class="ok">oferta</span> por tramo</h3>
+  <div class="wrap"><table><thead><tr><th>Código</th><th>Producto</th>
+    <th>T1 PIEZA</th><th>T2 ½ CAJA</th><th>T3 1 CAJA</th><th>T4 +CAJAS</th></tr></thead>
+    <tbody>${filasOf || '<tr><td colspan="6" class="sub">Sin versión aprobada.</td></tr>'}</tbody></table></div>
+
+  <h3>Precios antiguos sin correspondencia — evidencia, no tarifa</h3>
+  <div class="wrap"><table><thead><tr><th>Código</th><th>Precio</th><th>Estado</th><th>Motivo</th>
+    </tr></thead><tbody>${filasH || '<tr><td colspan="4" class="sub">—</td></tr>'}</tbody></table></div>
+
+  <h3>Tarifas especiales — importadas, FUERA del flujo público</h3>
+  <p class="sub">${Object.entries(porEsp).map(([k, n]) => `${esc(k)}: ${n}`).join(' · ') || '—'}.
+    Solo se aplican por asociación explícita y aprobada entre cliente y tarifa. Nunca por
+    nombre, teléfono ni parecido.</p>
+
+  <h3>Artículos internos y códigos OF — no se publican solos</h3>
+  <div class="wrap"><table><thead><tr><th>Código</th><th>Nombre</th><th>Precio</th>
+    <th>Estado</th></tr></thead><tbody>${filasI
+    || '<tr><td colspan="4" class="sub">—</td></tr>'}</tbody></table></div>`;
+}
+
+/* ---- base de facturación ------------------------------------------------ */
+async function vistaFacturacion(tk, q) {
+  const overrides = await repo.facturacionesRevisadas().catch(() => ({}));
+  const todas = facturacion.todas();
+  const busca = String(q || '').trim().toLowerCase();
+
+  const entradas = Object.entries(todas)
+    .filter(([cod, v]) => (busca
+      ? cod.toLowerCase().includes(busca)
+      : (overrides[cod] ? false : v.billing_unit === 'unknown')))
+    .slice(0, 40);
+
+  const cuenta = { kg: 0, unit: 0, box: 0, unknown: 0 };
+  for (const cod of Object.keys(todas)) {
+    cuenta[facturacion.baseDe(cod, overrides).billing_unit] += 1;
+  }
+
+  const fichas = entradas.map(([cod, v]) => {
+    const b = facturacion.baseDe(cod, overrides);
+    const ops = facturacion.BASES.map((x) =>
+      `<option value="${x}"${x === b.billing_unit ? ' selected' : ''}>${x}</option>`).join('');
+    return `<div class="card">
+      <h3><code>${esc(cod)}</code>
+        ${b.approved ? '<span class="ok">' + esc(b.billing_unit) + '</span>'
+          : '<span class="warn">' + esc(b.billing_unit) + '</span>'}
+        <span class="sub">${esc(b.origen)}${b.revisado_por ? ' · ' + esc(b.revisado_por) : ''}</span></h3>
+      <p class="sub">${v.review_status ? '⚠️ ' + esc(v.review_status) : 'sin marcas'}
+        ${v.units_per_box ? ' · ' + esc(v.units_per_box) + ' uds/caja' : ''}
+        ${v.peso_und_kg ? ' · ' + esc(v.peso_und_kg) + ' kg/ud' : ''}</p>
+      <form method="post" action="/api/chacon/panel?v=facturacion&amp;${tk}" class="pf">
+        <input type="hidden" name="accion" value="facturacion">
+        <input type="hidden" name="product_code" value="${esc(cod)}">
+        <div class="g">
+          <label>Base de facturación<select name="billing_unit">${ops}</select></label>
+          <label class="ck"><input type="checkbox" name="customer_visible" value="on"${
+            v.customer_visible ? ' checked' : ''}> Visible para tiendas</label>
+          <label>Tu nombre<input name="por" required></label>
+        </div>
+        <div class="row"><button type="submit">Guardar</button></div>
+      </form></div>`;
+  }).join('');
+
+  return `<p class="sub">La base de facturación <b>no se deduce</b> de las etiquetas del PDF:
+    de «PIEZA» no se sigue que el precio sea por unidad. Con <code>unknown</code> el agente
+    puede decir el precio de la tarifa pero <b>no dar un subtotal como definitivo</b>.
+    <br>kg: ${cuenta.kg} · unidad: ${cuenta.unit} · caja: ${cuenta.box} ·
+    <b class="warn">sin confirmar: ${cuenta.unknown}</b></p>
+  <form method="get" action="/api/chacon/panel"><input type="hidden" name="v" value="facturacion">
+    <input type="hidden" name="token" value="${esc(tk.replace('token=', ''))}">
+    <input name="q" value="${esc(busca)}" placeholder="Busca un código">
+    <button type="submit">Buscar</button></form>
+  ${fichas || '<p class="sub">Nada sin confirmar.</p>'}`;
 }
 
 function vistaPedidos(pedidos, tk) {

@@ -2,7 +2,7 @@
 
 - **PDF**: `Catalogo Articulos Tarifa 1.pdf`
 - **SHA-256**: `08fd02e55fd9d745a288f30fd18b91a6a87b94415e468f0d3e48b18593f5a71a`
-- **Generado**: 2026-08-16T15:50:51.189681+00:00
+- **Generado**: 2026-08-17T16:20:53.848092+00:00
 
 ## Recuento
 

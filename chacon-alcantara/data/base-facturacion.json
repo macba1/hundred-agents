@@ -1,0 +1,1343 @@
+{
+  "generado": "2026-08-17T16:14:44.100937+00:00",
+  "catalog_version": 1,
+  "nota": "La base de facturación NO se deduce de las etiquetas del PDF. Los códigos del catálogo anterior van como kg porque Chacón lo indicó por escrito; los nuevos, los internos y los que empiezan por OF quedan unknown hasta que alguien los revise.",
+  "resumen": {
+    "kg": 88,
+    "unknown": 45,
+    "visibles": 88,
+    "pendientes_de_revision": 45
+  },
+  "productos": {
+    "6701": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 3.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "1240": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 5.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "307002": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 4,
+      "peso_und_kg": 1.5,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "6313": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 1.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "9016": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "articulo_interno",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "internal_review_required"
+    },
+    "1100": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 4,
+      "peso_und_kg": 1.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "6314": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 6,
+      "peso_und_kg": 1.3,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "10002": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 5.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "9013": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "articulo_interno",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "internal_review_required"
+    },
+    "6305": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 6,
+      "peso_und_kg": 1.3,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "1106": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 12,
+      "peso_und_kg": 0.4,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "3047": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 0.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "8950": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 3.5,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "6702": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 3.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "6703": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 6,
+      "peso_und_kg": 2.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "3286": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 4.5,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "30501": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 50,
+      "peso_und_kg": 0.125,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "0906": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "CM05": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 3.75,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "5814": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 4,
+      "peso_und_kg": 1.5,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "0552": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "6722": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 1.7,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "CM03": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 6,
+      "peso_und_kg": 0.9,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "6302": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 18,
+      "peso_und_kg": 0.4,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "9995": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "articulo_interno",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "internal_review_required"
+    },
+    "CM02": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 3.75,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "30301": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 24,
+      "peso_und_kg": 0.55,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "6303": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 6,
+      "peso_und_kg": 1.4,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "6304": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 6,
+      "peso_und_kg": 1.3,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "CM01": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 3.75,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "10000": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "articulo_interno",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "internal_review_required"
+    },
+    "30701": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 12,
+      "peso_und_kg": 0.8,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "B61000": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "articulo_interno",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "internal_review_required"
+    },
+    "31226": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "2503": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "87E00007": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "articulo_interno",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "internal_review_required"
+    },
+    "8003": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 3.5,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "26644": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 15,
+      "peso_und_kg": 0.33,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "212": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "articulo_interno",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "internal_review_required"
+    },
+    "6804": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 6,
+      "peso_und_kg": 1.7,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "6812": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 12,
+      "peso_und_kg": 0.5,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "6803": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 12,
+      "peso_und_kg": 0.425,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "21446": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 1.85,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "30101": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 6,
+      "peso_und_kg": 1.8,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "6890": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 4,
+      "peso_und_kg": 1.4,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "8000": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "24428": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "6891": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 2.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "7001": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 3.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "24402": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "8001": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "8009": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 4,
+      "peso_und_kg": 1.5,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "6708": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 2.2,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "8103": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 4,
+      "peso_und_kg": 1.5,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "1241": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 5.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "6710": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 0.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "8010": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "30201": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 24,
+      "peso_und_kg": 0.25,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "2736": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 12,
+      "peso_und_kg": 0.14,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "6711": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 1.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "6010000016": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "articulo_interno",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "internal_review_required"
+    },
+    "302003": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "6712": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 1.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "6713": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 1.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "8005": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 6,
+      "peso_und_kg": 1.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "2003": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 3.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "4983": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "1503": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 4.5,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "3900": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 8,
+      "peso_und_kg": 0.4,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "4316": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 0.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "OF3900": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "codigo_of",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 0.0,
+      "customer_visible": false,
+      "review_status": "promotion_rule_required"
+    },
+    "0014": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "3901": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 8,
+      "peso_und_kg": 0.4,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "4525": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "articulo_interno",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "internal_review_required"
+    },
+    "0052": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 3.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "5812": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 4,
+      "peso_und_kg": 1.5,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "MC02": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 3.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "OF6804": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "codigo_of",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "promotion_rule_required"
+    },
+    "4998": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 8,
+      "peso_und_kg": 0.4,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "0053": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 3.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "38836": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "MC01": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 3.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "4999": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 15,
+      "peso_und_kg": 0.4,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "31236": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "38096": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "0000641": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 4.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "0003": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 5.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "39823": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "39805": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "SP01": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 2.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "40633": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "0001": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 5.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "40675": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "PORTADA": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "articulo_interno",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "internal_review_required"
+    },
+    "3909": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 0.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "4100": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 0.5,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "4315": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 6,
+      "peso_und_kg": 0.33,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "3924": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "OF6812": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "codigo_of",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "promotion_rule_required"
+    },
+    "4101": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 0.5,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "42591": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "0005825": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 7.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "3911": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 8,
+      "peso_und_kg": 0.4,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "0072": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 8,
+      "peso_und_kg": 0.8,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "3926": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "55326P": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "5102": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 12,
+      "peso_und_kg": 1.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "FCOM110": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "articulo_interno",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "internal_review_required"
+    },
+    "025433": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 3.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "3506": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 12,
+      "peso_und_kg": 0.38,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "53100P": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 0.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "025420": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 3.5,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "028012": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 15,
+      "peso_und_kg": 0.33,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "35620": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "CM10": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "3502": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 4,
+      "peso_und_kg": 1.3,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "5811": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 4,
+      "peso_und_kg": 1.5,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "3500": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 1.6,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "CM07": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 12,
+      "peso_und_kg": 0.3,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "0449": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 1,
+      "peso_und_kg": 0.4,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "CMP1": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 98,
+      "peso_und_kg": 0.04,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "35625": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "5000": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 10,
+      "peso_und_kg": 0.45,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "500203": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 30,
+      "peso_und_kg": 0.33,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "38009": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "50537": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 2.15,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "M6305": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "35629": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "025418": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 2,
+      "peso_und_kg": 3.0,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "5076": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 3,
+      "peso_und_kg": 1.5,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "M6304": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    },
+    "5100": {
+      "billing_unit": "kg",
+      "approved": true,
+      "origen": "instruccion_cliente_2026_08",
+      "revisado_por": null,
+      "units_per_box": 6,
+      "peso_und_kg": 1.8,
+      "customer_visible": true,
+      "review_status": null
+    },
+    "35622": {
+      "billing_unit": "unknown",
+      "approved": false,
+      "origen": "sin_confirmar",
+      "revisado_por": null,
+      "units_per_box": null,
+      "peso_und_kg": null,
+      "customer_visible": false,
+      "review_status": "pending_catalog_review"
+    }
+  }
+}
