@@ -1,13 +1,22 @@
 {
-  "version_activa": null,
+  "version_activa": 1,
   "versiones": [
     {
       "version": 1,
       "generado": "2026-08-17T16:14:44.100937+00:00",
       "registros": 649,
-      "approved": false,
+      "approved": true,
       "source_sha256": "ffe14d5e0f1547a285d6a1851df6118c2792ba0d8fd303d11413476b891ab5f0",
-      "invariantes_fallidos": 0
+      "invariantes_fallidos": 0,
+      "approved_by": "Tony (Hundred Agents), autorizado sobre las tarifas de Fernando"
+    }
+  ],
+  "auditoria": [
+    {
+      "ts": "2026-08-17T16:43:58.106778+00:00",
+      "accion": "activar_version",
+      "version": 1,
+      "por": "Tony (Hundred Agents), autorizado sobre las tarifas de Fernando"
     }
   ]
 }

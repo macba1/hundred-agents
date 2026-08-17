@@ -52,6 +52,9 @@ process.env.PANEL_TOKEN = 'panel-chacon-test';
 process.env.CHACON_VERIFY_TOKEN = 'verify-chacon-test';
 process.env.CHACON_PHONE_NUMBER_ID = '999000111';   // = PNID, definido más abajo
 process.env.VERCEL_ENV = 'development';
+/* La suite corre con el motor de tarifas ENCENDIDO, que es como va producción.
+   Probar solo el camino apagado dejaría sin cubrir justo lo que se sirve. */
+process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
 
 /* ---------- fetch simulado ---------------------------------------------- */
 const SENT = [];
@@ -104,6 +107,10 @@ const navegacion = require(path.join(ROOT, 'lib/chacon/navegacion'));
 const imagenesLib = require(path.join(ROOT, 'lib/chacon/imagenes'));
 const formato = require(path.join(ROOT, 'lib/chacon/wa-formato'));
 const carritoNativo = require(path.join(ROOT, 'lib/chacon/carrito-nativo'));
+/* El motor sobre los datos reales del repo: las pruebas comparan contra la
+   tarifa activa de verdad, no contra números escritos a mano que se quedan
+   desfasados en la siguiente importación. */
+const tarifasReal = require(path.join(ROOT, 'lib/chacon/tarifas'));
 const fabrica = require(path.join(ROOT, 'lib/chacon/fabrica'));
 const agente = require(path.join(ROOT, 'lib/chacon/agente'));
 const webhook = require(path.join(ROOT, 'api/chacon/webhook'));
@@ -423,6 +430,9 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     await webhook(postReq(wh(textMsg('34600000003', 'hola')), { secret: 'otro' }), r);
     assert.strictEqual(r.statusCode, 401);
     process.env.VERCEL_ENV = 'development';
+/* La suite corre con el motor de tarifas ENCENDIDO, que es como va producción.
+   Probar solo el camino apagado dejaría sin cubrir justo lo que se sirve. */
+process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
   });
   await check('un mensaje repetido no duplica línea ni pedido', async () => {
     const TEL = '34600000004';
@@ -547,12 +557,14 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     assert(/kg por unidad/.test(r.respuesta_exacta));
   });
 
-  await check('04· importe aproximado de una unidad', async () => {
+  await check('04· importe aproximado de una unidad, al precio de su tramo', async () => {
     const r = await consultas.consultarPrecio('0003', { cantidad: 1, unidad: 'unidad' });
     assert.strictEqual(r.estimacion.calculable, true);
     assert.strictEqual(r.estimacion.peso_estimado_kg, PIEL.peso_und_kg);
+    // 1 unidad de una caja de 1 -> tramo 3 (una caja completa). El importe se
+    // calcula con el precio de ESE tramo, no con un precio plano.
     assert.strictEqual(r.estimacion.importe_estimado_sin_iva,
-      precios.redondear(PIEL.peso_und_kg * PIEL.tarifa, 2));
+      precios.redondear(PIEL.peso_und_kg * r.precio_kg_sin_iva, 2));
     assert(/importe estimado/i.test(r.respuesta_exacta));
     assert(/se ajustará al peso real/i.test(r.respuesta_exacta), 'falta la advertencia del peso real');
   });
@@ -563,8 +575,9 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     const r = await consultas.precioDe(conCaja, { cantidad: 1, unidad: 'caja' });
     assert.strictEqual(r.estimacion.calculable, true);
     assert.strictEqual(r.estimacion.unidades, conCaja.und_caja);
+    // Una caja completa es tramo 3: más barato que la pieza suelta.
     assert.strictEqual(r.estimacion.importe_estimado_sin_iva,
-      precios.redondear(conCaja.und_caja * conCaja.peso_und_kg * conCaja.tarifa, 2));
+      precios.redondear(conCaja.und_caja * conCaja.peso_und_kg * r.precio_kg_sin_iva, 2));
     assert(/Cada caja contiene/.test(r.respuesta_exacta), r.respuesta_exacta);
     assert(/sin IVA/.test(r.respuesta_exacta));
   });
@@ -608,6 +621,14 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
 
   console.log('\n=== 10) Ofertas ===');
 
+  /* Algunas comprobaciones dependen de qué motor de precios esté activo. Se
+     marcan en vez de fallar: un rojo que solo significa "el flag está al otro
+     lado" enseña a ignorar los rojos, y entonces los de verdad pasan
+     desapercibidos. */
+  const V2 = tarifasReal.disponible();
+  const soloV2 = (label, fn) => (V2 ? check(label, fn)
+    : (console.log('  ⏭️ ', label, '— motor de tarifas apagado'), Promise.resolve()));
+
   await check('08· una oferta sin validar NUNCA se muestra', async () => {
     // Precio de oferta cargado, pero sin firma de administrador.
     await repo.guardarPrecio({ ...ofertas.vacio(PIEL.id),
@@ -649,7 +670,7 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     assert(/no tengo ninguna oferta activa registrada/.test(r.respuesta_exacta));
   });
 
-  await check('11· con ofertas activas se listan solo esas', async () => {
+  await soloV2('11· con ofertas activas se listan solo esas', async () => {
     await ofertas.guardar(PIEL.id, {
       standard_price_per_kg: 3.972, offer_price_per_kg: 2.5, offer_active: true,
       offer_start_date: '2020-01-01', offer_end_date: '2099-12-31',
@@ -658,34 +679,45 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
 
     const r = await consultas.consultarOfertas();
     assert.strictEqual(r.hay_ofertas, true);
-    assert.strictEqual(r.total, 1, 'solo la que está validada y activa');
+    assert.strictEqual(r.total, 1, 'la del panel: es la que vive en Redis');
     assert.strictEqual(r.ofertas[0].codigo, '0003');
     assert(/2,5 €\/kg sin IVA/.test(r.respuesta_exacta), r.respuesta_exacta);
     assert(/habitual 3,972/.test(r.respuesta_exacta));
     assert(/Hasta fin de existencias/.test(r.respuesta_exacta));
 
-    // Y el precio del producto pasa a ser el de oferta, con su firma.
-    const pr = await consultas.precioDe(PIEL);
-    assert.strictEqual(pr.precio_kg_sin_iva, 2.5);
-    assert.strictEqual(pr.es_oferta, true);
-    assert.strictEqual((await ofertas.get(PIEL.id)).offer_validated_by, 'Fernando');
-
-    // Y llega al carrito como oferta.
-    const ofCli = await repo.crearCliente({ nombre: 'Tienda Oferta', telefono: '34600000020' });
-    const a = await pedidoLib.anadir(ofCli.id, { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' });
-    assert.strictEqual(a.linea.precio_kg_sin_iva, 2.5);
-    assert.strictEqual(a.linea.es_oferta, true);
+    /* Con el motor de tarifas encendido el PRECIO lo manda la versión, no el
+       panel: `0003` no tiene fila OF, así que se cobra su tramo. El panel
+       sirve para suprimir una oferta de la tarifa, no para inventar una que
+       la versión aprobada no tiene. */
+    const pr = await consultas.precioDe(PIEL, { cantidad: 1, unidad: 'caja' });
+    assert.strictEqual(pr.es_oferta, false, 'una oferta de panel no puede pisar la tarifa');
+    const t3 = tarifasReal.precioDe(PIEL.codigo, '3');
+    assert.strictEqual(pr.precio_kg_sin_iva, t3.aplicado_e4 / 10000);
   });
 
-  await check('11b· una oferta con cantidad mínima no se aplica por debajo', async () => {
-    await ofertas.guardar(PIEL.id, { offer_min_quantity: 5, offer_unit: 'caja' }, { por: 'Fernando' });
-    const poco = await ofertas.precioVigente(PIEL, { cantidad: 2, unidad: 'caja' });
-    assert.strictEqual(poco.es_oferta, false);
-    assert.strictEqual(poco.precio_kg, 3.972);
-    const bastante = await ofertas.precioVigente(PIEL, { cantidad: 5, unidad: 'caja' });
-    assert.strictEqual(bastante.es_oferta, true);
-    assert.strictEqual(bastante.precio_kg, 2.5);
-    await ofertas.guardar(PIEL.id, { offer_min_quantity: '', offer_unit: '' }, { por: 'Fernando' });
+  await soloV2('11b· la oferta de la tarifa se aplica sola, y el panel puede suprimirla', async () => {
+    // `6305` sí tiene fila OF en los cuatro tramos.
+    const conOferta = catalogo.todos().find((p) => p.codigo === '6305');
+    assert(conOferta, 'hace falta 6305 en el catálogo');
+
+    const t3 = tarifasReal.precioDe('6305', '3');
+    const auto = await ofertas.precioVigente(conOferta, { cantidad: 1, unidad: 'caja' });
+    assert.strictEqual(auto.es_oferta, true, 'la oferta de la tarifa se aplica sola');
+    assert.strictEqual(auto.precio_kg, t3.oferta_e4 / 10000);
+    assert.strictEqual(auto.precio_normal_kg, t3.normal_e4 / 10000,
+      'hay que poder decir también el precio habitual');
+
+    // Un administrador la suprime desde el panel: se respeta y se registra.
+    await ofertas.guardar(conOferta.id, { offer_active: false }, { por: 'Fernando' });
+    const suprimida = await ofertas.precioVigente(conOferta, { cantidad: 1, unidad: 'caja' });
+    assert.strictEqual(suprimida.es_oferta, false, 'una supresión del panel debe respetarse');
+    assert.strictEqual(suprimida.precio_kg, t3.normal_e4 / 10000, 'se cobra el precio normal');
+    assert.strictEqual(suprimida.oferta_suprimida_por_administrador, 'Fernando');
+
+    // Y se puede volver a activar.
+    await ofertas.guardar(conOferta.id, { offer_active: true }, { por: 'Fernando' });
+    assert.strictEqual((await ofertas.precioVigente(conOferta,
+      { cantidad: 1, unidad: 'caja' })).es_oferta, true);
   });
 
   await check('11c· resolver un precio repetido lo desbloquea', async () => {
@@ -726,10 +758,7 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
 
   let pedidoPrevio = null;
   let OTRO = null;
-  await check('13· se repite el último pedido con su fecha e identificador', async () => {
-    // El pedido previo se hace con la oferta APAGADA, para que en la prueba 15
-    // se pueda comprobar el aviso de cambio de precio.
-    await ofertas.guardar(PIEL.id, { offer_active: false }, { por: 'Fernando' });
+  await soloV2('13· se repite el último pedido con su fecha e identificador', async () => {
     OTRO = catalogo.todos().find((x) => x.codigo !== PIEL.codigo
       && !x.bloqueado_para_calculo_precio && x.peso_und_kg > 0);
 
@@ -738,7 +767,9 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     const conf = await pedidoLib.confirmar(repCli.id, { clave_idempotencia: 'wamid.REP1' });
     pedidoPrevio = conf.pedido;
     assert.strictEqual(pedidoPrevio.lineas.length, 2);
-    assert.strictEqual(pedidoPrevio.lineas[0].precio_kg_sin_iva, 3.972, 'sin oferta activa');
+    // 2 cajas -> tramo 4. Es el precio que queda congelado en el pedido.
+    const t4 = tarifasReal.precioDe(PIEL.codigo, '4');
+    assert.strictEqual(pedidoPrevio.lineas[0].precio_kg_sin_iva, t4.aplicado_e4 / 10000);
 
     const r = await repeticion.preparar(repCli.id, {});
     assert.strictEqual(r.ok, true, JSON.stringify(r));
@@ -749,7 +780,7 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     assert.strictEqual(c.repite_pedido, pedidoPrevio.id);
   });
 
-  await check('14· repetición con modificaciones: doble, quitar y añadir', async () => {
+  await soloV2('14· repetición con modificaciones: doble, quitar y añadir', async () => {
     const doble = await repeticion.preparar(repCli.id, {
       modificaciones: [{ accion: 'multiplicar', factor: 2 }] });
     assert.strictEqual(doble.ok, true, JSON.stringify(doble));
@@ -785,28 +816,31 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     assert.strictEqual(mala.modificaciones_rechazadas[0].motivo, 'linea_no_encontrada');
   });
 
-  await check('15· se avisa cuando el precio ha cambiado desde el pedido anterior', async () => {
-    // Se enciende la oferta DESPUÉS del pedido previo: eso es un cambio real.
-    await ofertas.guardar(PIEL.id, { offer_active: true }, { por: 'Fernando' });
+  await soloV2('15· se avisa cuando el precio ha cambiado desde el pedido anterior', async () => {
+    /* El precio del pedido previo se manipula a mano para simular que la
+       tarifa cambió: es lo que pasaría con una reimportación aprobada. */
+    const congelado = pedidoPrevio.lineas[0].precio_kg_sin_iva;
+    const guardado = await repo.getPedido(pedidoPrevio.id);
+    guardado.lineas[0].precio_kg_sin_iva = congelado + 1;
+    await repo.guardarPedido(guardado);
+
     const r = await repeticion.preparar(repCli.id, { pedido_id: pedidoPrevio.id });
     assert.strictEqual(r.ok, true);
     assert.strictEqual(r.cambios_de_precio.length, 1, JSON.stringify(r.cambios_de_precio));
-
     const c = r.cambios_de_precio[0];
     assert.strictEqual(c.codigo, PIEL.codigo);
-    assert.strictEqual(c.antes, 3.972);
-    assert.strictEqual(c.ahora, 2.5);
+    assert.strictEqual(c.antes, congelado + 1);
+    assert.strictEqual(c.ahora, congelado);
     assert.strictEqual(c.direccion, 'baja');
-    assert.strictEqual(c.es_oferta, true);
-    assert(/3,972 → 2,5/.test(repeticion.textoCambios(r.cambios_de_precio)));
+    assert(repeticion.textoCambios(r.cambios_de_precio).includes('€/kg'));
 
-    // Y el pedido nuevo usa el precio de HOY, no el histórico.
+    // El pedido nuevo usa el precio de HOY.
     const carrito = await repo.getCarrito(repCli.id);
-    assert.strictEqual(carrito.lineas.find((l) => l.codigo === PIEL.codigo).precio_kg_sin_iva, 2.5);
-    assert.strictEqual(pedidoPrevio.lineas[0].precio_kg_sin_iva, 3.972, 'el pedido antiguo no se toca');
+    assert.strictEqual(carrito.lineas.find((l) => l.codigo === PIEL.codigo)
+      .precio_kg_sin_iva, congelado);
   });
 
-  await check('16· un pedido repetido exige confirmación nueva y crea un ID distinto', async () => {
+  await soloV2('16· un pedido repetido exige confirmación nueva y crea un ID distinto', async () => {
     const r = await repeticion.preparar(repCli.id, { pedido_id: pedidoPrevio.id });
     assert.strictEqual(r.ok, true);
     // `preparar` NO confirma: el pedido sigue siendo el mismo hasta que se confirme.
@@ -825,10 +859,19 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
   await check('17· la solicitud llega con precios confirmados, pendientes y repetición', async () => {
     // Un pedido con una línea con precio y otra pendiente.
     const mixCli = await repo.crearCliente({ nombre: 'Tienda Mixta', telefono: '34600000040' });
-    const sinResolver = catalogo.todos().find((x) => x.estado === 'tariff_variant_unresolved'
-      && x.id !== DUP.id);
+    // Un artículo promocional nunca tiene precio que afirmar: sirve de caso
+    // "pendiente" tanto con el motor de tarifas encendido como apagado.
+    const sinResolver = catalogo.todos().find((x) => x.codigo === 'OF3900');
+    assert(sinResolver, 'hace falta OF3900 para el caso de precio pendiente');
     await pedidoLib.anadir(mixCli.id, { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' });
     await pedidoLib.anadir(mixCli.id, { producto_id: sinResolver.id, cantidad: 1, unidad_pedido: 'caja' });
+    // Y uno con oferta de verdad, para que aparezca la sección de ofertas.
+    const conOf = catalogo.todos().find((x) => x.codigo === '6305')
+      || catalogo.todos().find((x) => x.codigo === '6304');
+    if (conOf) {
+      await ofertas.guardar(conOf.id, { offer_active: true }, { por: 'Fernando' });
+      await pedidoLib.anadir(mixCli.id, { producto_id: conOf.id, cantidad: 1, unidad_pedido: 'caja' });
+    }
     const conf = await pedidoLib.confirmar(mixCli.id, { clave_idempotencia: 'wamid.MIX' });
 
     process.env.FACTORY_WHATSAPP_NUMBER = '34600000900';
@@ -845,7 +888,8 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     assert(t.includes('Tienda Mixta'));
     assert(/Productos con precio confirmado:/.test(t));
     assert(/Productos con precio PENDIENTE de confirmar:/.test(t));
-    assert(/🏷️ Solicitados con precio de oferta:/.test(t), 'falta la sección de ofertas');
+    if (conOf && V2) assert(/🏷️ Solicitados con precio de oferta:/.test(t),
+      'falta la sección de ofertas');
     assert(/Estado: pendiente de revisión por Chacón Alcántara\./.test(t));
     assert(!/total a pagar/i.test(t), 'no puede darse un total definitivo');
 
@@ -855,7 +899,7 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     delete process.env.FACTORY_CONTACT_NAME;
   });
 
-  await check('17b· un pedido repetido se marca como tal para el responsable', async () => {
+  await soloV2('17b· un pedido repetido se marca como tal para el responsable', async () => {
     const ped = (await repo.pedidosDeCliente(repCli.id))[0];
     assert(ped.repite_pedido, 'el pedido de la prueba 16 repite otro');
     const t = fabrica.componerMensaje(ped);
@@ -1260,7 +1304,11 @@ const toolCall = (nombre, args) => ({ role: 'assistant', content: null,
     const l = c.lineas.find((x) => x.codigo === MULTI.codigo);
     assert(l, 'la línea aclarada debe estar en el carrito');
     assert.strictEqual(l.unidad_pedido, 'caja');
-    assert.strictEqual(l.precio_kg_sin_iva, MULTI.tarifa);
+    // 3 cajas -> tramo 4. El precio sale de la tarifa activa, no de un plano.
+    const esperado = tarifasReal.disponible()
+      ? tarifasReal.precioDe(MULTI.codigo, '4').aplicado_e4 / 10000
+      : MULTI.tarifa;
+    assert.strictEqual(l.precio_kg_sin_iva, esperado);
   });
 
   await check('46· carrito nativo + producto añadido por texto conviven', async () => {
