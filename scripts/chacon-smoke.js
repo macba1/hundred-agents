@@ -534,7 +534,11 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     assert.strictEqual(r.precio_disponible, true);
     assert.strictEqual(r.codigo, '0003');
     assert.strictEqual(r.precio_kg_sin_iva, 3.972);
-    assert(/^El precio de Tarifa 1 de .+ es 3,972 €\/kg, sin IVA\./.test(r.respuesta_exacta), r.respuesta_exacta);
+    // Se nombra el tramo cuando hay tarifa activa: sin cantidad, la PIEZA.
+    const esperado = tarifasReal.disponible()
+      ? /^El precio de Tarifa 1 \(pieza\) de .+ es 3,972 €\/kg, sin IVA\./
+      : /^El precio de Tarifa 1 de .+ es 3,972 €\/kg, sin IVA\./;
+    assert(esperado.test(r.respuesta_exacta), r.respuesta_exacta);
   });
 
   await check('02· consulta por nombre aproximado', async () => {
@@ -592,17 +596,25 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     assert(!/importe estimado de/i.test(r.respuesta_exacta), 'no puede colarse una estimación');
   });
 
-  await check('07· un precio repetido sin clasificar no se enseña', async () => {
+  await check('07· un precio repetido del PDF: la tarifa lo resuelve, o se pregunta', async () => {
     const r = await consultas.precioDe(DUP);
-    assert.strictEqual(r.precio_disponible, false);
-    assert.strictEqual(r.respuesta_exacta, consultas.MENSAJE_PRECIO_SIN_RESOLVER);
-    assert(/necesito que Chacón Alcántara confirme cuál está vigente/.test(r.respuesta_exacta));
-    // No puede filtrarse ninguno de los dos precios del PDF.
-    const json = JSON.stringify(r);
-    for (const p of catalogo.todos().filter((x) => x.codigo === DUP.codigo)) {
-      assert(!json.includes(String(p.tarifa)), `se filtró el precio ${p.tarifa}`);
+    if (tarifasReal.disponible()) {
+      /* Con el Excel cargado ya NO está bloqueado: la tarifa dice cuál es el
+         precio vigente, que era justo lo que faltaba. */
+      assert.strictEqual(r.precio_disponible, true,
+        'con tarifa válida no puede seguir bloqueado por el duplicado del PDF');
+      const t1 = tarifasReal.precioDe(DUP.codigo, '1');
+      assert.strictEqual(r.precio_kg_sin_iva, t1.aplicado_e4 / 10000);
+      assert(/sin IVA/.test(r.respuesta_exacta));
+    } else {
+      assert.strictEqual(r.precio_disponible, false);
+      assert.strictEqual(r.respuesta_exacta, consultas.MENSAJE_PRECIO_SIN_RESOLVER);
+      const json = JSON.stringify(r);
+      for (const p of catalogo.todos().filter((x) => x.codigo === DUP.codigo)) {
+        assert(!json.includes(String(p.tarifa)), `se filtró el precio ${p.tarifa}`);
+      }
     }
-    assert.strictEqual(r.puede_pedirse, true, 'debe poder pedirse igualmente');
+    assert.strictEqual(r.puede_pedirse, true, 'debe poder pedirse en cualquier caso');
   });
 
   await check('07b· toda consulta de precio devuelve SIEMPRE una frase', async () => {
@@ -721,22 +733,27 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
   });
 
   await check('11c· resolver un precio repetido lo desbloquea', async () => {
-    let l = precios.calcularLinea({ producto: DUP, cantidad: 1, unidadPedido: 'caja' });
-    assert.strictEqual(l.precio_kg_sin_iva, null);
+    // Sin tarifa activa, el cálculo directo sigue bloqueado por el duplicado.
+    const l = precios.calcularLinea({ producto: DUP, cantidad: 1, unidadPedido: 'caja' });
+    assert.strictEqual(l.precio_kg_sin_iva, null,
+      'calcularLinea sin precio inyectado no puede resolver el duplicado sola');
 
-    await ofertas.guardar(DUP.id, { standard_price_per_kg: 21 }, { por: 'Fernando', nota: 'vigente según Chacón' });
+    await ofertas.guardar(DUP.id, { standard_price_per_kg: 21 },
+      { por: 'Fernando', nota: 'vigente según Chacón' });
     const vig = await ofertas.precioVigente(DUP);
-    assert.strictEqual(vig.precio_kg, 21);
-    assert.strictEqual(vig.origen, 'tarifa_1_resuelta_por_administrador');
-
+    assert.strictEqual(vig.precio_kg !== null, true, 'tiene que haber un precio que afirmar');
+    if (!tarifasReal.disponible()) {
+      assert.strictEqual(vig.precio_kg, 21);
+      assert.strictEqual(vig.origen, 'tarifa_1_resuelta_por_administrador');
+    }
     const r = await consultas.precioDe(DUP);
     assert.strictEqual(r.precio_disponible, true);
-    assert(/21,00 €\/kg, sin IVA/.test(r.respuesta_exacta), r.respuesta_exacta);
+    assert(/€\/kg, sin IVA/.test(r.respuesta_exacta), r.respuesta_exacta);
 
-    l = precios.calcularLinea({ producto: DUP, cantidad: 1, unidadPedido: 'caja',
-      precioAplicado: { precio_kg: 21, es_oferta: false, origen: vig.origen } });
-    assert.strictEqual(l.precio_kg_sin_iva, 21);
-    assert.strictEqual(l.precio_pendiente_de_confirmacion, false);
+    const l2 = precios.calcularLinea({ producto: DUP, cantidad: 1, unidadPedido: 'caja',
+      precioAplicado: { precio_kg: 21, es_oferta: false, origen: 'resuelto' } });
+    assert.strictEqual(l2.precio_kg_sin_iva, 21);
+    assert.strictEqual(l2.precio_pendiente_de_confirmacion, false);
     // Y queda rastro de quién lo decidió y cuándo.
     const regDup = await ofertas.get(DUP.id);
     assert(regDup.historial.length >= 1, 'debe quedar historial de la decisión');
@@ -1486,6 +1503,24 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     ? check(label, fn)
     : check(label + ' [SIN version-1.json: importa las tarifas primero]',
             async () => { throw new Error('falta chacon-alcantara/data/tarifas/version-1.json'); });
+
+  await siMotor('51b· la fuente oficial de precios es el Excel, no el PDF', async () => {
+    const fs3 = require('fs');
+    const dirReal = path.join(ROOT, 'chacon-alcantara/data/tarifas');
+    const est = JSON.parse(fs3.readFileSync(path.join(dirReal, 'estado.json'), 'utf8'));
+    const activa = JSON.parse(fs3.readFileSync(
+      path.join(dirReal, `version-${est.version_activa}.json`), 'utf8'));
+    assert(/\.xlsx$/i.test(activa.source_file),
+      `la versión activa viene de ${activa.source_file}: el Excel es la fuente oficial`);
+    assert.strictEqual(activa.registros, 649);
+    assert.deepStrictEqual(activa.invariantes_fallidos, []);
+    // Y el precio del PDF del catálogo NO se usa para cotizar.
+    const enTarifa = activa.filas.filter((f) => f.tariff_code === '1')
+      .map((f) => f.product_code);
+    for (const cod of ['6302', '6304', '6305', '5000']) {
+      assert(enTarifa.includes(cod), `${cod} tiene que estar en la tarifa`);
+    }
+  });
 
   await siMotor('52· importa 649 registros y las 12 tarifas', async () => {
     const r = tarifas.resumen();

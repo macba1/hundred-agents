@@ -1,5 +1,5 @@
 {
-  "version_activa": 1,
+  "version_activa": 2,
   "versiones": [
     {
       "version": 1,
@@ -9,6 +9,15 @@
       "source_sha256": "ffe14d5e0f1547a285d6a1851df6118c2792ba0d8fd303d11413476b891ab5f0",
       "invariantes_fallidos": 0,
       "approved_by": "Tony (Hundred Agents), autorizado sobre las tarifas de Fernando"
+    },
+    {
+      "version": 2,
+      "generado": "2026-08-18T19:39:51.129569+00:00",
+      "registros": 649,
+      "approved": true,
+      "source_sha256": "be5837b6170488338c77261b71c48454ede29d8beb96e746e9f82b41e6132f2c",
+      "invariantes_fallidos": 0,
+      "approved_by": "Tony (Hundred Agents) — Excel del 18/08/2026 de Fernando"
     }
   ],
   "auditoria": [
@@ -17,6 +26,12 @@
       "accion": "activar_version",
       "version": 1,
       "por": "Tony (Hundred Agents), autorizado sobre las tarifas de Fernando"
+    },
+    {
+      "ts": "2026-08-18T19:41:51.440619+00:00",
+      "accion": "activar_version",
+      "version": 2,
+      "por": "Tony (Hundred Agents) — Excel del 18/08/2026 de Fernando"
     }
   ]
 }

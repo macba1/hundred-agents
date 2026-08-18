@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Importa `Tarifas todas.pdf` como una versión INMUTABLE de tarifas.
+"""Importa las tarifas de Chacón como una versión INMUTABLE.
+
+Acepta el Excel (`--xlsx`) o el PDF (`--pdf`). **El Excel es la fuente oficial
+de precios**; del PDF salen descripción, marca, unidades por caja, peso, EAN,
+alérgenos, observaciones e imágenes, y su columna de precio NO se usa para
+calcular pedidos. Los dos producen exactamente el mismo formato de versión,
+así que el resto del sistema no se entera de cuál se usó.
 
 Por qué versionado y no sobrescrito: un pedido confirmado guarda el precio que
 se le dijo al cliente. Si una reimportación pisara la tabla activa, los pedidos
@@ -66,7 +72,8 @@ TARIFAS_CONOCIDAS = {
     "4OF": ("4", "offer",    "+ 2 CAJAS OFERTA"),
     "ALI": ("special", "special", "ALIPENSA"),
     "COO": ("special", "special", "COOPERATIVA VINO"),
-    "OFC": ("special", "special", "OFERTA COOPERATIV"),
+    # El PDF recorta esta etiqueta a 17 caracteres; el Excel la trae entera.
+    "OFC": ("special", "special", "OFERTA COOPERATIVA"),
     "S":   ("special", "special", "SPV"),
 }
 
@@ -84,9 +91,16 @@ PALABRAS_INTERNAS = re.compile(
 
 
 def a_entero(precio: str) -> int:
-    """`13,889` -> 138890. Exacto, sin float por medio."""
-    d = Decimal(precio.replace(".", "").replace(",", ".")) if precio.count(",") == 1 \
-        else Decimal(precio.replace(",", "."))
+    """`13,889` o `13.889` -> 138890. Exacto, sin float por medio.
+
+    El PDF usa coma decimal y el Excel punto. Se acepta cualquiera de los dos,
+    pero NUNCA los dos a la vez en el mismo número: `1.234,56` sería un
+    separador de miles y aquí no aparece, así que se rechaza en vez de
+    adivinar."""
+    p = str(precio).strip()
+    if "," in p and "." in p:
+        raise ValueError(f"precio con coma Y punto, ambiguo: {p}")
+    d = Decimal(p.replace(",", "."))
     escalado = (d * ESCALA).normalize()
     if escalado != escalado.to_integral_value():
         raise ValueError(f"precio con más de 4 decimales: {precio}")
@@ -97,6 +111,43 @@ def de_entero(n: int) -> str:
     """138890 -> '13,889' (sin ceros de relleno). Solo para mostrar."""
     d = (Decimal(n) / ESCALA).normalize()
     return format(d, "f").replace(".", ",")
+
+
+def parsear_xlsx(xlsx_path: Path) -> tuple[list[dict], dict]:
+    """Lee el Excel. Viene agrupado: una fila con el código de tarifa en la
+    primera columna y debajo sus artículos.
+
+    Los códigos llegan con espacios de relleno y los precios con punto
+    decimal, al revés que en el PDF. Se recortan y se normalizan aquí, sin
+    tocar los ceros iniciales: `0052` no puede volverse `52`."""
+    try:
+        import openpyxl
+    except ImportError:
+        sys.exit("Falta openpyxl. Instala con: pip install openpyxl")
+
+    wb = openpyxl.load_workbook(xlsx_path, data_only=True)
+    ws = wb[wb.sheetnames[0]]
+    filas: list[dict] = []
+    tarifa = None
+    for fila, valores in enumerate(ws.iter_rows(min_row=1, values_only=True), start=1):
+        grupo, codigo, nombre, precio, etiqueta = (tuple(valores) + (None,) * 5)[:5]
+        if grupo is not None and str(grupo).strip():
+            posible = str(grupo).strip()
+            if RE_SECCION.match(posible):
+                tarifa = posible
+            continue
+        if codigo is None or precio is None:
+            continue
+        filas.append({
+            "product_code": str(codigo).strip(),      # string, ceros incluidos
+            "product_name": re.sub(r"\s+", " ", str(nombre or "")).strip(),
+            "precio_bruto": str(precio).strip(),
+            "tier_label": re.sub(r"\s+", " ", str(etiqueta or "")).strip() or None,
+            "tariff_code": tarifa,
+            "source_page": fila,                       # fila del Excel
+        })
+    return filas, {"hoja": ws.title, "filas_totales": ws.max_row,
+                   "origen": "xlsx"}
 
 
 def parsear(pdf_path: Path) -> tuple[list[dict], dict]:
@@ -183,7 +234,11 @@ def comprobar_invariantes(filas: list[dict]) -> list[str]:
             fallos.append(f"tarifa desconocida: {t['tariff_code']}")
         else:
             esperada = TARIFAS_CONOCIDAS[t["tariff_code"]][2]
-            if t["tier_label"] != esperada:
+            visto = re.sub(r"\s+", " ", str(t["tier_label"] or "")).strip()
+            # El PDF recorta las etiquetas al ancho de su columna, así que un
+            # prefijo de la esperada es un truncamiento, no un error. Lo que no
+            # se admite es una etiqueta distinta: eso sería otra tarifa.
+            if visto != esperada and not esperada.startswith(visto):
                 fallos.append(f"{t['product_code']} en {t['tariff_code']}: etiqueta "
                               f"'{t['tier_label']}' en vez de '{esperada}'")
 
@@ -329,6 +384,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--pdf")
+    ap.add_argument("--xlsx", help="Fuente OFICIAL de precios.")
     ap.add_argument("--aprobar", type=int, metavar="N",
                     help="Aprueba y ACTIVA la versión N. Requiere --por.")
     ap.add_argument("--por", help="Quién aprueba. Queda en la auditoría.")
@@ -378,14 +434,14 @@ def main() -> None:
         print("Las tarifas especiales (ALI, COO, OFC, S) quedan importadas pero INACTIVAS.")
         return
 
-    if not a.pdf:
-        sys.exit("Hace falta --pdf, --aprobar o --listar.")
+    if not a.pdf and not a.xlsx:
+        sys.exit("Hace falta --xlsx, --pdf, --aprobar o --listar.")
 
-    pdf = Path(a.pdf).expanduser()
+    pdf = Path(a.xlsx or a.pdf).expanduser()
     sha = hashlib.sha256(pdf.read_bytes()).hexdigest()
     version = max([v["version"] for v in e["versiones"]], default=0) + 1
 
-    filas, paginas = parsear(pdf)
+    filas, paginas = parsear_xlsx(pdf) if a.xlsx else parsear(pdf)
     fallos = comprobar_invariantes(filas)
     normalizadas = normalizar(filas, pdf, version, sha)
 
@@ -420,9 +476,11 @@ def main() -> None:
                            "invariantes_fallidos": len(fallos)})
     guardar_estado(e)
 
-    print(f"Versión {version} creada · {len(normalizadas)} registros · "
-          f"{paginas['paginas_con_contenido']} páginas con contenido, "
-          f"{paginas['paginas_en_blanco']} en blanco")
+    origen = ("hoja «%s», %s filas" % (paginas["hoja"], paginas["filas_totales"])
+              if paginas.get("origen") == "xlsx"
+              else "%s páginas con contenido, %s en blanco"
+                   % (paginas["paginas_con_contenido"], paginas["paginas_en_blanco"]))
+    print(f"Versión {version} creada desde {pdf.name} · {len(normalizadas)} registros · {origen}")
     print()
     for k in TARIFAS_CONOCIDAS:
         print(f"  {k:5s} {doc['resumen_por_tarifa'][k]:4d}  {TARIFAS_CONOCIDAS[k][2]}")
