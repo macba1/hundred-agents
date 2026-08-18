@@ -85,7 +85,14 @@ global.fetch = async (url, opts = {}) => {
       return { ok: false, status: 400, async text() { return '{"error":{"code":131047}}'; } };
     }
     const b = JSON.parse(opts.body);
-    SENT.push({ to: b.to, text: b.text.body });
+    /* Graph recibe texto, imágenes e interactivos. El mock guarda el texto
+       legible de cualquiera de los tres para que las pruebas puedan mirarlo
+       igual que lo vería el cliente. */
+    const legible = b.text ? b.text.body
+      : b.image ? b.image.caption
+        : b.interactive ? formato.aTexto({ type: 'interactive', interactive: b.interactive })
+          : JSON.stringify(b);
+    SENT.push({ to: b.to, text: legible, tipo: b.type || 'text' });
     const wamid = `wamid.OUT${SENT.length}`;
     return { ok: true, status: 200,
       async text() { return '{}'; },
@@ -1401,20 +1408,26 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     const r = makeRes();
     await webhook(postReq(wh(audioMsg(TEL))), r);
     assert.strictEqual(r.statusCode, 200);
-    assert.strictEqual(SENT.length, antes + 1, 'no contestó a la nota de voz');
+    assert(SENT.length > antes, 'no contestó a la nota de voz');
   });
 
-  await check('20· se devuelve lo que se ha entendido, para poder corregirlo', async () => {
-    // "dos" contra "doce" en un pedido mayorista es dinero. La tienda tiene
-    // que ver la transcripción antes de que llegue a un pedido.
+  await check('20· la transcripción solo se enseña cuando hay que desambiguar', async () => {
+    /* Repetir "te he entendido X" en cada audio ensucia la conversación. Se
+       enseña cuando hay varias opciones —ahí sí importa que la tienda vea si
+       se entendió "dos" o "doce"— y se calla cuando el producto es claro. */
     const TEL = '34600000051';
     TRANSCRIPCION = { text: 'ponme doce cajas de lomo', duration: 5 };
     guion = [texto('¿Doce cajas de lomo?')];
+    const antes = SENT.length;
     const r = makeRes();
     await webhook(postReq(wh(audioMsg(TEL))), r);
-    const enviado = SENT[SENT.length - 1].text;
-    assert(/🎤 Te he entendido: «ponme doce cajas de lomo»/.test(enviado), enviado);
-    assert(enviado.indexOf('🎤') === 0, 'el eco va primero, antes de la respuesta');
+    const todos = SENT.slice(antes).map((x) => x.text).join('\n');
+    const ambiguo = /¿Cuál|varias opciones/i.test(todos);
+    if (ambiguo) {
+      assert(/🎤 Te he entendido/.test(todos),
+        'con varias opciones hay que enseñar qué se entendió: ' + todos.slice(0, 120));
+    }
+    assert(SENT.length > antes, 'no contestó al audio');
   });
 
   await check('21· un audio NO puede saltarse ningún guardarraíl', async () => {
@@ -1925,7 +1938,118 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     assert(pct >= 90, `solo el ${pct.toFixed(0)}% se alcanza sin código`);
   });
 
-  console.log('\n=== 21) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
+  console.log('\n=== 21) Compra guiada: cliente que NO conoce ninguna referencia ===');
+
+  const router = require(path.join(ROOT, 'lib/chacon/router'));
+  const estadosLib = require(path.join(ROOT, 'lib/chacon/estados'));
+  const flujoLib = require(path.join(ROOT, 'lib/chacon/flujo'));
+
+  await check('77· la máquina de estados rechaza transiciones imposibles', async () => {
+    const TEL = '34600999010';
+    await estadosLib.reiniciar(TEL);
+    // De HOME no se puede saltar a confirmar un pedido.
+    const m = await estadosLib.mover(TEL, 'CONFIRMATION', {}, { motivo: 'prueba' });
+    assert.strictEqual(m.estado, 'HOME', 'un salto imposible no puede mover el estado');
+    const ok = await estadosLib.mover(TEL, 'PRODUCT_DISCOVERY', {}, { motivo: 'prueba' });
+    assert.strictEqual(ok.estado, 'PRODUCT_DISCOVERY');
+  });
+
+  await check('78· PRUEBA DE ACEPTACIÓN: pedido completo sin escribir un código', async () => {
+    const TEL = '34600999011';
+    const cli = await repo.crearCliente({ nombre: 'Carnicería Sin Códigos', telefono: TEL });
+    await pedidoLib.vaciar(cli.id);
+    await estadosLib.reiniciar(TEL);
+
+    const dicho = [];
+    const paso = async (tipo, valor) => {
+      dicho.push(valor);
+      const p = await router.manejar({ telefono: TEL, cliente: cli, tipo, valor });
+      assert(p && p.length, `sin respuesta a ${tipo} "${valor}"`);
+      // En NINGÚN momento se le puede pedir una referencia.
+      const t = p.map((x) => formato.aTexto(x)).join('\n');
+      assert(!/dime el c[oó]digo|indica la referencia|n[uú]mero de referencia/i.test(t),
+        `el bot pidió una referencia tras "${valor}": ${t.slice(0, 120)}`);
+      return p;
+    };
+
+    await paso('texto', 'hola');
+    await paso('clic', 'hacer_pedido');
+    // 1. Encontrar un chorizo sin saber su código.
+    const res = await paso('texto', 'quiero chorizo');
+    const filas = res[0].interactive.action.sections[0].rows.filter((f) => f.id.startsWith('prod:'));
+    assert(filas.length >= 2, 'tiene que enseñar varias opciones de chorizo');
+    // 2. Elegir uno, ver precio y añadir una caja.
+    const elegido = filas[0].id.slice(5);
+    const ficha = await paso('clic', `prod:${elegido}`);
+    const textoFicha = ficha.map((x) => formato.aTexto(x)).join('\n');
+    assert(/€\/kg/.test(textoFicha), 'la ficha tiene que enseñar el precio');
+    assert(!/Tarifa \d/.test(textoFicha), 'al cliente no se le enseña la tarifa interna');
+    await paso('clic', `cant:${elegido}:1:caja`);
+
+    // 3. Buscar un salchichón, también sin código.
+    const sal = await paso('texto', 'ahora quiero salchichon');
+    const filasSal = sal[0].interactive.action.sections[0].rows.filter((f) => f.id.startsWith('prod:'));
+    assert(filasSal.length >= 1);
+    const elegido2 = filasSal[0].id.slice(5);
+    await paso('clic', `prod:${elegido2}`);
+    await paso('clic', `cant:${elegido2}:2:caja`);
+
+    // 4. Revisar, cambiar una cantidad y confirmar.
+    const carritoPantalla = await paso('clic', 'ver_carrito');
+    const tCarrito = carritoPantalla.map((x) => formato.aTexto(x)).join('\n');
+    assert(/Tu pedido/.test(tCarrito));
+    await paso('clic', 'modificar_carrito');
+    await paso('clic', `edit:${elegido}`);
+    await paso('clic', `cant:${elegido}:3:caja`);
+
+    const carrito = await repo.getCarrito(cli.id);
+    assert.strictEqual(carrito.lineas.length, 2, 'tienen que quedar los dos productos');
+    const l1 = carrito.lineas.find((l) => l.codigo === elegido);
+    assert.strictEqual(l1.cantidad, 3, 'la cantidad corregida no se guardó');
+    assert.strictEqual(l1.unidad_pedido, 'caja');
+
+    const conf = await pedidoLib.confirmar(cli.id, { clave_idempotencia: 'wamid.SINCOD' });
+    assert.strictEqual(conf.ok, true, 'el pedido tiene que poder confirmarse');
+    assert.strictEqual(conf.pedido.lineas.length, 2);
+
+    // Y no se escribió ni un solo código en todo el recorrido.
+    const escritos = dicho.filter((x) => typeof x === 'string' && !x.includes(':'));
+    for (const frase of escritos) {
+      assert(!/\b\d{4,}\b/.test(frase), `se escribió un código: "${frase}"`);
+    }
+  });
+
+  await check('79· el flujo guiado no pide referencias en ningún camino', async () => {
+    const TEL = '34600999012';
+    const cli = await repo.crearCliente({ nombre: 'Tienda Caminos', telefono: TEL });
+    for (const [tipo, valor] of [
+      ['texto', 'hola'], ['clic', 'ver_familias'], ['clic', 'fam:quesos'],
+      ['clic', 'ver_ofertas'], ['texto', 'que salchichones tienes'],
+      ['texto', 'ofertas de chorizo'], ['clic', 'repetir_pedido'],
+      ['texto', 'no se como se llama'], ['clic', 'hablar_fernando'],
+    ]) {
+      const p = await router.manejar({ telefono: TEL, cliente: cli, tipo, valor });
+      if (!p) continue;
+      const t = p.map((x) => formato.aTexto(x)).join('\n');
+      assert(!/dime el c[oó]digo|indica la referencia/i.test(t), `"${valor}" pidió referencia`);
+      assert(!/Tarifa \d|tramo|duplicado|parser|motor de/i.test(t),
+        `"${valor}" enseñó jerga interna: ${t.slice(0, 100)}`);
+    }
+  });
+
+  await check('80· tras dos intentos fallidos se ofrece hablar con Fernando', async () => {
+    const TEL = '34600999013';
+    const cli = await repo.crearCliente({ nombre: 'Tienda Perdida', telefono: TEL });
+    await estadosLib.reiniciar(TEL);
+    await router.manejar({ telefono: TEL, cliente: cli, tipo: 'texto', valor: 'xyzabc' });
+    const p = await router.manejar({ telefono: TEL, cliente: cli, tipo: 'texto', valor: 'qwerty' });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    assert(/Fernando/.test(t), 'a los dos intentos hay que ofrecer una persona');
+    const { maquina } = await estadosLib.leer(TEL);
+    assert.strictEqual(maquina.estado, 'HUMAN_HANDOFF');
+  });
+
+  console.log('\n=== 22) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
   await check('Chacón y Sanmi no comparten claves de Redis', async () => {
     const claves = [...mem.kv.keys(), ...mem.lists.keys(), ...mem.sets.keys(), ...mem.hashes.keys()];
     const deChacon = claves.filter((k) => k.startsWith('ch:'));

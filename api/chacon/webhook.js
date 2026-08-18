@@ -16,6 +16,7 @@ const voz = require('../../lib/chacon/voz');
 const formato = require('../../lib/chacon/wa-formato');
 const navegacion = require('../../lib/chacon/navegacion');
 const carritoNativo = require('../../lib/chacon/carrito-nativo');
+const router = require('../../lib/chacon/router');
 const pedidoLib = require('../../lib/chacon/pedido');
 
 const MAX_RESPUESTAS_HORA = Number(process.env.CHACON_MAX_RESPUESTAS_HORA || 40);
@@ -255,6 +256,31 @@ async function atender(value, m) {
       eco = voz.ecoDeTranscripcion(t.texto) + '\n\n';
     }
     if (!texto) return;
+
+    /* Primero el flujo guiado: resuelve clics y todo lo que se puede decidir
+       sin modelo. Si devuelve null es que se sale del guion, y entonces
+       atiende el agente conversacional como siempre. */
+    const tienda = await repo.clientePorTelefono(telefono);
+    if (process.env.CHACON_FLUJO_GUIADO !== '0') {
+      const pantallas = await router.manejar({
+        telefono, cliente: tienda,
+        tipo: m.type === 'interactive' ? 'clic' : 'texto',
+        valor: m.type === 'interactive' ? formato.idPulsado(m) : texto,
+      });
+      if (pantallas && pantallas.length) {
+        const dest = { phone_number_id: (value.metadata || {}).phone_number_id
+          || process.env.CHACON_PHONE_NUMBER_ID || '' };
+        /* Repetir "te he entendido X" en cada audio ensucia la conversación.
+           Solo se enseña cuando hay que desambiguar: si el flujo resolvió el
+           producto, la propia ficha ya demuestra qué se entendió. Se sigue
+           registrando siempre en el log para poder auditarlo. */
+        const ambiguo = pantallas.some((x) => x.type === 'interactive'
+          && /¿Cuál|varias opciones|no he encontrado/i.test(formato.aTexto(x)));
+        if (eco && ambiguo) await responderTexto(value, telefono, eco.trim());
+        await formato.enviar(dest, telefono, pantallas);
+        return;
+      }
+    }
 
     const historial = await getHistorial(telefono);
     const r = await agente.responder({
