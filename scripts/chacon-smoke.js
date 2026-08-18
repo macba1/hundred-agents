@@ -2049,7 +2049,174 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     assert.strictEqual(maquina.estado, 'HUMAN_HANDOFF');
   });
 
-  console.log('\n=== 22) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
+  console.log('\n=== 22) Identificación del cliente (bugs de producción) ===');
+
+  const ident = require(path.join(ROOT, 'lib/chacon/identificacion'));
+
+  await check('A· un nombre suelto NO se manda al buscador de productos', async () => {
+    const TEL = '34600777001';
+    await estadosLib.reiniciar(TEL);
+    await router.pedirIdentificacion(TEL);
+    const { maquina } = await estadosLib.leer(TEL);
+    assert.strictEqual(maquina.estado, 'CUSTOMER_IDENTIFICATION');
+    assert.strictEqual(maquina.slot_pendiente, 'BUSINESS_NAME');
+
+    const p = await router.manejar({ telefono: TEL, cliente: null,
+      tipo: 'texto', valor: 'Tony Tienda' });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    // El bug: contestaba "No he encontrado «tony tienda»" y ofrecía familias.
+    assert(!/No he encontrado/.test(t), 'lo trató como búsqueda de producto');
+    assert(!/Embutidos curados|Quesos|Conservas/.test(t), 'ofreció familias');
+    assert(/No encuentro «Tony Tienda»/.test(t), t.slice(0, 120));
+  });
+
+  await check('B· una frase natural se reduce al nombre del negocio', async () => {
+    assert.strictEqual(ident.nombreDeNegocio('el nombre de mi tienda es Tony Tienda'),
+      'Tony Tienda');
+    assert.strictEqual(ident.nombreDeNegocio('mi tienda es Tony Tienda'), 'Tony Tienda');
+    assert.strictEqual(ident.nombreDeNegocio('somos Carnicería Pepe'), 'Carnicería Pepe');
+    assert.strictEqual(ident.nombreDeNegocio('Tony Tienda'), 'Tony Tienda');
+    assert.strictEqual(ident.nombreDeNegocio('6305'), null, 'un código no es un negocio');
+
+    const TEL = '34600777002';
+    await estadosLib.reiniciar(TEL);
+    await router.pedirIdentificacion(TEL);
+    const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
+      valor: 'el nombre de mi tienda es Tony Tienda' });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    assert(/«Tony Tienda»/.test(t), `no extrajo el nombre: ${t.slice(0, 120)}`);
+    assert(!/el nombre de mi tienda/.test(t), 'usó la frase entera como nombre');
+  });
+
+  await check('C· negocio no encontrado: reintentar o Fernando, NUNCA familias', async () => {
+    const TEL = '34600777003';
+    await estadosLib.reiniciar(TEL);
+    await router.pedirIdentificacion(TEL);
+    const p = await router.manejar({ telefono: TEL, cliente: null,
+      tipo: 'texto', valor: 'Negocio Que No Existe SL' });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    assert(/Otro nombre/.test(t), t.slice(0, 160));
+    assert(/Fernando/.test(t));
+    // Los títulos de botón tienen que caber en los 20 caracteres de Meta:
+    // si se cortan, el cliente lee "Probar otro nomb…".
+    for (const m of p) {
+      if (m.type !== 'interactive' || m.interactive.type !== 'button') continue;
+      for (const b of m.interactive.action.buttons) {
+        assert(!b.reply.title.endsWith('…'), `botón cortado: "${b.reply.title}"`);
+      }
+    }
+    assert(!/[Ff]amilias/.test(t), 'ofreció familias durante la identificación');
+    assert(!/ofertas/i.test(t), 'ofreció catálogo durante la identificación');
+  });
+
+  await check('D· «Ver familias» muestra familias, no productos', async () => {
+    const TEL = '34600777004';
+    await estadosLib.reiniciar(TEL);
+    const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic',
+      valor: 'ver_familias' });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    assert(/Embutidos curados/.test(t), 'no salieron las familias');
+    assert(!/Ref\. \d/.test(t), 'salieron productos en la pantalla de familias');
+    const { maquina } = await estadosLib.leer(TEL);
+    assert.strictEqual(maquina.estado, 'FAMILY_SELECTION');
+  });
+
+  await check('E· una búsqueda anterior NO contamina la pantalla de familias', async () => {
+    const TEL = '34600777005';
+    await estadosLib.reiniciar(TEL);
+    // Se busca salchichón: quedan resultados y familia en el estado.
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'salchichon' });
+    const antes = (await estadosLib.leer(TEL)).maquina;
+    assert(antes.datos.mostrados && antes.datos.mostrados.length, 'la búsqueda debe dejar rastro');
+
+    const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic',
+      valor: 'ver_familias' });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    assert(!/Salchichon Casero|Ref\. 4315/i.test(t), 'FUGA: se colaron los salchichones');
+    assert(/Embutidos curados/.test(t));
+    const { maquina } = await estadosLib.leer(TEL);
+    assert.strictEqual(maquina.estado, 'FAMILY_SELECTION');
+    for (const campo of estadosLib.CAMPOS_DE_BUSQUEDA) {
+      assert(maquina.datos[campo] === undefined, `quedó ${campo} sin limpiar`);
+    }
+  });
+
+  await check('F· identificar NO puede tocar el carrito', async () => {
+    const TEL = '34600777006';
+    const c = await repo.crearCliente({ nombre: 'Tienda Carrito Intacto', telefono: TEL });
+    await pedidoLib.vaciar(c.id);
+    const chorizo = catalogo.todos().find((x) => x.codigo === '0052');
+    const salchichon = catalogo.todos().find((x) => x.codigo === '4315');
+    await pedidoLib.anadir(c.id, { producto_id: chorizo.id, cantidad: 1, unidad_pedido: 'caja' });
+    await pedidoLib.anadir(c.id, { producto_id: salchichon.id, cantidad: 2, unidad_pedido: 'unidad' });
+    const antes = JSON.stringify((await repo.getCarrito(c.id)).lineas
+      .map((l) => [l.codigo, l.cantidad, l.unidad_pedido, l.precio_kg_sin_iva]));
+
+    await estadosLib.reiniciar(TEL);
+    await router.pedirIdentificacion(TEL);
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'Nombre Falso' });
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
+      valor: 'Tienda Carrito Intacto' });
+
+    const despues = JSON.stringify((await repo.getCarrito(c.id)).lineas
+      .map((l) => [l.codigo, l.cantidad, l.unidad_pedido, l.precio_kg_sin_iva]));
+    assert.strictEqual(despues, antes, 'la identificación cambió el carrito');
+  });
+
+  await check('G· tras identificar se vuelve al estado previo, no a HOME', async () => {
+    for (const previo of ['CART', 'PRODUCT_SELECTION']) {
+      const TEL = `3460077700${previo === 'CART' ? 7 : 8}`;
+      const c = await repo.crearCliente({ nombre: `Tienda Vuelve ${previo}`, telefono: TEL });
+      await estadosLib.reiniciar(TEL);
+      await estadosLib.mover(TEL, previo === 'CART' ? 'CART' : 'PRODUCT_SELECTION',
+        previo === 'CART' ? {} : { mostrados: ['0052'] }, { motivo: 'preparar' });
+
+      await router.pedirIdentificacion(TEL);
+      assert.strictEqual((await estadosLib.leer(TEL)).maquina.estado_previo, previo);
+      await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
+        valor: `Tienda Vuelve ${previo}` });
+      assert.strictEqual((await estadosLib.leer(TEL)).maquina.estado, previo,
+        `no volvió a ${previo}`);
+    }
+  });
+
+  await check('H· un teléfono ya conocido no vuelve a preguntar el nombre', async () => {
+    const TEL = '34600777009';
+    await repo.crearCliente({ nombre: 'Tienda Conocida', telefono: TEL });
+    const r = await ident.porTelefono(TEL);
+    assert.strictEqual(r.estado, 'encontrado');
+    assert.strictEqual(r.por, 'telefono');
+    assert.strictEqual(r.cliente.nombre, 'Tienda Conocida');
+    // Y con cliente conocido, un texto normal va al catálogo, no a identificar.
+    await estadosLib.reiniciar(TEL);
+    const p = await router.manejar({ telefono: TEL, cliente: r.cliente,
+      tipo: 'texto', valor: 'quiero chorizo' });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    assert(!/cómo se llama tu negocio/i.test(t), 'volvió a preguntar el nombre');
+  });
+
+  await check('I· con negocios parecidos se pregunta, no se elige', async () => {
+    await repo.crearCliente({ nombre: 'Carnicería Hermanos Ruiz', telefono: '34600777010' });
+    await repo.crearCliente({ nombre: 'Carnicería Hermanos Ruiz e Hijos', telefono: '34600777011' });
+    const r = await ident.porNombre('Carnicería Hermanos Ruiz');
+    // Coincidencia exacta con uno: se resuelve. Lo que no vale es el parecido.
+    const flojo = await ident.porNombre('Hermanos');
+    assert.strictEqual(flojo.estado, 'ambiguo', 'un parecido flojo no puede resolver solo');
+    assert(flojo.candidatos.length >= 2);
+
+    const TEL = '34600777012';
+    await estadosLib.reiniciar(TEL);
+    await router.pedirIdentificacion(TEL);
+    const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
+      valor: 'Hermanos' });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    assert(/varios negocios parecidos/i.test(t), t.slice(0, 120));
+    assert.strictEqual((await estadosLib.leer(TEL)).maquina.estado, 'CUSTOMER_IDENTIFICATION',
+      'con ambigüedad hay que seguir identificando');
+    void r;
+  });
+
+  console.log('\n=== 23) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
   await check('Chacón y Sanmi no comparten claves de Redis', async () => {
     const claves = [...mem.kv.keys(), ...mem.lists.keys(), ...mem.sets.keys(), ...mem.hashes.keys()];
     const deChacon = claves.filter((k) => k.startsWith('ch:'));

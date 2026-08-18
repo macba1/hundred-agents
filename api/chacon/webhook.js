@@ -267,6 +267,19 @@ async function atender(value, m) {
         tipo: m.type === 'interactive' ? 'clic' : 'texto',
         valor: m.type === 'interactive' ? formato.idPulsado(m) : texto,
       });
+      // Si el flujo no lo resolvió y no sabemos quién es, se pide el nombre
+      // por el camino determinista, no dejando que lo haga el modelo.
+      if (!pantallas && !tienda && m.type !== 'interactive') {
+        const est = require('../../lib/chacon/estados');
+        const { maquina } = await est.leer(telefono);
+        if (maquina.estado !== 'CUSTOMER_IDENTIFICATION') {
+          const abrir = await router.pedirIdentificacion(telefono);
+          const dest0 = { phone_number_id: (value.metadata || {}).phone_number_id
+            || process.env.CHACON_PHONE_NUMBER_ID || '' };
+          await formato.enviar(dest0, telefono, abrir);
+          return;
+        }
+      }
       if (pantallas && pantallas.length) {
         const dest = { phone_number_id: (value.metadata || {}).phone_number_id
           || process.env.CHACON_PHONE_NUMBER_ID || '' };
