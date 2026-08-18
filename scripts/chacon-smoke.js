@@ -1813,7 +1813,119 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     }
   });
 
-  console.log('\n=== 20) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
+  console.log('\n=== 20) Descubrimiento de producto sin conocer el código ===');
+
+  const desc = require(path.join(ROOT, 'lib/chacon/descubrimiento'));
+  desc.invalidarIndice();
+
+  await check('69· lenguaje natural: palabras vacías, plurales y erratas', async () => {
+    // Cada uno de estos fallaba antes, y se comprobó cómo fallaba.
+    const casos = [
+      // consulta,                  tipo esperado,  comprobación
+      ['que salchichones tienes', ['familia', 'varios'],
+        (r) => (r.candidatos || []).every((p) => /salchich/i.test(p.descripcion))],
+      ['el chorizo de Marcial', ['producto'],
+        (r) => r.producto.codigo === '6305'],
+      ['choriso cular', ['producto'],
+        (r) => /CHORIZO CULAR/i.test(r.producto.descripcion)],
+      ['chorizo iberico marcial', ['varios', 'producto'],
+        (r) => /CHORIZO/i.test((r.producto || r.candidatos[0]).descripcion)],
+      ['quiero chorizo', ['familia', 'varios'],
+        (r) => (r.candidatos || []).every((p) => /chorizo/i.test(p.descripcion))],
+      ['que jamones tienes', ['familia', 'varios'],
+        (r) => (r.candidatos || []).length > 1],
+    ];
+    for (const [q, tipos, ok] of casos) {
+      const r = desc.buscar(q);
+      assert(tipos.includes(r.tipo), `"${q}" devolvió ${r.tipo}`);
+      assert(ok(r), `"${q}" devolvió algo que no encaja: `
+        + JSON.stringify((r.candidatos || [r.producto]).slice(0, 3).map((p) => p.descripcion)));
+    }
+  });
+
+  await check('70· una familia nombrada abre la familia, no un producto suelto', async () => {
+    const f = desc.buscar('embutidos');
+    assert.strictEqual(f.tipo, 'familia');
+    assert(f.total >= 15, `solo ${f.total} embutidos`);
+    // Pero si además nombra el producto, mandan las palabras.
+    const p = desc.buscar('embutido de pollo');
+    assert.strictEqual(p.tipo, 'producto');
+    assert.strictEqual(p.producto.codigo, '0449');
+  });
+
+  await check('71· los artículos no comerciales NO se pueden encontrar ni pedir', async () => {
+    // Portes, palés, etiquetas, baterías, film y los códigos OF*.
+    for (const q of ['PORTES', '9995', '4525', 'palet', 'bateria', 'OF3900', 'PORTADA']) {
+      const r = desc.buscar(q);
+      assert(['nada', 'no_comercial'].includes(r.tipo)
+        || (r.candidatos || []).every((p) => desc.esComprable(p.codigo)),
+        `"${q}" devolvió algo comprable que no debería: ${r.tipo}`);
+    }
+    assert.strictEqual(desc.esComprable('9995'), false, 'los portes no son un producto');
+    assert.strictEqual(desc.esComprable('OF3900'), false);
+    assert.strictEqual(desc.esComprable('0052'), true, 'un chorizo sí');
+  });
+
+  await check('72· solo se filtra por atributos que existen en el catálogo', async () => {
+    const sl = desc.buscar('sin lactosa');
+    assert.strictEqual(sl.tipo, 'varios');
+    for (const p of sl.candidatos) {
+      assert.strictEqual(p.lactosa, false,
+        `${p.codigo} no tiene el dato de lactosa confirmado`);
+    }
+    // Un atributo que no existe no se inventa.
+    const inventado = desc.buscar('sin conservantes');
+    assert(['nada', 'varios', 'familia'].includes(inventado.tipo));
+    assert.strictEqual(inventado.interpretacion.atributos.length, 0);
+  });
+
+  await check('73· el código sigue siendo un atajo válido, no un requisito', async () => {
+    const porCodigo = desc.buscar('quiero el 6305');
+    assert.strictEqual(porCodigo.tipo, 'producto');
+    assert.strictEqual(porCodigo.por, 'codigo');
+    // Y el mismo producto se alcanza sin saberlo.
+    const porNombre = desc.buscar('chorizo cular');
+    assert.strictEqual(porNombre.tipo, 'producto');
+    assert.strictEqual(porNombre.por, 'nombre');
+    assert.strictEqual(porNombre.producto.codigo, porCodigo.producto.codigo);
+  });
+
+  await check('74· los 19 duplicados salen una sola vez', async () => {
+    const r = desc.buscar('chorizo');
+    const codigos = (r.candidatos || []).map((p) => p.codigo);
+    assert.strictEqual(new Set(codigos).size, codigos.length, 'hay códigos repetidos');
+  });
+
+  await check('75· los habituales salen del histórico, sin recomendador', async () => {
+    const pedidos = [
+      { lineas: [{ codigo: '0052' }, { codigo: '6305' }] },
+      { lineas: [{ codigo: '0052' }] },
+      { lineas: [{ codigo: '9995' }] },          // portes: no es producto
+    ];
+    const h = desc.habituales(pedidos, { limite: 5 });
+    assert.strictEqual(h[0].producto.codigo, '0052', 'el más repetido va primero');
+    assert.strictEqual(h[0].veces, 2);
+    assert(!h.some((x) => x.producto.codigo === '9995'), 'los portes no son un habitual');
+  });
+
+  await check('76· el catálogo comercial es navegable sin escribir un código', async () => {
+    /* La métrica que decide el MVP: cuántos productos se alcanzan escribiendo
+       su nombre, sin saber la referencia. */
+    const comerciales = [...desc.indice().values()];
+    let alcanzables = 0;
+    for (const e of comerciales) {
+      const palabras = e.nombre.split(' ').filter((w) => w.length > 3).slice(0, 2).join(' ');
+      if (!palabras) continue;
+      const r = desc.buscar(palabras);
+      const lista = r.tipo === 'producto' ? [r.producto] : (r.candidatos || []);
+      if (lista.some((p) => p.codigo === e.codigo)) alcanzables += 1;
+    }
+    const pct = (100 * alcanzables) / comerciales.length;
+    console.log(`     · ${alcanzables}/${comerciales.length} (${pct.toFixed(0)}%) alcanzables por nombre`);
+    assert(pct >= 90, `solo el ${pct.toFixed(0)}% se alcanza sin código`);
+  });
+
+  console.log('\n=== 21) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
   await check('Chacón y Sanmi no comparten claves de Redis', async () => {
     const claves = [...mem.kv.keys(), ...mem.lists.keys(), ...mem.sets.keys(), ...mem.hashes.keys()];
     const deChacon = claves.filter((k) => k.startsWith('ch:'));
