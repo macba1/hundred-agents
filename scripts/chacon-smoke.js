@@ -2250,7 +2250,36 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
       `la respuesta al nombre acabó en el buscador: ${t2.slice(0, 140)}`);
   });
 
-  await check('K· una tienda que no existe NO se da de alta sola', async () => {
+  await check('K2· en modo demo, un nombre nuevo puede continuar', async () => {
+    /* Para la demo cualquier nombre entra. La cuenta queda marcada como alta
+       de demo y pendiente de aprobación, para poder repasarla contra el
+       listado real de Chacón después. */
+    process.env.CHACON_ALTA_LIBRE = '1';
+    const TEL = '34600777040';
+    await estadosLib.reiniciar(TEL);
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'quiero chorizo' });
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'cant:0052:1:caja' });
+    const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
+      valor: 'Tony Tienda' });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    assert(/Sí, continuar/.test(t), t.slice(0, 140));
+
+    const alta = await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic',
+      valor: 'alta_negocio' });
+    const t2 = alta.map((x) => formato.aTexto(x)).join('\n');
+    assert(/Perfecto, Tony Tienda/.test(t2), t2.slice(0, 140));
+    assert(/Añadido/i.test(t2), 'tiene que retomar lo que estaba añadiendo');
+
+    const c = await repo.clientePorTelefono(TEL);
+    assert(c && c.nombre === 'Tony Tienda');
+    assert.strictEqual(c.estado, 'pendiente_aprobacion');
+    assert.strictEqual(c.origen, 'alta_libre_demo', 'hay que poder distinguir las altas de demo');
+    const carrito = await repo.getCarrito(c.id);
+    assert.strictEqual(carrito.lineas.length, 1);
+    delete process.env.CHACON_ALTA_LIBRE;
+  });
+
+  await check('K· sin modo demo, una tienda desconocida NO se da de alta', async () => {
     /* Solo se sirve a clientes existentes. Crear una cuenta desde WhatsApp
        dejaría entrar a cualquiera, así que aquí solo caben reintentar el
        nombre o avisar a Fernando. */
@@ -2263,11 +2292,16 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     const t = p.map((x) => formato.aTexto(x)).join('\n');
 
     assert(/No encuentro/.test(t), t.slice(0, 140));
-    assert(!/alta|registrar|primer pedido/i.test(t), 'no puede ofrecer darse de alta');
+    assert(!/continuar|registrar|primer pedido/i.test(t), 'no puede ofrecer seguir sin cuenta');
     assert(!/[Ff]amilias|Embutidos|ofertas/i.test(t), 'no se ofrece catálogo identificando');
     assert(/Otro nombre/.test(t) && /Fernando/.test(t));
     assert.strictEqual(await repo.clientePorTelefono(TEL), null,
       'no puede haberse creado ninguna cuenta');
+    // Y si alguien fuerza el botón, tampoco: no basta con no enseñarlo.
+    const forzado = await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic',
+      valor: 'alta_negocio' });
+    assert(!/Perfecto/.test(forzado.map((x) => formato.aTexto(x)).join('\n')));
+    assert.strictEqual(await repo.clientePorTelefono(TEL), null);
   });
 
   await check('L· el código de cliente identifica sin ambigüedad', async () => {

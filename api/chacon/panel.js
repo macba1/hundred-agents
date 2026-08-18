@@ -198,7 +198,13 @@ module.exports = async function handler(req, res) {
   }
 
   const problema = fabrica.revisarConfiguracion();
-  const cfgAviso = problema ? `<br><span class="bad">⚠️ ${esc(problema.aviso)}</span>` : '';
+  let cfgAviso = problema ? `<br><span class="bad">⚠️ ${esc(problema.aviso)}</span>` : '';
+  if (process.env.CHACON_ALTA_LIBRE === '1') {
+    cfgAviso += '<br><span class="warn">⚠️ MODO DEMO: cualquier nombre de tienda puede '
+      + 'comprar. Las altas quedan marcadas <code>alta_libre_demo</code> y '
+      + '<code>pendiente_aprobacion</code>. Apagar <code>CHACON_ALTA_LIBRE</code> al recibir '
+      + 'el listado de clientes.</span>';
+  }
 
   const tabs = [['pedidos', 'Solicitudes'], ['tarifas', 'Tarifas'],
                 ['facturacion', 'Base de facturación'], ['clasificacion', 'Familias'],
