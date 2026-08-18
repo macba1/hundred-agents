@@ -1016,6 +1016,14 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
   });
 
   await check('26· entrada por AUDIO transcrito: misma navegación', async () => {
+    // Con tienda ya identificada: si no, el flujo pide el nombre, que es
+    // justo lo que debe hacer y se comprueba aparte.
+    if (!(await repo.clientePorTelefono(TELNAV))) {
+      await repo.crearCliente({ nombre: 'Tienda Navegación', telefono: TELNAV });
+    }
+    // Y sin identificación a medias: con el slot abierto, TODO es un nombre
+    // de negocio, incluido "mándame las conservas". Eso está probado aparte.
+    await require(path.join(ROOT, 'lib/chacon/estados')).reiniciar(TELNAV);
     TRANSCRIPCION = { text: 'mándame las conservas', duration: 3 };
     guion = [toolCall('ver_productos', { consulta: 'mándame las conservas' }),
              texto('Estas son las conservas.')];
@@ -2214,6 +2222,64 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     assert.strictEqual((await estadosLib.leer(TEL)).maquina.estado, 'CUSTOMER_IDENTIFICATION',
       'con ambigüedad hay que seguir identificando');
     void r;
+  });
+
+  await check('J· pulsar una cantidad SIN tienda abre la identificación', async () => {
+    /* El agujero del primer arreglo: la excepción `type !== interactive`
+       dejaba el clic fuera, el estado se quedaba en QUANTITY_SELECTION y la
+       respuesta al nombre caía otra vez en el buscador. */
+    const TEL = '34600777020';
+    await estadosLib.reiniciar(TEL);
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'quiero chorizo' });
+    const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic',
+      valor: 'cant:0052:1:caja' });
+    assert(p && p.length, 'un clic sin tienda no puede quedarse sin respuesta');
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    assert(/cómo se llama tu negocio/i.test(t), t.slice(0, 120));
+    const { maquina } = await estadosLib.leer(TEL);
+    assert.strictEqual(maquina.estado, 'CUSTOMER_IDENTIFICATION');
+    assert.strictEqual(maquina.slot_pendiente, 'BUSINESS_NAME');
+    assert.strictEqual(maquina.datos.accion_pendiente, 'cant:0052:1:caja',
+      'hay que recordar qué estaba haciendo para retomarlo');
+
+    // Y la respuesta al nombre NO va al catálogo.
+    const r = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
+      valor: 'tony tienda' });
+    const t2 = r.map((x) => formato.aTexto(x)).join('\n');
+    assert(!/No he encontrado|Embutidos curados/.test(t2),
+      `la respuesta al nombre acabó en el buscador: ${t2.slice(0, 140)}`);
+  });
+
+  await check('K· una tienda que no existe NO se da de alta sola', async () => {
+    /* Solo se sirve a clientes existentes. Crear una cuenta desde WhatsApp
+       dejaría entrar a cualquiera, así que aquí solo caben reintentar el
+       nombre o avisar a Fernando. */
+    const TEL = '34600777021';
+    await estadosLib.reiniciar(TEL);
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'quiero chorizo' });
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'cant:0052:1:caja' });
+    const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
+      valor: 'Tienda Que No Existe SL' });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+
+    assert(/No encuentro/.test(t), t.slice(0, 140));
+    assert(!/alta|registrar|primer pedido/i.test(t), 'no puede ofrecer darse de alta');
+    assert(!/[Ff]amilias|Embutidos|ofertas/i.test(t), 'no se ofrece catálogo identificando');
+    assert(/Otro nombre/.test(t) && /Fernando/.test(t));
+    assert.strictEqual(await repo.clientePorTelefono(TEL), null,
+      'no puede haberse creado ninguna cuenta');
+  });
+
+  await check('L· el código de cliente identifica sin ambigüedad', async () => {
+    const c = await repo.crearCliente({ nombre: 'Tienda Con Código', telefono: '34600777030' });
+    const TEL = '34600777031';
+    await estadosLib.reiniciar(TEL);
+    await router.pedirIdentificacion(TEL);
+    const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: c.id });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    assert(/Perfecto, Tienda Con Código/.test(t), t.slice(0, 140));
+    const r = await ident.porNombre(c.id);
+    assert.strictEqual(r.por, 'codigo_cliente');
   });
 
   console.log('\n=== 23) Aislamiento entre tenants (sin regresiones en Sanmi) ===');

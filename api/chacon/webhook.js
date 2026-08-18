@@ -269,7 +269,7 @@ async function atender(value, m) {
       });
       // Si el flujo no lo resolvió y no sabemos quién es, se pide el nombre
       // por el camino determinista, no dejando que lo haga el modelo.
-      if (!pantallas && !tienda && m.type !== 'interactive') {
+      if (!pantallas && !tienda) {
         const est = require('../../lib/chacon/estados');
         const { maquina } = await est.leer(telefono);
         if (maquina.estado !== 'CUSTOMER_IDENTIFICATION') {
