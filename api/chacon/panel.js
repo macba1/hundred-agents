@@ -22,6 +22,7 @@ const categorias = require('../../lib/chacon/categorias');
 const navegacion = require('../../lib/chacon/navegacion');
 const imagenes = require('../../lib/chacon/imagenes');
 const formato = require('../../lib/chacon/wa-formato');
+const privacidad = require('../../lib/chacon/privacidad');
 const tarifas = require('../../lib/chacon/tarifas');
 const tramos = require('../../lib/chacon/tramos');
 const facturacion = require('../../lib/chacon/facturacion');
@@ -129,6 +130,29 @@ module.exports = async function handler(req, res) {
           }
         }
 
+      } else if (accion === 'cliente_estado') {
+        if (!por) {
+          aviso = '<p class="bad">Escribe tu nombre: cada cambio queda firmado.</p>';
+        } else {
+          const c = await repo.clientePorId(String(b.cliente_id || ''));
+          if (!c) aviso = '<p class="bad">No existe ese cliente.</p>';
+          else {
+            c.estado = b.estado || c.estado;
+            c.verificado_por = por;
+            c.verificado_en = new Date().toISOString();
+            await repo.guardarCliente(c);
+            aviso = `<p class="ok">${esc(c.nombre)} → <b>${esc(c.estado)}</b>, por ${esc(por)}.</p>`;
+          }
+        }
+      } else if (accion === 'marketing') {
+        if (!por) {
+          aviso = '<p class="bad">Escribe tu nombre: cada cambio queda firmado.</p>';
+        } else {
+          await privacidad.fijarMarketing(String(b.telefono || ''), b.valor === '1',
+            { source: 'panel', recorded_by: por });
+          aviso = `<p class="ok">Marketing de +${esc(b.telefono)} → `
+            + `<b>${b.valor === '1' ? 'sí' : 'no'}</b>, por ${esc(por)}.</p>`;
+        }
       } else if (accion === 'facturacion') {
         if (!por) {
           aviso = '<p class="bad">Escribe tu nombre: cada base de facturación queda firmada.</p>';
@@ -186,7 +210,7 @@ module.exports = async function handler(req, res) {
     } else if (vista === 'simulador') {
       cuerpo = await vistaSimulador(req.query.msg || '', tk);
     } else if (vista === 'clientes') {
-      cuerpo = vistaClientes(await repo.listarClientes());
+      cuerpo = await vistaClientesPrivacidad(tk);
     } else if (vista === 'config') {
       cuerpo = vistaConfig(await repo.todaLaConfig());
     } else {
@@ -580,6 +604,69 @@ async function vistaFacturacion(tk, q) {
     <input name="q" value="${esc(busca)}" placeholder="Busca un código">
     <button type="submit">Buscar</button></form>
   ${fichas || '<p class="sub">Nada sin confirmar.</p>'}`;
+}
+
+
+/* ---- clientes: canal y marketing, separados --------------------------- */
+async function vistaClientesPrivacidad(tk) {
+  const clientes = await repo.listarClientes();
+  const registros = await repo.listarPrivacidades().catch(() => []);
+  const porTel = new Map(registros.map((r) => [r.phone_number, r]));
+
+  const sinFicha = registros.filter((r) => !r.customer_id);
+  const ESTADOS_CLIENTE = ['pendiente_aprobacion', 'verificado', 'bloqueado'];
+
+  const filas = clientes.map((c) => {
+    const tel = (c.telefonos || [])[0] || '';
+    const r = porTel.get(tel);
+    const canal = r && r.status === 'aceptado'
+      ? `<span class="ok">autorizado</span><br><span class="sub">${esc(r.privacy_notice_version)} · `
+        + `${esc(String(r.accepted_at || '').slice(0, 16).replace('T', ' '))}</span>`
+      : r && r.status === 'rechazado'
+        ? '<span class="bad">rechazado</span>'
+        : '<span class="warn">sin registro</span>';
+    const mk = r && r.marketing_opt_in
+      ? `<span class="ok">sí</span><br><span class="sub">${esc(String(r.marketing_opt_in_at || '').slice(0, 10))}</span>`
+      : `<span class="sub">no</span>${r && r.marketing_opt_out_at
+        ? `<br><span class="sub">baja ${esc(String(r.marketing_opt_out_at).slice(0, 10))}</span>` : ''}`;
+    const ops = ESTADOS_CLIENTE.map((e) =>
+      `<option value="${e}"${e === c.estado ? ' selected' : ''}>${e}</option>`).join('');
+    return `<tr>
+      <td><b>${esc(c.nombre)}</b><br><span class="sub">${esc(c.id)}</span>
+        ${c.origen === 'alta_libre_demo' ? '<br><span class="warn">alta de demo</span>' : ''}</td>
+      <td>+${esc(tel)}</td>
+      <td>${canal}</td>
+      <td>${mk}</td>
+      <td><form method="post" action="/api/chacon/panel?v=clientes&amp;${tk}" class="pf">
+        <input type="hidden" name="accion" value="cliente_estado">
+        <input type="hidden" name="cliente_id" value="${esc(c.id)}">
+        <div class="g"><label>Estado<select name="estado">${ops}</select></label>
+        <label>Tu nombre<input name="por" required></label></div>
+        <div class="row"><button type="submit">Guardar</button></div></form>
+        <form method="post" action="/api/chacon/panel?v=clientes&amp;${tk}" class="pf">
+        <input type="hidden" name="accion" value="marketing">
+        <input type="hidden" name="telefono" value="${esc(tel)}">
+        <input type="hidden" name="valor" value="${r && r.marketing_opt_in ? '0' : '1'}">
+        <div class="row"><label>Tu nombre<input name="por" required style="width:120px"></label>
+        <button type="submit">${r && r.marketing_opt_in ? 'Quitar' : 'Activar'} marketing</button>
+        </div></form></td></tr>`;
+  }).join('');
+
+  return `<p class="sub"><b>Autorización del canal</b> y <b>marketing</b> son cosas distintas:
+    la primera hace falta para gestionar pedidos, la segunda es opcional y rechazarla no impide
+    comprar. Por eso no hay una sola casilla de «consentimiento».
+    <br>Aviso vigente: <code>${esc(privacidad.VERSION_AVISO)}</code> ·
+    política: ${privacidad.urlPolitica()
+      ? `<code>${esc(privacidad.urlPolitica())}</code>`
+      : '<span class="warn">SIN CONFIGURAR (CHACON_PRIVACIDAD_URL)</span>'}</p>
+  <div class="wrap"><table><thead><tr><th>Cliente</th><th>Teléfono</th>
+    <th>Canal WhatsApp</th><th>Ofertas</th><th>Acciones</th></tr></thead>
+    <tbody>${filas || '<tr><td colspan="5" class="sub">Sin clientes.</td></tr>'}</tbody></table></div>
+  ${sinFicha.length ? `<h3>Teléfonos con aviso pero sin ficha (${sinFicha.length})</h3>
+    <div class="wrap"><table><thead><tr><th>Teléfono</th><th>Estado</th><th>Cuándo</th>
+    </tr></thead><tbody>${sinFicha.map((r) => `<tr><td>+${esc(r.phone_number)}</td>
+    <td>${esc(r.status)}</td><td>${esc(String(r.accepted_at || r.declined_at || '').slice(0, 16).replace('T', ' '))}</td></tr>`).join('')}
+    </tbody></table></div>` : ''}`;
 }
 
 function vistaPedidos(pedidos, tk) {

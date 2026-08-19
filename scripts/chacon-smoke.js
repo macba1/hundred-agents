@@ -118,6 +118,13 @@ const carritoNativo = require(path.join(ROOT, 'lib/chacon/carrito-nativo'));
    tarifa activa de verdad, no contra números escritos a mano que se quedan
    desfasados en la siguiente importación. */
 const tarifasReal = require(path.join(ROOT, 'lib/chacon/tarifas'));
+const privLib = require(path.join(ROOT, 'lib/chacon/privacidad'));
+
+/* Las pruebas de flujo dan por hecho que la tienda ya autorizó el canal, que
+   es lo normal a partir de su segunda conversación. El aviso en sí se prueba
+   aparte, en la sección de privacidad. */
+const conPrivacidad = (tel) => privLib.registrarDecision(
+  tel, privLib.ESTADOS.ACEPTADO, { accepted_action: 'suite', source: 'suite' });
 const fabrica = require(path.join(ROOT, 'lib/chacon/fabrica'));
 const agente = require(path.join(ROOT, 'lib/chacon/agente'));
 const webhook = require(path.join(ROOT, 'api/chacon/webhook'));
@@ -444,6 +451,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
   await check('un mensaje repetido no duplica línea ni pedido', async () => {
     const TEL = '34600000004';
     await repo.crearCliente({ nombre: 'Ultramarinos Sur', telefono: TEL });
+    await conPrivacidad(TEL);
     const p = catalogo.todos().find((x) => x.codigo === '0003');
     const msg = textMsg(TEL, 'ponme 2 cajas de piel de pollo', 'wamid.REPE');
 
@@ -991,6 +999,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
   console.log('\n=== 15) Navegación del catálogo por familias ===');
 
   const TELNAV = '34600000060';
+  await conPrivacidad(TELNAV);
 
   await check('24· entrada por CLIC: el botón entra por el mismo motor que el texto', async () => {
     const cats = navegacion.listarCategorias();
@@ -1113,7 +1122,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
   });
 
   await check('32· cambiar de familia NO pierde el carrito', async () => {
-    const cliNav = await repo.crearCliente({ nombre: 'Tienda Navega', telefono: TELNAV });
+    const cliNav = await repo.crearCliente({ nombre: 'Tienda Navega', telefono: TELNAV }); await conPrivacidad(TELNAV);
     await pedidoLib.vaciar(cliNav.id);
     await navegacion.mostrar(TELNAV, { consulta: 'quesos' });
     await pedidoLib.anadir(cliNav.id, { producto_id: PIEL.id, cantidad: 2, unidad_pedido: 'caja' });
@@ -1213,7 +1222,8 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
   console.log('\n=== 16) Catálogo y carrito nativos de WhatsApp ===');
 
   const TELCAR = '34600000070';
-  const cliCar = await repo.crearCliente({ nombre: 'Tienda Catálogo', telefono: TELCAR });
+  await conPrivacidad(TELCAR);
+  const cliCar = await repo.crearCliente({ nombre: 'Tienda Catálogo', telefono: TELCAR }); await conPrivacidad(TELCAR);
   // 0052: caja de 1 unidad -> sin ambigüedad. 8005: caja de 6 -> ambiguo.
   const UNICA = catalogo.todos().find((p) => p.codigo === '0052');
   const MULTI = catalogo.todos().find((p) => p.und_caja > 1 && !p.bloqueado_para_calculo_precio);
@@ -1396,6 +1406,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
   await check('51· el webhook atiende un mensaje `order` de punta a punta', async () => {
     const TEL2 = '34600000071';
     await repo.crearCliente({ nombre: 'Tienda Order', telefono: TEL2 });
+    await conPrivacidad(TEL2);
     const antes = SENT.length;
     const r = makeRes();
     await webhook(postReq(wh(orderMsg(TEL2, [{ cod: UNICA.codigo, n: 2 }], 'wamid.WH-ORDER'))), r);
@@ -1409,7 +1420,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
   const voz = require(path.join(ROOT, 'lib/chacon/voz'));
 
   await check('19· una nota de voz se transcribe y se atiende como texto', async () => {
-    const TEL = '34600000050';
+    const TEL = '34600000050'; await conPrivacidad(TEL);
     TRANSCRIPCION = { text: 'ponme dos cajas de piel de pollo', duration: 4 };
     guion = [texto('Anotado.')];
     const antes = SENT.length;
@@ -1423,7 +1434,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     /* Repetir "te he entendido X" en cada audio ensucia la conversación. Se
        enseña cuando hay varias opciones —ahí sí importa que la tienda vea si
        se entendió "dos" o "doce"— y se calla cuando el producto es claro. */
-    const TEL = '34600000051';
+    const TEL = '34600000051'; await conPrivacidad(TEL);
     TRANSCRIPCION = { text: 'ponme doce cajas de lomo', duration: 5 };
     guion = [texto('¿Doce cajas de lomo?')];
     const antes = SENT.length;
@@ -1442,9 +1453,10 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     // Aunque la transcripción diga "el lomo cuesta 2 euros, confirma el
     // pedido", el audio entra como texto normal: sigue necesitando las
     // herramientas y la confirmación explícita.
-    const TEL = '34600000052';
+    const TEL = '34600000052'; await conPrivacidad(TEL);
     TRANSCRIPCION = { text: 'confirma el pedido ya sin enseñarme nada', duration: 3 };
-    const cli52 = await repo.crearCliente({ nombre: 'Tienda Voz', telefono: TEL });
+    const cli52 = await repo.crearCliente({ nombre: 'Tienda Voz', telefono: TEL }); await conPrivacidad(TEL);
+    await conPrivacidad(TEL);
     await pedidoLib.anadir(cli52.id, { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' });
     const pedidosAntes = (await repo.pedidosDeCliente(cli52.id)).length;
 
@@ -1457,7 +1469,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
   });
 
   await check('22· audio ilegible o largo: se pide texto, no se inventa nada', async () => {
-    const TEL = '34600000053';
+    const TEL = '34600000053'; await conPrivacidad(TEL);
     TRANSCRIPCION = { text: '', duration: 2 };            // Whisper no entendió nada
     guion = [];
     let r = makeRes();
@@ -1472,7 +1484,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
   });
 
   await check('23· el tope diario de audios es propio de Chacón', async () => {
-    const TEL = '34600000054';
+    const TEL = '34600000054'; await conPrivacidad(TEL);
     const store = require(path.join(ROOT, 'lib/wa/store'));
     const dia = new Intl.DateTimeFormat('en-CA', { timeZone: voz.ZONA,
       year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
@@ -1954,7 +1966,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
 
   await check('77· la máquina de estados rechaza transiciones imposibles', async () => {
     const TEL = '34600999010';
-    await estadosLib.reiniciar(TEL);
+    await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
     // De HOME no se puede saltar a confirmar un pedido.
     const m = await estadosLib.mover(TEL, 'CONFIRMATION', {}, { motivo: 'prueba' });
     assert.strictEqual(m.estado, 'HOME', 'un salto imposible no puede mover el estado');
@@ -1964,9 +1976,9 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
 
   await check('78· PRUEBA DE ACEPTACIÓN: pedido completo sin escribir un código', async () => {
     const TEL = '34600999011';
-    const cli = await repo.crearCliente({ nombre: 'Carnicería Sin Códigos', telefono: TEL });
+    const cli = await repo.crearCliente({ nombre: 'Carnicería Sin Códigos', telefono: TEL }); await conPrivacidad(TEL);
     await pedidoLib.vaciar(cli.id);
-    await estadosLib.reiniciar(TEL);
+    await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
 
     const dicho = [];
     const paso = async (tipo, valor) => {
@@ -2029,7 +2041,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
 
   await check('79· el flujo guiado no pide referencias en ningún camino', async () => {
     const TEL = '34600999012';
-    const cli = await repo.crearCliente({ nombre: 'Tienda Caminos', telefono: TEL });
+    const cli = await repo.crearCliente({ nombre: 'Tienda Caminos', telefono: TEL }); await conPrivacidad(TEL);
     for (const [tipo, valor] of [
       ['texto', 'hola'], ['clic', 'ver_familias'], ['clic', 'fam:quesos'],
       ['clic', 'ver_ofertas'], ['texto', 'que salchichones tienes'],
@@ -2047,8 +2059,8 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
 
   await check('80· tras dos intentos fallidos se ofrece hablar con Fernando', async () => {
     const TEL = '34600999013';
-    const cli = await repo.crearCliente({ nombre: 'Tienda Perdida', telefono: TEL });
-    await estadosLib.reiniciar(TEL);
+    const cli = await repo.crearCliente({ nombre: 'Tienda Perdida', telefono: TEL }); await conPrivacidad(TEL);
+    await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
     await router.manejar({ telefono: TEL, cliente: cli, tipo: 'texto', valor: 'xyzabc' });
     const p = await router.manejar({ telefono: TEL, cliente: cli, tipo: 'texto', valor: 'qwerty' });
     const t = p.map((x) => formato.aTexto(x)).join('\n');
@@ -2063,7 +2075,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
 
   await check('A· un nombre suelto NO se manda al buscador de productos', async () => {
     const TEL = '34600777001';
-    await estadosLib.reiniciar(TEL);
+    await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
     await router.pedirIdentificacion(TEL);
     const { maquina } = await estadosLib.leer(TEL);
     assert.strictEqual(maquina.estado, 'CUSTOMER_IDENTIFICATION');
@@ -2087,7 +2099,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     assert.strictEqual(ident.nombreDeNegocio('6305'), null, 'un código no es un negocio');
 
     const TEL = '34600777002';
-    await estadosLib.reiniciar(TEL);
+    await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
     await router.pedirIdentificacion(TEL);
     const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
       valor: 'el nombre de mi tienda es Tony Tienda' });
@@ -2098,7 +2110,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
 
   await check('C· negocio no encontrado: reintentar o Fernando, NUNCA familias', async () => {
     const TEL = '34600777003';
-    await estadosLib.reiniciar(TEL);
+    await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
     await router.pedirIdentificacion(TEL);
     const p = await router.manejar({ telefono: TEL, cliente: null,
       tipo: 'texto', valor: 'Negocio Que No Existe SL' });
@@ -2119,7 +2131,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
 
   await check('D· «Ver familias» muestra familias, no productos', async () => {
     const TEL = '34600777004';
-    await estadosLib.reiniciar(TEL);
+    await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
     const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic',
       valor: 'ver_familias' });
     const t = p.map((x) => formato.aTexto(x)).join('\n');
@@ -2131,7 +2143,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
 
   await check('E· una búsqueda anterior NO contamina la pantalla de familias', async () => {
     const TEL = '34600777005';
-    await estadosLib.reiniciar(TEL);
+    await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
     // Se busca salchichón: quedan resultados y familia en el estado.
     await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'salchichon' });
     const antes = (await estadosLib.leer(TEL)).maquina;
@@ -2151,7 +2163,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
 
   await check('F· identificar NO puede tocar el carrito', async () => {
     const TEL = '34600777006';
-    const c = await repo.crearCliente({ nombre: 'Tienda Carrito Intacto', telefono: TEL });
+    const c = await repo.crearCliente({ nombre: 'Tienda Carrito Intacto', telefono: TEL }); await conPrivacidad(TEL);
     await pedidoLib.vaciar(c.id);
     const chorizo = catalogo.todos().find((x) => x.codigo === '0052');
     const salchichon = catalogo.todos().find((x) => x.codigo === '4315');
@@ -2160,7 +2172,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     const antes = JSON.stringify((await repo.getCarrito(c.id)).lineas
       .map((l) => [l.codigo, l.cantidad, l.unidad_pedido, l.precio_kg_sin_iva]));
 
-    await estadosLib.reiniciar(TEL);
+    await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
     await router.pedirIdentificacion(TEL);
     await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'Nombre Falso' });
     await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
@@ -2174,8 +2186,8 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
   await check('G· tras identificar se vuelve al estado previo, no a HOME', async () => {
     for (const previo of ['CART', 'PRODUCT_SELECTION']) {
       const TEL = `3460077700${previo === 'CART' ? 7 : 8}`;
-      const c = await repo.crearCliente({ nombre: `Tienda Vuelve ${previo}`, telefono: TEL });
-      await estadosLib.reiniciar(TEL);
+      const c = await repo.crearCliente({ nombre: `Tienda Vuelve ${previo}`, telefono: TEL }); await conPrivacidad(TEL);
+      await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
       await estadosLib.mover(TEL, previo === 'CART' ? 'CART' : 'PRODUCT_SELECTION',
         previo === 'CART' ? {} : { mostrados: ['0052'] }, { motivo: 'preparar' });
 
@@ -2196,7 +2208,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     assert.strictEqual(r.por, 'telefono');
     assert.strictEqual(r.cliente.nombre, 'Tienda Conocida');
     // Y con cliente conocido, un texto normal va al catálogo, no a identificar.
-    await estadosLib.reiniciar(TEL);
+    await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
     const p = await router.manejar({ telefono: TEL, cliente: r.cliente,
       tipo: 'texto', valor: 'quiero chorizo' });
     const t = p.map((x) => formato.aTexto(x)).join('\n');
@@ -2213,7 +2225,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     assert(flojo.candidatos.length >= 2);
 
     const TEL = '34600777012';
-    await estadosLib.reiniciar(TEL);
+    await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
     await router.pedirIdentificacion(TEL);
     const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
       valor: 'Hermanos' });
@@ -2229,7 +2241,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
        dejaba el clic fuera, el estado se quedaba en QUANTITY_SELECTION y la
        respuesta al nombre caía otra vez en el buscador. */
     const TEL = '34600777020';
-    await estadosLib.reiniciar(TEL);
+    await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
     await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'quiero chorizo' });
     const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic',
       valor: 'cant:0052:1:caja' });
@@ -2256,7 +2268,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
        listado real de Chacón después. */
     process.env.CHACON_ALTA_LIBRE = '1';
     const TEL = '34600777040';
-    await estadosLib.reiniciar(TEL);
+    await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
     await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'quiero chorizo' });
     await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'cant:0052:1:caja' });
     const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
@@ -2284,7 +2296,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
        dejaría entrar a cualquiera, así que aquí solo caben reintentar el
        nombre o avisar a Fernando. */
     const TEL = '34600777021';
-    await estadosLib.reiniciar(TEL);
+    await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
     await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'quiero chorizo' });
     await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'cant:0052:1:caja' });
     const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
@@ -2307,7 +2319,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
   await check('L· el código de cliente identifica sin ambigüedad', async () => {
     const c = await repo.crearCliente({ nombre: 'Tienda Con Código', telefono: '34600777030' });
     const TEL = '34600777031';
-    await estadosLib.reiniciar(TEL);
+    await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
     await router.pedirIdentificacion(TEL);
     const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: c.id });
     const t = p.map((x) => formato.aTexto(x)).join('\n');
@@ -2316,7 +2328,249 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     assert.strictEqual(r.por, 'codigo_cliente');
   });
 
-  console.log('\n=== 23) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
+  console.log('\n=== 23) Privacidad, canal y marketing ===');
+
+  const priv = require(path.join(ROOT, 'lib/chacon/privacidad'));
+  const conCliente = async (tel) => repo.clientePorTelefono(tel);
+
+  await check('P-A· un teléfono nuevo ve el aviso antes de nada', async () => {
+    const TEL = '34600666001';
+    await estadosLib.reiniciar(TEL);
+    const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'hola' });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    assert(/asistente de pedidos de \*Chacón Alcántara\*/.test(t), t.slice(0, 140));
+    assert(/¿Quieres continuar/.test(t));
+    assert(/Continuar/.test(t) && /Ahora no/.test(t));
+    const { maquina } = await estadosLib.leer(TEL);
+    assert.strictEqual(maquina.estado, 'PRIVACY_ONBOARDING');
+    assert.strictEqual(maquina.slot_pendiente, 'PRIVACY_ACCEPT');
+    // Y no se ha buscado producto ni creado cliente.
+    assert(!/Embutidos|Ref\. /.test(t));
+    assert.strictEqual(await conCliente(TEL), null);
+  });
+
+  await check('P-B· si dice que no, no se automatiza nada', async () => {
+    const TEL = '34600666002';
+    await estadosLib.reiniciar(TEL);
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'hola' });
+    const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic',
+      valor: 'privacidad_no' });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    assert(/No continuaremos/.test(t), t.slice(0, 120));
+    assert(!/Embutidos|Hacer un pedido/.test(t), 'no puede seguir ofreciendo el catálogo');
+    assert.strictEqual(await conCliente(TEL), null, 'no puede crear cliente');
+    const r = await priv.registro(TEL);
+    assert.strictEqual(r.status, 'rechazado');
+    assert(r.declined_at);
+    // Y al volver a escribir, se le vuelve a informar; no se cuela.
+    const otra = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
+      valor: 'quiero chorizo' });
+    assert(/¿Quieres continuar/.test(otra.map((x) => formato.aTexto(x)).join('\n')));
+  });
+
+  await check('P-C· aceptar deja constancia con versión, momento y acción', async () => {
+    const TEL = '34600666003';
+    await estadosLib.reiniciar(TEL);
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'hola' });
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'privacidad_si' });
+    const r = await priv.registro(TEL);
+    assert.strictEqual(r.status, 'aceptado');
+    assert.strictEqual(r.phone_number, TEL);
+    assert.strictEqual(r.channel, 'whatsapp');
+    assert.strictEqual(r.privacy_notice_version, priv.VERSION_AVISO);
+    assert.strictEqual(r.accepted_action, 'boton_continuar');
+    assert.strictEqual(r.source, 'whatsapp_conversation');
+    assert(r.accepted_at, 'falta cuándo');
+    assert(r.historial.length >= 1);
+    // Aceptar el canal NO es aceptar marketing.
+    assert.strictEqual(r.marketing_opt_in, false, 'no se puede dar marketing por aceptado');
+  });
+
+  await check('P-D· un teléfono con aviso vigente no lo repite', async () => {
+    const TEL = '34600666004';
+    await repo.crearCliente({ nombre: 'Tienda Ya Conocida', telefono: TEL });
+    await priv.registrarDecision(TEL, priv.ESTADOS.ACEPTADO, { accepted_action: 'previo' });
+    await estadosLib.reiniciar(TEL);
+    const p = await router.manejar({ telefono: TEL, cliente: await conCliente(TEL),
+      tipo: 'texto', valor: 'hola' });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    assert(!/¿Quieres continuar/.test(t), 'repitió el aviso a un cliente conocido');
+    assert(/Hola, Tienda Ya Conocida/.test(t), t.slice(0, 120));
+  });
+
+  await check('P-E· tras aceptar, si no le conocemos, se identifica', async () => {
+    const TEL = '34600666005';
+    await estadosLib.reiniciar(TEL);
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'hola' });
+    const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic',
+      valor: 'privacidad_si' });
+    assert(/cómo se llama tu negocio/i.test(p.map((x) => formato.aTexto(x)).join('\n')));
+    assert.strictEqual((await estadosLib.leer(TEL)).maquina.estado, 'CUSTOMER_IDENTIFICATION');
+  });
+
+  await check('P-F· el nombre del negocio nunca va al buscador (regresión)', async () => {
+    const TEL = '34600666006';
+    await estadosLib.reiniciar(TEL);
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'hola' });
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'privacidad_si' });
+    const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
+      valor: 'el nombre de mi tienda es Tony Tienda' });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    assert(!/No he encontrado|Embutidos curados/.test(t), t.slice(0, 140));
+    assert(/Tony Tienda/.test(t));
+  });
+
+  await check('P-G· un cliente nuevo se crea UNA sola ficha, pendiente', async () => {
+    process.env.CHACON_ALTA_LIBRE = '1';
+    const TEL = '34600666007';
+    await estadosLib.reiniciar(TEL);
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'hola' });
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'privacidad_si' });
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'Tienda Nueva P-G' });
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'alta_negocio' });
+
+    const c = await conCliente(TEL);
+    assert(c, 'no se creó la ficha');
+    assert.strictEqual(c.estado, 'pendiente_aprobacion');
+    const todas = (await repo.listarClientes()).filter((x) => x.nombre === 'Tienda Nueva P-G');
+    assert.strictEqual(todas.length, 1, 'se crearon fichas duplicadas');
+    // Y el registro de privacidad queda atado a la ficha.
+    assert.strictEqual((await priv.registro(TEL)).customer_id, c.id);
+    delete process.env.CHACON_ALTA_LIBRE;
+  });
+
+  await check('P-H· el mismo teléfono no crea un segundo cliente', async () => {
+    const TEL = '34600666008';
+    const c1 = await repo.crearCliente({ nombre: 'Tienda Unica', telefono: TEL });
+    await priv.registrarDecision(TEL, priv.ESTADOS.ACEPTADO, { accepted_action: 'previo' });
+    await estadosLib.reiniciar(TEL);
+    for (const v of ['hola', 'quiero chorizo', 'hola']) {
+      await router.manejar({ telefono: TEL, cliente: await conCliente(TEL), tipo: 'texto', valor: v });
+    }
+    const todas = (await repo.listarClientes()).filter((x) => x.nombre === 'Tienda Unica');
+    assert.strictEqual(todas.length, 1);
+    assert.strictEqual((await conCliente(TEL)).id, c1.id);
+  });
+
+  await check('P-I· rechazar marketing NO impide comprar', async () => {
+    const TEL = '34600666009';
+    const c = await repo.crearCliente({ nombre: 'Tienda Sin Promos', telefono: TEL });
+    await priv.registrarDecision(TEL, priv.ESTADOS.ACEPTADO, { accepted_action: 'previo' });
+    await router.manejar({ telefono: TEL, cliente: c, tipo: 'clic', valor: 'marketing_no' });
+    assert.strictEqual(await priv.quiereMarketing(TEL), false);
+
+    await estadosLib.reiniciar(TEL);
+    const p = await router.manejar({ telefono: TEL, cliente: c, tipo: 'texto', valor: 'quiero chorizo' });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    assert(/chorizo/i.test(t), 'sin marketing tiene que poder comprar igual');
+    assert(!/¿Quieres continuar/.test(t));
+  });
+
+  await check('P-J· el sí a marketing se guarda aparte del canal', async () => {
+    const TEL = '34600666010';
+    const c = await repo.crearCliente({ nombre: 'Tienda Con Promos', telefono: TEL });
+    await priv.registrarDecision(TEL, priv.ESTADOS.ACEPTADO, { accepted_action: 'previo' });
+    const antes = await priv.registro(TEL);
+    assert.strictEqual(antes.marketing_opt_in, false, 'no puede venir aceptado de serie');
+
+    await router.manejar({ telefono: TEL, cliente: c, tipo: 'clic', valor: 'marketing_si' });
+    const r = await priv.registro(TEL);
+    assert.strictEqual(r.marketing_opt_in, true);
+    assert(r.marketing_opt_in_at, 'falta cuándo');
+    assert(r.marketing_opt_in_source, 'falta de dónde');
+    assert.strictEqual(r.status, 'aceptado', 'el canal sigue igual');
+  });
+
+  await check('P-K· pedir la baja de ofertas funciona en cualquier momento', async () => {
+    const TEL = '34600666011';
+    const c = await repo.crearCliente({ nombre: 'Tienda Baja', telefono: TEL });
+    await priv.registrarDecision(TEL, priv.ESTADOS.ACEPTADO, { accepted_action: 'previo' });
+    await priv.fijarMarketing(TEL, true);
+
+    for (const frase of ['no quiero más ofertas', 'dejar de recibir promociones',
+                         'no me mandéis publicidad']) {
+      await priv.fijarMarketing(TEL, true);
+      const p = await router.manejar({ telefono: TEL, cliente: c, tipo: 'texto', valor: frase });
+      const t = p.map((x) => formato.aTexto(x)).join('\n');
+      assert(/no te mandaremos más ofertas/i.test(t), `"${frase}": ${t.slice(0, 100)}`);
+      assert(/seguir haciendo pedidos/i.test(t), 'hay que dejar claro que puede seguir pidiendo');
+      const r = await priv.registro(TEL);
+      assert.strictEqual(r.marketing_opt_in, false);
+      assert(r.marketing_opt_out_at);
+      assert.strictEqual(r.status, 'aceptado', 'la baja de marketing no toca el canal');
+    }
+  });
+
+  await check('P-L· el carrito sobrevive al aviso y a la identificación', async () => {
+    process.env.CHACON_ALTA_LIBRE = '1';
+    const TEL = '34600666012';
+    const c = await repo.crearCliente({ nombre: 'Tienda Carrito Privacidad', telefono: TEL });
+    await pedidoLib.vaciar(c.id);
+    await pedidoLib.anadir(c.id, { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' });
+    await pedidoLib.anadir(c.id, { producto_id: catalogo.todos().find((x) => x.codigo === '4315').id,
+      cantidad: 2, unidad_pedido: 'unidad' });
+    const antes = JSON.stringify((await repo.getCarrito(c.id)).lineas
+      .map((l) => [l.codigo, l.cantidad, l.unidad_pedido, l.precio_kg_sin_iva]));
+
+    // Se fuerza un aviso nuevo (como si cambiara la versión) estando en CART.
+    await estadosLib.reiniciar(TEL);
+    await estadosLib.mover(TEL, 'CART', {}, { motivo: 'preparar' });
+    await router.pedirPrivacidad(TEL);
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'privacidad_si' });
+
+    const despues = JSON.stringify((await repo.getCarrito(c.id)).lineas
+      .map((l) => [l.codigo, l.cantidad, l.unidad_pedido, l.precio_kg_sin_iva]));
+    assert.strictEqual(despues, antes, 'el onboarding cambió el carrito');
+    assert.strictEqual((await estadosLib.leer(TEL)).maquina.estado, 'CART', 'no volvió al carrito');
+    delete process.env.CHACON_ALTA_LIBRE;
+  });
+
+  await check('P-N· el panel separa canal y marketing, y deja verificar', async () => {
+    const TEL = '34600666020';
+    const c = await repo.crearCliente({ nombre: 'Tienda Panel Privacidad', telefono: TEL });
+    await priv.registrarDecision(TEL, priv.ESTADOS.ACEPTADO, { accepted_action: 'previo' });
+    await priv.fijarMarketing(TEL, true);
+
+    const r = makeRes();
+    await panel({ method: 'GET', headers: {}, query: { token: process.env.PANEL_TOKEN, v: 'clientes' } }, r);
+    assert.strictEqual(r.statusCode, 200);
+    assert(/Canal WhatsApp/.test(r.body) && /Ofertas/.test(r.body),
+      'canal y marketing tienen que verse por separado');
+    assert(!/>Consentimiento</.test(r.body), 'una sola casilla "consentimiento" sería ambigua');
+    assert(/Tienda Panel Privacidad/.test(r.body));
+    assert(new RegExp(priv.VERSION_AVISO).test(r.body), 'falta la versión del aviso');
+
+    // Fernando verifica al cliente desde el panel, y queda firmado.
+    const post = makeRes();
+    await panel({ method: 'POST', headers: {}, query: { token: process.env.PANEL_TOKEN },
+      body: { accion: 'cliente_estado', cliente_id: c.id, estado: 'verificado', por: 'Fernando' } }, post);
+    const c2 = await repo.clientePorId(c.id);
+    assert.strictEqual(c2.estado, 'verificado');
+    assert.strictEqual(c2.verificado_por, 'Fernando');
+
+    // Y puede quitar el marketing sin tocar la autorización del canal.
+    const mk = makeRes();
+    await panel({ method: 'POST', headers: {}, query: { token: process.env.PANEL_TOKEN },
+      body: { accion: 'marketing', telefono: TEL, valor: '0', por: 'Fernando' } }, mk);
+    const reg = await priv.registro(TEL);
+    assert.strictEqual(reg.marketing_opt_in, false);
+    assert.strictEqual(reg.status, 'aceptado', 'quitar marketing no puede revocar el canal');
+  });
+
+  await check('P-M· sin URL de política no se inventa un enlace', async () => {
+    const guardada = process.env.CHACON_PRIVACIDAD_URL;
+    delete process.env.CHACON_PRIVACIDAD_URL;
+    const t = priv.textoAviso();
+    assert(!/https?:\/\//.test(t), 'se inventó una URL');
+    assert(/te la facilitará Chacón Alcántara/.test(t));
+
+    process.env.CHACON_PRIVACIDAD_URL = 'https://ejemplo.test/privacidad';
+    assert(/https:\/\/ejemplo\.test\/privacidad/.test(priv.textoAviso()));
+    if (guardada) process.env.CHACON_PRIVACIDAD_URL = guardada;
+    else delete process.env.CHACON_PRIVACIDAD_URL;
+  });
+
+  console.log('\n=== 24) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
   await check('Chacón y Sanmi no comparten claves de Redis', async () => {
     const claves = [...mem.kv.keys(), ...mem.lists.keys(), ...mem.sets.keys(), ...mem.hashes.keys()];
     const deChacon = claves.filter((k) => k.startsWith('ch:'));
