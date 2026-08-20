@@ -1,0 +1,4760 @@
+{
+  "version": 1,
+  "generado": "2026-08-20T16:50:12.947148+00:00",
+  "source_file": "Agenda clientes por ruta.xlsx",
+  "source_sha256": "c041a0156cc6d58230e9d3bc5ab3d263194c8d350555457cd1d20723e27a74ac",
+  "approved": true,
+  "invariantes_fallidos": [],
+  "resumen": {
+    "filas_fuente": 230,
+    "duplicados_exactos": 9,
+    "filas_unicas": 221,
+    "clientes_unicos": 207,
+    "con_centro": 14,
+    "multi_centro": 3,
+    "conflictos_nombre": [],
+    "centros_vistos": [
+      "01",
+      "03",
+      "1",
+      "11",
+      "16",
+      "2",
+      "3",
+      "5"
+    ]
+  },
+  "diff_contra_activa": {
+    "sin_version_anterior": true,
+    "altas": 207,
+    "bajas": [],
+    "cambios_de_nombre": [],
+    "cambios_de_centros": []
+  },
+  "clientes": [
+    {
+      "customer_code": "1",
+      "legal_name": "NUEVO SANCHEZ, JUAN",
+      "display_name": "NUEVO SANCHEZ, JUAN",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "nuevo sanchez juan",
+      "search_sin_sufijo": "nuevo sanchez juan",
+      "source_rows": [
+        2
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "100003",
+      "legal_name": "PAVON BERCHEZ, ANTONIO",
+      "display_name": "PAVON BERCHEZ, ANTONIO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "pavon berchez antonio",
+      "search_sin_sufijo": "pavon berchez antonio",
+      "source_rows": [
+        225
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "10010",
+      "legal_name": "MUÑOZ CARMONA, DOLORES",
+      "display_name": "MUÑOZ CARMONA, DOLORES",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "munoz carmona dolores",
+      "search_sin_sufijo": "munoz carmona dolores",
+      "source_rows": [
+        16
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "10020",
+      "legal_name": "GARCIA GARCIA, RAFAEL",
+      "display_name": "GARCIA GARCIA, RAFAEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "garcia garcia rafael",
+      "search_sin_sufijo": "garcia garcia rafael",
+      "source_rows": [
+        17
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "10033",
+      "legal_name": "GARCIA MUÑOZ, SEBASTIAN",
+      "display_name": "GARCIA MUÑOZ, SEBASTIAN",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "garcia munoz sebastian",
+      "search_sin_sufijo": "garcia munoz sebastian",
+      "source_rows": [
+        18
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "108",
+      "legal_name": "BEJINES MAYO, MARIA",
+      "display_name": "BEJINES MAYO, MARIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "bejines mayo maria",
+      "search_sin_sufijo": "bejines mayo maria",
+      "source_rows": [
+        9
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "11020",
+      "legal_name": "CONDE FERNANDEZ, ROSA Mª",
+      "display_name": "CONDE FERNANDEZ, ROSA Mª",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "conde fernandez rosa m",
+      "search_sin_sufijo": "conde fernandez rosa m",
+      "source_rows": [
+        19
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "11024",
+      "legal_name": "RUIZ GOMEZ, ISABEL MARIA",
+      "display_name": "RUIZ GOMEZ, ISABEL MARIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "ruiz gomez isabel maria",
+      "search_sin_sufijo": "ruiz gomez isabel maria",
+      "source_rows": [
+        20
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "11026",
+      "legal_name": "CARMONA LOPEZ, PEDRO",
+      "display_name": "CARMONA LOPEZ, PEDRO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "carmona lopez pedro",
+      "search_sin_sufijo": "carmona lopez pedro",
+      "source_rows": [
+        21
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "11030",
+      "legal_name": "CONDE FERNÁNDEZ, MARÍA JOSÉ",
+      "display_name": "CONDE FERNÁNDEZ, MARÍA JOSÉ",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "conde fernandez maria jose",
+      "search_sin_sufijo": "conde fernandez maria jose",
+      "source_rows": [
+        22
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "121",
+      "legal_name": "CANO JIMENEZ, MANOLI",
+      "display_name": "CANO JIMENEZ, MANOLI",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "cano jimenez manoli",
+      "search_sin_sufijo": "cano jimenez manoli",
+      "source_rows": [
+        10
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "13002",
+      "legal_name": "RUIZ MUÑOZ, VICTORIA",
+      "display_name": "RUIZ MUÑOZ, VICTORIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "ruiz munoz victoria",
+      "search_sin_sufijo": "ruiz munoz victoria",
+      "source_rows": [
+        23
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "13006",
+      "legal_name": "SOTILLO GONZALEZ, Mª DEL VALLE",
+      "display_name": "SOTILLO GONZALEZ, Mª DEL VALLE",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "sotillo gonzalez m del valle",
+      "search_sin_sufijo": "sotillo gonzalez m del valle",
+      "source_rows": [
+        24
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "13016",
+      "legal_name": "ALIMENTACIÓN MATEO Y PASTORI S.L.",
+      "display_name": "ALIMENTACIÓN MATEO Y PASTORI S.L.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "alimentacion mateo y pastori s l",
+      "search_sin_sufijo": "alimentacion mateo y pastori",
+      "source_rows": [
+        25
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "14004",
+      "legal_name": "CARNICERIA Mª DEL VALLE, S.C.",
+      "display_name": "CARNICERIA Mª DEL VALLE, S.C.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "carniceria m del valle s c",
+      "search_sin_sufijo": "carniceria m del valle",
+      "source_rows": [
+        26
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "14006",
+      "legal_name": "JIMENEZ JIMENEZ, MONICA",
+      "display_name": "JIMENEZ JIMENEZ, MONICA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "jimenez jimenez monica",
+      "search_sin_sufijo": "jimenez jimenez monica",
+      "source_rows": [
+        27
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "14010",
+      "legal_name": "ANTONIO DIAZ CHIA, S.L.",
+      "display_name": "ANTONIO DIAZ CHIA, S.L.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "antonio diaz chia s l",
+      "search_sin_sufijo": "antonio diaz chia",
+      "source_rows": [
+        28
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "14032",
+      "legal_name": "MEDINA FERNANDEZ, ANA",
+      "display_name": "MEDINA FERNANDEZ, ANA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "medina fernandez ana",
+      "search_sin_sufijo": "medina fernandez ana",
+      "source_rows": [
+        29
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "14036",
+      "legal_name": "HEBLES ULINES, RAFAEL",
+      "display_name": "HEBLES ULINES, RAFAEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "hebles ulines rafael",
+      "search_sin_sufijo": "hebles ulines rafael",
+      "source_rows": [
+        30
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "14038",
+      "legal_name": "PORRAS BORREGO, EVA",
+      "display_name": "PORRAS BORREGO, EVA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "porras borrego eva",
+      "search_sin_sufijo": "porras borrego eva",
+      "source_rows": [
+        31
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "20027",
+      "legal_name": "GOMEZ NUÑEZ, JOSE Mª",
+      "display_name": "GOMEZ NUÑEZ, JOSE Mª",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "gomez nunez jose m",
+      "search_sin_sufijo": "gomez nunez jose m",
+      "source_rows": [
+        32
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "20028",
+      "legal_name": "CARNICERIAS MOYA NUÑEZ S.C.A.",
+      "display_name": "CARNICERIAS MOYA NUÑEZ S.C.A.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "carnicerias moya nunez s c a",
+      "search_sin_sufijo": "carnicerias moya nunez",
+      "source_rows": [
+        33
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "20073",
+      "legal_name": "PLAZA DOMINGUEZ, JUAN ANTONIO",
+      "display_name": "PLAZA DOMINGUEZ, JUAN ANTONIO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "plaza dominguez juan antonio",
+      "search_sin_sufijo": "plaza dominguez juan antonio",
+      "source_rows": [
+        34
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "20118",
+      "legal_name": "GRACIA FERRETE, RAFAEL",
+      "display_name": "GRACIA FERRETE, RAFAEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "gracia ferrete rafael",
+      "search_sin_sufijo": "gracia ferrete rafael",
+      "source_rows": [
+        35
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "20119",
+      "legal_name": "SUPERMERCADOS PUERTA RONDA S.COOP.AND.",
+      "display_name": "SUPERMERCADOS PUERTA RONDA S.COOP.AND.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "supermercados puerta ronda s coop and",
+      "search_sin_sufijo": "supermercados puerta ronda",
+      "source_rows": [
+        36
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "20203",
+      "legal_name": "SUPERMERCADOS EL OLVIDO, S.L.",
+      "display_name": "SUPERMERCADOS EL OLVIDO, S.L.",
+      "aliases": [],
+      "centers": [
+        "2"
+      ],
+      "search_normalized": "supermercados el olvido s l",
+      "search_sin_sufijo": "supermercados el olvido",
+      "source_rows": [
+        37
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "20204",
+      "legal_name": "ALIMENTACION ANRA, S.L.U.",
+      "display_name": "ALIMENTACION ANRA, S.L.U.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "alimentacion anra s l u",
+      "search_sin_sufijo": "alimentacion anra",
+      "source_rows": [
+        38
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "20206",
+      "legal_name": "CRUJERA PEREZ, M ANGELES",
+      "display_name": "CRUJERA PEREZ, M ANGELES",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "crujera perez m angeles",
+      "search_sin_sufijo": "crujera perez m angeles",
+      "source_rows": [
+        39
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "21000",
+      "legal_name": "JIMENEZ MARTIN, Mª CARMEN",
+      "display_name": "JIMENEZ MARTIN, Mª CARMEN",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "jimenez martin m carmen",
+      "search_sin_sufijo": "jimenez martin m carmen",
+      "source_rows": [
+        40
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "21013",
+      "legal_name": "MARTOS GALVAN, ALVARO",
+      "display_name": "MARTOS GALVAN, ALVARO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "martos galvan alvaro",
+      "search_sin_sufijo": "martos galvan alvaro",
+      "source_rows": [
+        41
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "22003",
+      "legal_name": "MACHUCA ROMERO, ANTONIA",
+      "display_name": "MACHUCA ROMERO, ANTONIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "machuca romero antonia",
+      "search_sin_sufijo": "machuca romero antonia",
+      "source_rows": [
+        43
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "221",
+      "legal_name": "RODRIGUEZ PORTILLO, MARIA DEL CARMEN",
+      "display_name": "RODRIGUEZ PORTILLO, MARIA DEL CARMEN",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "rodriguez portillo maria del carmen",
+      "search_sin_sufijo": "rodriguez portillo maria del carmen",
+      "source_rows": [
+        11
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "224",
+      "legal_name": "REY REINA, JOSE ANTONIO",
+      "display_name": "REY REINA, JOSE ANTONIO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "rey reina jose antonio",
+      "search_sin_sufijo": "rey reina jose antonio",
+      "source_rows": [
+        13
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "23",
+      "legal_name": "AUTOSERVICIO USAGRE, S.L.",
+      "display_name": "AUTOSERVICIO USAGRE, S.L.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "autoservicio usagre s l",
+      "search_sin_sufijo": "autoservicio usagre",
+      "source_rows": [
+        5
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "3",
+      "legal_name": "JIMENEZ LUQUE, ANTONIO",
+      "display_name": "JIMENEZ LUQUE, ANTONIO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "jimenez luque antonio",
+      "search_sin_sufijo": "jimenez luque antonio",
+      "source_rows": [
+        3
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "30001",
+      "legal_name": "PRECADOS, S.L.",
+      "display_name": "PRECADOS, S.L.",
+      "aliases": [],
+      "centers": [
+        "1",
+        null
+      ],
+      "search_normalized": "precados s l",
+      "search_sin_sufijo": "precados",
+      "source_rows": [
+        44,
+        45
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "30006",
+      "legal_name": "SUPER 4, S.L.",
+      "display_name": "SUPER 4, S.L.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "super 4 s l",
+      "search_sin_sufijo": "super 4",
+      "source_rows": [
+        46
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "30035",
+      "legal_name": "MARTIN OLIVA, LORENZO FCO.",
+      "display_name": "MARTIN OLIVA, LORENZO FCO.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "martin oliva lorenzo fco",
+      "search_sin_sufijo": "martin oliva lorenzo fco",
+      "source_rows": [
+        47
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "30039",
+      "legal_name": "TORRES MARTINEZ, SERGIO",
+      "display_name": "TORRES MARTINEZ, SERGIO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "torres martinez sergio",
+      "search_sin_sufijo": "torres martinez sergio",
+      "source_rows": [
+        48
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "30042",
+      "legal_name": "MEDINA GARCIA, JAIME",
+      "display_name": "MEDINA GARCIA, JAIME",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "medina garcia jaime",
+      "search_sin_sufijo": "medina garcia jaime",
+      "source_rows": [
+        49
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "30060",
+      "legal_name": "ALIMENTACION JOSE MARIA TORRES S.L.",
+      "display_name": "ALIMENTACION JOSE MARIA TORRES S.L.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "alimentacion jose maria torres s l",
+      "search_sin_sufijo": "alimentacion jose maria torres",
+      "source_rows": [
+        50
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "30107",
+      "legal_name": "MONTORO COBANO, TRINIDAD",
+      "display_name": "MONTORO COBANO, TRINIDAD",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "montoro cobano trinidad",
+      "search_sin_sufijo": "montoro cobano trinidad",
+      "source_rows": [
+        51
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "30120",
+      "legal_name": "MENACHO NAVARRO, Mª DOLORES",
+      "display_name": "MENACHO NAVARRO, Mª DOLORES",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "menacho navarro m dolores",
+      "search_sin_sufijo": "menacho navarro m dolores",
+      "source_rows": [
+        52
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "30128",
+      "legal_name": "GARCIA REINADO, SILVIA",
+      "display_name": "GARCIA REINADO, SILVIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "garcia reinado silvia",
+      "search_sin_sufijo": "garcia reinado silvia",
+      "source_rows": [
+        53
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "30133",
+      "legal_name": "VALIENTE ESCOBAR, PEDRO",
+      "display_name": "VALIENTE ESCOBAR, PEDRO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "valiente escobar pedro",
+      "search_sin_sufijo": "valiente escobar pedro",
+      "source_rows": [
+        54
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "30134",
+      "legal_name": "ALBA OLMO, INMACULADA",
+      "display_name": "ALBA OLMO, INMACULADA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "alba olmo inmaculada",
+      "search_sin_sufijo": "alba olmo inmaculada",
+      "source_rows": [
+        55
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "30137",
+      "legal_name": "GUERRA GARCIA, Mª AUXILIADORA",
+      "display_name": "GUERRA GARCIA, Mª AUXILIADORA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "guerra garcia m auxiliadora",
+      "search_sin_sufijo": "guerra garcia m auxiliadora",
+      "source_rows": [
+        56
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "30142",
+      "legal_name": "OLMO VILLALBA, LAURA",
+      "display_name": "OLMO VILLALBA, LAURA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "olmo villalba laura",
+      "search_sin_sufijo": "olmo villalba laura",
+      "source_rows": [
+        57
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "30451",
+      "legal_name": "GARROCHO TINOCO, NURIA",
+      "display_name": "GARROCHO TINOCO, NURIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "garrocho tinoco nuria",
+      "search_sin_sufijo": "garrocho tinoco nuria",
+      "source_rows": [
+        58
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "30452",
+      "legal_name": "DURAN VERDUGO, REMEDIOS",
+      "display_name": "DURAN VERDUGO, REMEDIOS",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "duran verdugo remedios",
+      "search_sin_sufijo": "duran verdugo remedios",
+      "source_rows": [
+        59
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "329",
+      "legal_name": "HNOS. GUERRERO JIMENEZ ALIM, S.L.L.",
+      "display_name": "HNOS. GUERRERO JIMENEZ ALIM, S.L.L.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "hnos guerrero jimenez alim s l l",
+      "search_sin_sufijo": "hnos guerrero jimenez alim",
+      "source_rows": [
+        14
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "340",
+      "legal_name": "AUTOSERVICIO CARRILLO S.L.",
+      "display_name": "AUTOSERVICIO CARRILLO S.L.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "autoservicio carrillo s l",
+      "search_sin_sufijo": "autoservicio carrillo",
+      "source_rows": [
+        15
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "400016",
+      "legal_name": "CARNICAS Y ELABORADOS SERRANO, S.L.",
+      "display_name": "CARNICAS Y ELABORADOS SERRANO, S.L.",
+      "aliases": [],
+      "centers": [
+        "03",
+        null
+      ],
+      "search_normalized": "carnicas y elaborados serrano s l",
+      "search_sin_sufijo": "carnicas y elaborados serrano",
+      "source_rows": [
+        226,
+        227
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "405001",
+      "legal_name": "ALIMENTACION PENINSULAR, S.A.",
+      "display_name": "ALIMENTACION PENINSULAR, S.A.",
+      "aliases": [],
+      "centers": [
+        "01",
+        "11",
+        "16"
+      ],
+      "search_normalized": "alimentacion peninsular s a",
+      "search_sin_sufijo": "alimentacion peninsular",
+      "source_rows": [
+        228,
+        230,
+        231
+      ],
+      "status": "activo",
+      "multi_centro": true
+    },
+    {
+      "customer_code": "49",
+      "legal_name": "DELGADO PEREZ, JOSE VICENTE",
+      "display_name": "DELGADO PEREZ, JOSE VICENTE",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "delgado perez jose vicente",
+      "search_sin_sufijo": "delgado perez jose vicente",
+      "source_rows": [
+        7
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50006",
+      "legal_name": "JIMENEZ ALCANTARA, JUAN PABLO",
+      "display_name": "JIMENEZ ALCANTARA, JUAN PABLO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "jimenez alcantara juan pablo",
+      "search_sin_sufijo": "jimenez alcantara juan pablo",
+      "source_rows": [
+        60
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50009",
+      "legal_name": "AGUILERA NAVARRO, JUAN",
+      "display_name": "AGUILERA NAVARRO, JUAN",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "aguilera navarro juan",
+      "search_sin_sufijo": "aguilera navarro juan",
+      "source_rows": [
+        61
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50010",
+      "legal_name": "URBANO MONTES FCO. JAVIER",
+      "display_name": "URBANO MONTES FCO. JAVIER",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "urbano montes fco javier",
+      "search_sin_sufijo": "urbano montes fco javier",
+      "source_rows": [
+        62
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50011",
+      "legal_name": "ROMAN ALAMEDA, JOSE ANTONIO",
+      "display_name": "ROMAN ALAMEDA, JOSE ANTONIO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "roman alameda jose antonio",
+      "search_sin_sufijo": "roman alameda jose antonio",
+      "source_rows": [
+        63
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50020",
+      "legal_name": "MORENO ALVAREZ, ALICIA",
+      "display_name": "MORENO ALVAREZ, ALICIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "moreno alvarez alicia",
+      "search_sin_sufijo": "moreno alvarez alicia",
+      "source_rows": [
+        64
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50022",
+      "legal_name": "FERNANDEZ FERNANDEZ, PABLO",
+      "display_name": "FERNANDEZ FERNANDEZ, PABLO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "fernandez fernandez pablo",
+      "search_sin_sufijo": "fernandez fernandez pablo",
+      "source_rows": [
+        66
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50027",
+      "legal_name": "GOMEZ SERRANO, DAVID",
+      "display_name": "GOMEZ SERRANO, DAVID",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "gomez serrano david",
+      "search_sin_sufijo": "gomez serrano david",
+      "source_rows": [
+        68
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50049",
+      "legal_name": "ROPERO PEREZ, DANIEL",
+      "display_name": "ROPERO PEREZ, DANIEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "ropero perez daniel",
+      "search_sin_sufijo": "ropero perez daniel",
+      "source_rows": [
+        69
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50059",
+      "legal_name": "URBANO MONTES, MANUEL",
+      "display_name": "URBANO MONTES, MANUEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "urbano montes manuel",
+      "search_sin_sufijo": "urbano montes manuel",
+      "source_rows": [
+        70
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50063",
+      "legal_name": "MESON LA CASILLA, C.B.",
+      "display_name": "MESON LA CASILLA, C.B.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "meson la casilla c b",
+      "search_sin_sufijo": "meson la casilla",
+      "source_rows": [
+        71
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50064",
+      "legal_name": "MOLINA PACHECO, ARACELI",
+      "display_name": "MOLINA PACHECO, ARACELI",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "molina pacheco araceli",
+      "search_sin_sufijo": "molina pacheco araceli",
+      "source_rows": [
+        72
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50145",
+      "legal_name": "BARRANCO MEDINA, BEATRIZ",
+      "display_name": "BARRANCO MEDINA, BEATRIZ",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "barranco medina beatriz",
+      "search_sin_sufijo": "barranco medina beatriz",
+      "source_rows": [
+        73
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50146",
+      "legal_name": "BOLLYSUR S.L.",
+      "display_name": "BOLLYSUR S.L.",
+      "aliases": [],
+      "centers": [
+        "01",
+        null
+      ],
+      "search_normalized": "bollysur s l",
+      "search_sin_sufijo": "bollysur",
+      "source_rows": [
+        74,
+        75
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50162",
+      "legal_name": "AREVALO HIDALGO, PEDRO",
+      "display_name": "AREVALO HIDALGO, PEDRO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "arevalo hidalgo pedro",
+      "search_sin_sufijo": "arevalo hidalgo pedro",
+      "source_rows": [
+        76
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50179",
+      "legal_name": "MELLADO LUQUE, LOURDES",
+      "display_name": "MELLADO LUQUE, LOURDES",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "mellado luque lourdes",
+      "search_sin_sufijo": "mellado luque lourdes",
+      "source_rows": [
+        77
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50185",
+      "legal_name": "SIERRA PULIDO, VICTORIA",
+      "display_name": "SIERRA PULIDO, VICTORIA",
+      "aliases": [],
+      "centers": [
+        "3",
+        null
+      ],
+      "search_normalized": "sierra pulido victoria",
+      "search_sin_sufijo": "sierra pulido victoria",
+      "source_rows": [
+        78,
+        79
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50194",
+      "legal_name": "FRUTAS ZAFRA, S.L.",
+      "display_name": "FRUTAS ZAFRA, S.L.",
+      "aliases": [],
+      "centers": [
+        "1"
+      ],
+      "search_normalized": "frutas zafra s l",
+      "search_sin_sufijo": "frutas zafra",
+      "source_rows": [
+        80
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50212",
+      "legal_name": "GUARDERIA ARCOIRIS CABRA, S.L.",
+      "display_name": "GUARDERIA ARCOIRIS CABRA, S.L.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "guarderia arcoiris cabra s l",
+      "search_sin_sufijo": "guarderia arcoiris cabra",
+      "source_rows": [
+        81
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50236",
+      "legal_name": "PEREZ LARA, FRANCISCO JAVIER",
+      "display_name": "PEREZ LARA, FRANCISCO JAVIER",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "perez lara francisco javier",
+      "search_sin_sufijo": "perez lara francisco javier",
+      "source_rows": [
+        82
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50238",
+      "legal_name": "KIOSCO \"BAR LA GAMBA\", C.B.",
+      "display_name": "KIOSCO \"BAR LA GAMBA\", C.B.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "kiosco bar la gamba c b",
+      "search_sin_sufijo": "kiosco bar la gamba",
+      "source_rows": [
+        83
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50246",
+      "legal_name": "BENITEZ ARANDA, JUAN DAVID",
+      "display_name": "BENITEZ ARANDA, JUAN DAVID",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "benitez aranda juan david",
+      "search_sin_sufijo": "benitez aranda juan david",
+      "source_rows": [
+        84
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50249",
+      "legal_name": "CARNICERIA REQUEREY, S.L.",
+      "display_name": "CARNICERIA REQUEREY, S.L.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "carniceria requerey s l",
+      "search_sin_sufijo": "carniceria requerey",
+      "source_rows": [
+        85
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50250",
+      "legal_name": "MONTILLA RUIZ, ANA",
+      "display_name": "MONTILLA RUIZ, ANA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "montilla ruiz ana",
+      "search_sin_sufijo": "montilla ruiz ana",
+      "source_rows": [
+        86
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50270",
+      "legal_name": "COBOS CAPEL, ANTONIA",
+      "display_name": "COBOS CAPEL, ANTONIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "cobos capel antonia",
+      "search_sin_sufijo": "cobos capel antonia",
+      "source_rows": [
+        87
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50277",
+      "legal_name": "SANCHEZ PEREZ, JUAN ANTONIO",
+      "display_name": "SANCHEZ PEREZ, JUAN ANTONIO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "sanchez perez juan antonio",
+      "search_sin_sufijo": "sanchez perez juan antonio",
+      "source_rows": [
+        88
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50288",
+      "legal_name": "CARNICERIA ROCIO LUQUE CB",
+      "display_name": "CARNICERIA ROCIO LUQUE CB",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "carniceria rocio luque cb",
+      "search_sin_sufijo": "carniceria rocio luque",
+      "source_rows": [
+        90
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50300",
+      "legal_name": "CAMACHO NAVAS, MANUEL",
+      "display_name": "CAMACHO NAVAS, MANUEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "camacho navas manuel",
+      "search_sin_sufijo": "camacho navas manuel",
+      "source_rows": [
+        91
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50339",
+      "legal_name": "MARTINEZ CASTILLO MARIA DEL CARMEN",
+      "display_name": "MARTINEZ CASTILLO MARIA DEL CARMEN",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "martinez castillo maria del carmen",
+      "search_sin_sufijo": "martinez castillo maria del carmen",
+      "source_rows": [
+        92
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50367",
+      "legal_name": "QUIROS DIAZ, ANTONIO",
+      "display_name": "QUIROS DIAZ, ANTONIO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "quiros diaz antonio",
+      "search_sin_sufijo": "quiros diaz antonio",
+      "source_rows": [
+        93
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50435",
+      "legal_name": "LA MONTANERA DELICATESSEN, C.B.",
+      "display_name": "LA MONTANERA DELICATESSEN, C.B.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "la montanera delicatessen c b",
+      "search_sin_sufijo": "la montanera delicatessen",
+      "source_rows": [
+        94
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50438",
+      "legal_name": "ROLDAN RIVAS,  MARIA DE LA FE",
+      "display_name": "ROLDAN RIVAS,  MARIA DE LA FE",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "roldan rivas maria de la fe",
+      "search_sin_sufijo": "roldan rivas maria de la fe",
+      "source_rows": [
+        95
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50439",
+      "legal_name": "CASH VENTAPLUS, S..L.",
+      "display_name": "CASH VENTAPLUS, S..L.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "cash ventaplus s l",
+      "search_sin_sufijo": "cash ventaplus",
+      "source_rows": [
+        96
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50445",
+      "legal_name": "ESPEJO CABALLERO JOSEFA",
+      "display_name": "ESPEJO CABALLERO JOSEFA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "espejo caballero josefa",
+      "search_sin_sufijo": "espejo caballero josefa",
+      "source_rows": [
+        97
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50446",
+      "legal_name": "CABRERA MARTÍN SL",
+      "display_name": "CABRERA MARTÍN SL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "cabrera martin sl",
+      "search_sin_sufijo": "cabrera martin",
+      "source_rows": [
+        98
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50453",
+      "legal_name": "MORENO ORTIZ, MARI CARMEN",
+      "display_name": "MORENO ORTIZ, MARI CARMEN",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "moreno ortiz mari carmen",
+      "search_sin_sufijo": "moreno ortiz mari carmen",
+      "source_rows": [
+        99
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50456",
+      "legal_name": "MOLINA BONILLA, DOMINGO",
+      "display_name": "MOLINA BONILLA, DOMINGO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "molina bonilla domingo",
+      "search_sin_sufijo": "molina bonilla domingo",
+      "source_rows": [
+        100
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50457",
+      "legal_name": "LUCENA LOPERA, CARMEN",
+      "display_name": "LUCENA LOPERA, CARMEN",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "lucena lopera carmen",
+      "search_sin_sufijo": "lucena lopera carmen",
+      "source_rows": [
+        101
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50459",
+      "legal_name": "RUIZ GUÁRDELO ANA MARIA",
+      "display_name": "RUIZ GUÁRDELO ANA MARIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "ruiz guardelo ana maria",
+      "search_sin_sufijo": "ruiz guardelo ana maria",
+      "source_rows": [
+        102
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50461",
+      "legal_name": "VERGARA PÉREZ, JOSÉ MANUEL",
+      "display_name": "VERGARA PÉREZ, JOSÉ MANUEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "vergara perez jose manuel",
+      "search_sin_sufijo": "vergara perez jose manuel",
+      "source_rows": [
+        103
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50462",
+      "legal_name": "SANCHEZ MACHADO RAFAEL",
+      "display_name": "SANCHEZ MACHADO RAFAEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "sanchez machado rafael",
+      "search_sin_sufijo": "sanchez machado rafael",
+      "source_rows": [
+        104
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50464",
+      "legal_name": "FRUTERÍA MESON",
+      "display_name": "FRUTERÍA MESON",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "fruteria meson",
+      "search_sin_sufijo": "fruteria meson",
+      "source_rows": [
+        105
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50466",
+      "legal_name": "MORALES VALVERDE, JOSE ANTONIO",
+      "display_name": "MORALES VALVERDE, JOSE ANTONIO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "morales valverde jose antonio",
+      "search_sin_sufijo": "morales valverde jose antonio",
+      "source_rows": [
+        106
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50569",
+      "legal_name": "CAFETERIA BAR JUANITO",
+      "display_name": "CAFETERIA BAR JUANITO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "cafeteria bar juanito",
+      "search_sin_sufijo": "cafeteria bar juanito",
+      "source_rows": [
+        107
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50570",
+      "legal_name": "GAMIZ BLÁZQUEZ,  MARÍA DE LA SIERRA",
+      "display_name": "GAMIZ BLÁZQUEZ,  MARÍA DE LA SIERRA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "gamiz blazquez maria de la sierra",
+      "search_sin_sufijo": "gamiz blazquez maria de la sierra",
+      "source_rows": [
+        108
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50571",
+      "legal_name": "PANADERIA",
+      "display_name": "PANADERIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "panaderia",
+      "search_sin_sufijo": "panaderia",
+      "source_rows": [
+        109
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50575",
+      "legal_name": "LUQUE CAÑERO ROCIO",
+      "display_name": "LUQUE CAÑERO ROCIO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "luque canero rocio",
+      "search_sin_sufijo": "luque canero rocio",
+      "source_rows": [
+        110
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50577",
+      "legal_name": "MOSCOSO MESA ARACELI",
+      "display_name": "MOSCOSO MESA ARACELI",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "moscoso mesa araceli",
+      "search_sin_sufijo": "moscoso mesa araceli",
+      "source_rows": [
+        111
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50578",
+      "legal_name": "PASTRANA CASADO, JOSÉ ANTONIO",
+      "display_name": "PASTRANA CASADO, JOSÉ ANTONIO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "pastrana casado jose antonio",
+      "search_sin_sufijo": "pastrana casado jose antonio",
+      "source_rows": [
+        112
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50580",
+      "legal_name": "CARNICERÍA BORREGO",
+      "display_name": "CARNICERÍA BORREGO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "carniceria borrego",
+      "search_sin_sufijo": "carniceria borrego",
+      "source_rows": [
+        113
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "50581",
+      "legal_name": "ASADOR MANOLO, S.L.",
+      "display_name": "ASADOR MANOLO, S.L.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "asador manolo s l",
+      "search_sin_sufijo": "asador manolo",
+      "source_rows": [
+        114
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "55",
+      "legal_name": "SALGADO NAVARRO, CARLOS",
+      "display_name": "SALGADO NAVARRO, CARLOS",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "salgado navarro carlos",
+      "search_sin_sufijo": "salgado navarro carlos",
+      "source_rows": [
+        8
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60009",
+      "legal_name": "BOGAS ESPINO, TRINIDAD",
+      "display_name": "BOGAS ESPINO, TRINIDAD",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "bogas espino trinidad",
+      "search_sin_sufijo": "bogas espino trinidad",
+      "source_rows": [
+        115
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60023",
+      "legal_name": "CABEZAS BOGAS, FRANCISCO",
+      "display_name": "CABEZAS BOGAS, FRANCISCO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "cabezas bogas francisco",
+      "search_sin_sufijo": "cabezas bogas francisco",
+      "source_rows": [
+        116
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60030",
+      "legal_name": "ALHAMA LUCENA, CARMEN Mª",
+      "display_name": "ALHAMA LUCENA, CARMEN Mª",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "alhama lucena carmen m",
+      "search_sin_sufijo": "alhama lucena carmen m",
+      "source_rows": [
+        117
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60036",
+      "legal_name": "PAVON BERCHEZ, JUAN",
+      "display_name": "PAVON BERCHEZ, JUAN",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "pavon berchez juan",
+      "search_sin_sufijo": "pavon berchez juan",
+      "source_rows": [
+        118
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60051",
+      "legal_name": "LARA JARABO, RAFAEL",
+      "display_name": "LARA JARABO, RAFAEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "lara jarabo rafael",
+      "search_sin_sufijo": "lara jarabo rafael",
+      "source_rows": [
+        119
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60065",
+      "legal_name": "ALCALA HUMANES, FRANCISCA",
+      "display_name": "ALCALA HUMANES, FRANCISCA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "alcala humanes francisca",
+      "search_sin_sufijo": "alcala humanes francisca",
+      "source_rows": [
+        120
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60068",
+      "legal_name": "CHACON GARCIA, ALONSO",
+      "display_name": "CHACON GARCIA, ALONSO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "chacon garcia alonso",
+      "search_sin_sufijo": "chacon garcia alonso",
+      "source_rows": [
+        121
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60098",
+      "legal_name": "ALHAMA MARQUEZ, LUIS",
+      "display_name": "ALHAMA MARQUEZ, LUIS",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "alhama marquez luis",
+      "search_sin_sufijo": "alhama marquez luis",
+      "source_rows": [
+        122
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60116",
+      "legal_name": "GUIMER C.B.",
+      "display_name": "GUIMER C.B.",
+      "aliases": [],
+      "centers": [
+        "1",
+        null
+      ],
+      "search_normalized": "guimer c b",
+      "search_sin_sufijo": "guimer",
+      "source_rows": [
+        123,
+        125
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60124",
+      "legal_name": "MULTISERVICIOS, PEREZ ROMERO",
+      "display_name": "MULTISERVICIOS, PEREZ ROMERO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "multiservicios perez romero",
+      "search_sin_sufijo": "multiservicios perez romero",
+      "source_rows": [
+        126
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60149",
+      "legal_name": "MOYANO ZAPATA, INMACULADA",
+      "display_name": "MOYANO ZAPATA, INMACULADA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "moyano zapata inmaculada",
+      "search_sin_sufijo": "moyano zapata inmaculada",
+      "source_rows": [
+        127
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60155",
+      "legal_name": "JIMENEZ POLONIO, MIGUEL",
+      "display_name": "JIMENEZ POLONIO, MIGUEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "jimenez polonio miguel",
+      "search_sin_sufijo": "jimenez polonio miguel",
+      "source_rows": [
+        128
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60203",
+      "legal_name": "ALIMENTACION PEYMA S.L.",
+      "display_name": "ALIMENTACION PEYMA S.L.",
+      "aliases": [],
+      "centers": [
+        "3",
+        "5",
+        null
+      ],
+      "search_normalized": "alimentacion peyma s l",
+      "search_sin_sufijo": "alimentacion peyma",
+      "source_rows": [
+        129,
+        130,
+        131
+      ],
+      "status": "activo",
+      "multi_centro": true
+    },
+    {
+      "customer_code": "60219",
+      "legal_name": "VIGO LUCENA, TRINIDAD",
+      "display_name": "VIGO LUCENA, TRINIDAD",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "vigo lucena trinidad",
+      "search_sin_sufijo": "vigo lucena trinidad",
+      "source_rows": [
+        132
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60220",
+      "legal_name": "AUTOSERVICIO HNOS MONTES PANIAGUA S.L.",
+      "display_name": "AUTOSERVICIO HNOS MONTES PANIAGUA S.L.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "autoservicio hnos montes paniagua s l",
+      "search_sin_sufijo": "autoservicio hnos montes paniagua",
+      "source_rows": [
+        133
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60225",
+      "legal_name": "COSANO VALLE, Mª CARMEN",
+      "display_name": "COSANO VALLE, Mª CARMEN",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "cosano valle m carmen",
+      "search_sin_sufijo": "cosano valle m carmen",
+      "source_rows": [
+        134
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60251",
+      "legal_name": "FERNANDEZ ALCANTARA , JUANA",
+      "display_name": "FERNANDEZ ALCANTARA , JUANA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "fernandez alcantara juana",
+      "search_sin_sufijo": "fernandez alcantara juana",
+      "source_rows": [
+        135
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60254",
+      "legal_name": "PALMA CAÑETE, SONIA",
+      "display_name": "PALMA CAÑETE, SONIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "palma canete sonia",
+      "search_sin_sufijo": "palma canete sonia",
+      "source_rows": [
+        136
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60255",
+      "legal_name": "LUQUE LEIVA, JOSE RAFAEL",
+      "display_name": "LUQUE LEIVA, JOSE RAFAEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "luque leiva jose rafael",
+      "search_sin_sufijo": "luque leiva jose rafael",
+      "source_rows": [
+        137
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60264",
+      "legal_name": "DAPEGU ALIMENTACION, S.L.",
+      "display_name": "DAPEGU ALIMENTACION, S.L.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "dapegu alimentacion s l",
+      "search_sin_sufijo": "dapegu alimentacion",
+      "source_rows": [
+        138
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60304",
+      "legal_name": "JIMENEZ BONILLA, ISIDRO LUIS",
+      "display_name": "JIMENEZ BONILLA, ISIDRO LUIS",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "jimenez bonilla isidro luis",
+      "search_sin_sufijo": "jimenez bonilla isidro luis",
+      "source_rows": [
+        139
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60333",
+      "legal_name": "HNOS. LUCENA PEREZ, S.L.",
+      "display_name": "HNOS. LUCENA PEREZ, S.L.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "hnos lucena perez s l",
+      "search_sin_sufijo": "hnos lucena perez",
+      "source_rows": [
+        140
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60335",
+      "legal_name": "GARCIA ARJONA, LIDIA",
+      "display_name": "GARCIA ARJONA, LIDIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "garcia arjona lidia",
+      "search_sin_sufijo": "garcia arjona lidia",
+      "source_rows": [
+        141
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60371",
+      "legal_name": "AUTOSERVICIO MIGUEL CABEZAS, S.L.U.",
+      "display_name": "AUTOSERVICIO MIGUEL CABEZAS, S.L.U.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "autoservicio miguel cabezas s l u",
+      "search_sin_sufijo": "autoservicio miguel cabezas",
+      "source_rows": [
+        142
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60407",
+      "legal_name": "LEON CORDOBA,  MIGUEL  ANGEL",
+      "display_name": "LEON CORDOBA,  MIGUEL  ANGEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "leon cordoba miguel angel",
+      "search_sin_sufijo": "leon cordoba miguel angel",
+      "source_rows": [
+        143
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60411",
+      "legal_name": "PÉREZ GAMA, MARIA TERESA",
+      "display_name": "PÉREZ GAMA, MARIA TERESA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "perez gama maria teresa",
+      "search_sin_sufijo": "perez gama maria teresa",
+      "source_rows": [
+        144
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60424",
+      "legal_name": "LLAMAS MORALES, JUAN MIGUEL",
+      "display_name": "LLAMAS MORALES, JUAN MIGUEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "llamas morales juan miguel",
+      "search_sin_sufijo": "llamas morales juan miguel",
+      "source_rows": [
+        145
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60425",
+      "legal_name": "ROMERO JIMENEZ, FRANCISCA",
+      "display_name": "ROMERO JIMENEZ, FRANCISCA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "romero jimenez francisca",
+      "search_sin_sufijo": "romero jimenez francisca",
+      "source_rows": [
+        146
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60432",
+      "legal_name": "LOPEZ SIERRA, Mª TERESA",
+      "display_name": "LOPEZ SIERRA, Mª TERESA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "lopez sierra m teresa",
+      "search_sin_sufijo": "lopez sierra m teresa",
+      "source_rows": [
+        147
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60435",
+      "legal_name": "MANCHEÑO VALLE, JESUS",
+      "display_name": "MANCHEÑO VALLE, JESUS",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "mancheno valle jesus",
+      "search_sin_sufijo": "mancheno valle jesus",
+      "source_rows": [
+        148
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60436",
+      "legal_name": "ROMERO VALDERRAMAS, RAFAEL",
+      "display_name": "ROMERO VALDERRAMAS, RAFAEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "romero valderramas rafael",
+      "search_sin_sufijo": "romero valderramas rafael",
+      "source_rows": [
+        149
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60441",
+      "legal_name": "REINA GALISTEO, JOSE",
+      "display_name": "REINA GALISTEO, JOSE",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "reina galisteo jose",
+      "search_sin_sufijo": "reina galisteo jose",
+      "source_rows": [
+        150
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60442",
+      "legal_name": "LOCAL VITIVINICOLA COOPERATIVA , S.C.A",
+      "display_name": "LOCAL VITIVINICOLA COOPERATIVA , S.C.A",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "local vitivinicola cooperativa s c a",
+      "search_sin_sufijo": "local vitivinicola cooperativa",
+      "source_rows": [
+        151
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60443",
+      "legal_name": "BERENGUER  BRG,  S.L",
+      "display_name": "BERENGUER  BRG,  S.L",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "berenguer brg s l",
+      "search_sin_sufijo": "berenguer brg",
+      "source_rows": [
+        152
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60446",
+      "legal_name": "LUQUE MEJIAS, ISABEL",
+      "display_name": "LUQUE MEJIAS, ISABEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "luque mejias isabel",
+      "search_sin_sufijo": "luque mejias isabel",
+      "source_rows": [
+        154
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60451",
+      "legal_name": "RODAS DORADO, CARMEN",
+      "display_name": "RODAS DORADO, CARMEN",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "rodas dorado carmen",
+      "search_sin_sufijo": "rodas dorado carmen",
+      "source_rows": [
+        155
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60452",
+      "legal_name": "RÍOS GÓMEZ LUIS",
+      "display_name": "RÍOS GÓMEZ LUIS",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "rios gomez luis",
+      "search_sin_sufijo": "rios gomez luis",
+      "source_rows": [
+        156
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60454",
+      "legal_name": "LOPEZ PRIEGO,  JUAN BAUTISTA",
+      "display_name": "LOPEZ PRIEGO,  JUAN BAUTISTA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "lopez priego juan bautista",
+      "search_sin_sufijo": "lopez priego juan bautista",
+      "source_rows": [
+        157
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60457",
+      "legal_name": "PEÑA",
+      "display_name": "PEÑA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "pena",
+      "search_sin_sufijo": "pena",
+      "source_rows": [
+        158
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60459",
+      "legal_name": "FERNÁNDEZ LÓPEZ MANUEL",
+      "display_name": "FERNÁNDEZ LÓPEZ MANUEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "fernandez lopez manuel",
+      "search_sin_sufijo": "fernandez lopez manuel",
+      "source_rows": [
+        159
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60462",
+      "legal_name": "GUTIÉRREZ  ALCALÁ, VERONICA",
+      "display_name": "GUTIÉRREZ  ALCALÁ, VERONICA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "gutierrez alcala veronica",
+      "search_sin_sufijo": "gutierrez alcala veronica",
+      "source_rows": [
+        160
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60464",
+      "legal_name": "PRECOCINADOS",
+      "display_name": "PRECOCINADOS",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "precocinados",
+      "search_sin_sufijo": "precocinados",
+      "source_rows": [
+        161
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60468",
+      "legal_name": "LA CASONA",
+      "display_name": "LA CASONA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "la casona",
+      "search_sin_sufijo": "la casona",
+      "source_rows": [
+        162
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60470",
+      "legal_name": "BAR ZURITO",
+      "display_name": "BAR ZURITO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "bar zurito",
+      "search_sin_sufijo": "bar zurito",
+      "source_rows": [
+        163
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60471",
+      "legal_name": "CAÑETE FRANCO LILIANA PATRICIA",
+      "display_name": "CAÑETE FRANCO LILIANA PATRICIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "canete franco liliana patricia",
+      "search_sin_sufijo": "canete franco liliana patricia",
+      "source_rows": [
+        164
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60472",
+      "legal_name": "REINA MARTINEZ, SANDRA",
+      "display_name": "REINA MARTINEZ, SANDRA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "reina martinez sandra",
+      "search_sin_sufijo": "reina martinez sandra",
+      "source_rows": [
+        165
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60473",
+      "legal_name": "AHORRONET MARKET",
+      "display_name": "AHORRONET MARKET",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "ahorronet market",
+      "search_sin_sufijo": "ahorronet market",
+      "source_rows": [
+        166
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "60474",
+      "legal_name": "AUTOSERCIO CICI",
+      "display_name": "AUTOSERCIO CICI",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "autosercio cici",
+      "search_sin_sufijo": "autosercio cici",
+      "source_rows": [
+        167
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "61002",
+      "legal_name": "BODEGAS TORO ALBALA S.L.",
+      "display_name": "BODEGAS TORO ALBALA S.L.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "bodegas toro albala s l",
+      "search_sin_sufijo": "bodegas toro albala",
+      "source_rows": [
+        168
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "8",
+      "legal_name": "MARTIN LOPEZ, FRANCISCO JOSE",
+      "display_name": "MARTIN LOPEZ, FRANCISCO JOSE",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "martin lopez francisco jose",
+      "search_sin_sufijo": "martin lopez francisco jose",
+      "source_rows": [
+        4
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80065",
+      "legal_name": "CARMONA LUQUE, PRUDENCIA",
+      "display_name": "CARMONA LUQUE, PRUDENCIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "carmona luque prudencia",
+      "search_sin_sufijo": "carmona luque prudencia",
+      "source_rows": [
+        169
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80070",
+      "legal_name": "RODRIGUEZ-CORDOBA SANCHEZ Mª CARMEN",
+      "display_name": "RODRIGUEZ-CORDOBA SANCHEZ Mª CARMEN",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "rodriguez cordoba sanchez m carmen",
+      "search_sin_sufijo": "rodriguez cordoba sanchez m carmen",
+      "source_rows": [
+        170
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80071",
+      "legal_name": "GOMEZ CARMONA, RAFAELA",
+      "display_name": "GOMEZ CARMONA, RAFAELA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "gomez carmona rafaela",
+      "search_sin_sufijo": "gomez carmona rafaela",
+      "source_rows": [
+        171
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80085",
+      "legal_name": "LOPEZ ALCAIDE, MARIA",
+      "display_name": "LOPEZ ALCAIDE, MARIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "lopez alcaide maria",
+      "search_sin_sufijo": "lopez alcaide maria",
+      "source_rows": [
+        172
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80102",
+      "legal_name": "JIMENEZ LUQUE, JOAQUIN",
+      "display_name": "JIMENEZ LUQUE, JOAQUIN",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "jimenez luque joaquin",
+      "search_sin_sufijo": "jimenez luque joaquin",
+      "source_rows": [
+        173
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80131",
+      "legal_name": "CASTRO GOMEZ, ANA",
+      "display_name": "CASTRO GOMEZ, ANA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "castro gomez ana",
+      "search_sin_sufijo": "castro gomez ana",
+      "source_rows": [
+        174
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80136",
+      "legal_name": "CASTILLO GARCIA, FRANCISCA",
+      "display_name": "CASTILLO GARCIA, FRANCISCA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "castillo garcia francisca",
+      "search_sin_sufijo": "castillo garcia francisca",
+      "source_rows": [
+        175
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80138",
+      "legal_name": "MARQUEZ RUZ, JUAN",
+      "display_name": "MARQUEZ RUZ, JUAN",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "marquez ruz juan",
+      "search_sin_sufijo": "marquez ruz juan",
+      "source_rows": [
+        176
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80143",
+      "legal_name": "AGUILAR OSUNA, ISABEL",
+      "display_name": "AGUILAR OSUNA, ISABEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "aguilar osuna isabel",
+      "search_sin_sufijo": "aguilar osuna isabel",
+      "source_rows": [
+        177
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80146",
+      "legal_name": "PORTERO TRILLO, RAFAEL",
+      "display_name": "PORTERO TRILLO, RAFAEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "portero trillo rafael",
+      "search_sin_sufijo": "portero trillo rafael",
+      "source_rows": [
+        178
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80154",
+      "legal_name": "JURADO JIMENEZ, JUAN JESUS",
+      "display_name": "JURADO JIMENEZ, JUAN JESUS",
+      "aliases": [],
+      "centers": [
+        "3",
+        null
+      ],
+      "search_normalized": "jurado jimenez juan jesus",
+      "search_sin_sufijo": "jurado jimenez juan jesus",
+      "source_rows": [
+        179,
+        180
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80170",
+      "legal_name": "LUQUE RUIZ, ALFONSO",
+      "display_name": "LUQUE RUIZ, ALFONSO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "luque ruiz alfonso",
+      "search_sin_sufijo": "luque ruiz alfonso",
+      "source_rows": [
+        181
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80172",
+      "legal_name": "FERNANDEZ LEON, ELENA",
+      "display_name": "FERNANDEZ LEON, ELENA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "fernandez leon elena",
+      "search_sin_sufijo": "fernandez leon elena",
+      "source_rows": [
+        182
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80174",
+      "legal_name": "SERRANO ROSAL, ANA",
+      "display_name": "SERRANO ROSAL, ANA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "serrano rosal ana",
+      "search_sin_sufijo": "serrano rosal ana",
+      "source_rows": [
+        183
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80177",
+      "legal_name": "GONZALEZ LUCENA, ANTONIA",
+      "display_name": "GONZALEZ LUCENA, ANTONIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "gonzalez lucena antonia",
+      "search_sin_sufijo": "gonzalez lucena antonia",
+      "source_rows": [
+        184
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80187",
+      "legal_name": "JAEN MORALES, FRANCISCA",
+      "display_name": "JAEN MORALES, FRANCISCA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "jaen morales francisca",
+      "search_sin_sufijo": "jaen morales francisca",
+      "source_rows": [
+        185
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80188",
+      "legal_name": "JIMENEZ JIMENEZ, DIEGO",
+      "display_name": "JIMENEZ JIMENEZ, DIEGO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "jimenez jimenez diego",
+      "search_sin_sufijo": "jimenez jimenez diego",
+      "source_rows": [
+        186
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80191",
+      "legal_name": "PAEZ CRESPIN, RAFAELA",
+      "display_name": "PAEZ CRESPIN, RAFAELA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "paez crespin rafaela",
+      "search_sin_sufijo": "paez crespin rafaela",
+      "source_rows": [
+        187
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80198",
+      "legal_name": "ALIMENTACIÓN FI-RUZ, S.L.",
+      "display_name": "ALIMENTACIÓN FI-RUZ, S.L.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "alimentacion fi ruz s l",
+      "search_sin_sufijo": "alimentacion fi ruz",
+      "source_rows": [
+        188
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80200",
+      "legal_name": "SANCHEZ MOHEDANO, MARINA",
+      "display_name": "SANCHEZ MOHEDANO, MARINA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "sanchez mohedano marina",
+      "search_sin_sufijo": "sanchez mohedano marina",
+      "source_rows": [
+        189
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80205",
+      "legal_name": "MORENO JIMÉNEZ JOSÉ ANTONIO",
+      "display_name": "MORENO JIMÉNEZ JOSÉ ANTONIO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "moreno jimenez jose antonio",
+      "search_sin_sufijo": "moreno jimenez jose antonio",
+      "source_rows": [
+        190
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80207",
+      "legal_name": "BAENA SILLERO MARÍA VICTORIA",
+      "display_name": "BAENA SILLERO MARÍA VICTORIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "baena sillero maria victoria",
+      "search_sin_sufijo": "baena sillero maria victoria",
+      "source_rows": [
+        191
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80501",
+      "legal_name": "CUESTA BERRAL, ANA Mª",
+      "display_name": "CUESTA BERRAL, ANA Mª",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "cuesta berral ana m",
+      "search_sin_sufijo": "cuesta berral ana m",
+      "source_rows": [
+        192
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80503",
+      "legal_name": "BERRAL JIMENEZ, JUAN JESUS",
+      "display_name": "BERRAL JIMENEZ, JUAN JESUS",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "berral jimenez juan jesus",
+      "search_sin_sufijo": "berral jimenez juan jesus",
+      "source_rows": [
+        193
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80511",
+      "legal_name": "RESTAURANTE CONDE DE FERNAN NUÑEZ",
+      "display_name": "RESTAURANTE CONDE DE FERNAN NUÑEZ",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "restaurante conde de fernan nunez",
+      "search_sin_sufijo": "restaurante conde de fernan nunez",
+      "source_rows": [
+        194
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80512",
+      "legal_name": "ACEITUNO URBANO, ANTONIO",
+      "display_name": "ACEITUNO URBANO, ANTONIO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "aceituno urbano antonio",
+      "search_sin_sufijo": "aceituno urbano antonio",
+      "source_rows": [
+        195
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80513",
+      "legal_name": "BERRAL ANTUNEZ ANA MARIA",
+      "display_name": "BERRAL ANTUNEZ ANA MARIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "berral antunez ana maria",
+      "search_sin_sufijo": "berral antunez ana maria",
+      "source_rows": [
+        196
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80517",
+      "legal_name": "ARIZA JURADO JUAN FRANCISCO",
+      "display_name": "ARIZA JURADO JUAN FRANCISCO",
+      "aliases": [],
+      "centers": [
+        "1",
+        null
+      ],
+      "search_normalized": "ariza jurado juan francisco",
+      "search_sin_sufijo": "ariza jurado juan francisco",
+      "source_rows": [
+        197,
+        198
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80519",
+      "legal_name": "FERNANDEZ SALADO, JOSEFA",
+      "display_name": "FERNANDEZ SALADO, JOSEFA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "fernandez salado josefa",
+      "search_sin_sufijo": "fernandez salado josefa",
+      "source_rows": [
+        199
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80524",
+      "legal_name": "LA CALDERA",
+      "display_name": "LA CALDERA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "la caldera",
+      "search_sin_sufijo": "la caldera",
+      "source_rows": [
+        200
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80546",
+      "legal_name": "MORALES RODRÍGUEZ, DOLORES",
+      "display_name": "MORALES RODRÍGUEZ, DOLORES",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "morales rodriguez dolores",
+      "search_sin_sufijo": "morales rodriguez dolores",
+      "source_rows": [
+        201
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "80548",
+      "legal_name": "FIGUEROA RUZ, VICTOR",
+      "display_name": "FIGUEROA RUZ, VICTOR",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "figueroa ruz victor",
+      "search_sin_sufijo": "figueroa ruz victor",
+      "source_rows": [
+        202
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "90012",
+      "legal_name": "GUISADO FERNANDEZ, MIGUEL ANGEL",
+      "display_name": "GUISADO FERNANDEZ, MIGUEL ANGEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "guisado fernandez miguel angel",
+      "search_sin_sufijo": "guisado fernandez miguel angel",
+      "source_rows": [
+        203
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "90014",
+      "legal_name": "CARNICERIA EL CHINO, S.L.",
+      "display_name": "CARNICERIA EL CHINO, S.L.",
+      "aliases": [],
+      "centers": [
+        "2"
+      ],
+      "search_normalized": "carniceria el chino s l",
+      "search_sin_sufijo": "carniceria el chino",
+      "source_rows": [
+        204
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "90017",
+      "legal_name": "RUIZ GARCIA, JESUS",
+      "display_name": "RUIZ GARCIA, JESUS",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "ruiz garcia jesus",
+      "search_sin_sufijo": "ruiz garcia jesus",
+      "source_rows": [
+        205
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "90061",
+      "legal_name": "CATERING Y SERVICIOS LAS TORRES, S.L.U.",
+      "display_name": "CATERING Y SERVICIOS LAS TORRES, S.L.U.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "catering y servicios las torres s l u",
+      "search_sin_sufijo": "catering y servicios las torres",
+      "source_rows": [
+        206
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "90069",
+      "legal_name": "LABADO SANCHEZ, CONCEPCION",
+      "display_name": "LABADO SANCHEZ, CONCEPCION",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "labado sanchez concepcion",
+      "search_sin_sufijo": "labado sanchez concepcion",
+      "source_rows": [
+        207
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "90070",
+      "legal_name": "ROCIO GONZALEZ Y HNOS S.L.",
+      "display_name": "ROCIO GONZALEZ Y HNOS S.L.",
+      "aliases": [],
+      "centers": [
+        "2",
+        null
+      ],
+      "search_normalized": "rocio gonzalez y hnos s l",
+      "search_sin_sufijo": "rocio gonzalez y hnos",
+      "source_rows": [
+        208,
+        209
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "90079",
+      "legal_name": "CARRION TORRES, S.L.",
+      "display_name": "CARRION TORRES, S.L.",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "carrion torres s l",
+      "search_sin_sufijo": "carrion torres",
+      "source_rows": [
+        210
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "90187",
+      "legal_name": "SURPERMERCADOS SUPER MAGOSA, S,L,",
+      "display_name": "SURPERMERCADOS SUPER MAGOSA, S,L,",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "surpermercados super magosa s l",
+      "search_sin_sufijo": "surpermercados super magosa",
+      "source_rows": [
+        211
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "90201",
+      "legal_name": "FERNANDEZ ROSA, INMACULADA",
+      "display_name": "FERNANDEZ ROSA, INMACULADA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "fernandez rosa inmaculada",
+      "search_sin_sufijo": "fernandez rosa inmaculada",
+      "source_rows": [
+        212
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "90204",
+      "legal_name": "GUTIERRE VAZQUE, ANTONIO",
+      "display_name": "GUTIERRE VAZQUE, ANTONIO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "gutierre vazque antonio",
+      "search_sin_sufijo": "gutierre vazque antonio",
+      "source_rows": [
+        213
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "90207",
+      "legal_name": "ROSA MORALES ANA MARIA",
+      "display_name": "ROSA MORALES ANA MARIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "rosa morales ana maria",
+      "search_sin_sufijo": "rosa morales ana maria",
+      "source_rows": [
+        214
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "90208",
+      "legal_name": "MARTÍN GÓMEZ ANA MARIA",
+      "display_name": "MARTÍN GÓMEZ ANA MARIA",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "martin gomez ana maria",
+      "search_sin_sufijo": "martin gomez ana maria",
+      "source_rows": [
+        215
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "90213",
+      "legal_name": "SUPER CASASE 1904 , SL",
+      "display_name": "SUPER CASASE 1904 , SL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "super casase 1904 sl",
+      "search_sin_sufijo": "super casase 1904",
+      "source_rows": [
+        216
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "90220",
+      "legal_name": "BRENES OLIVA, S.C.",
+      "display_name": "BRENES OLIVA, S.C.",
+      "aliases": [],
+      "centers": [
+        "2",
+        "3",
+        null
+      ],
+      "search_normalized": "brenes oliva s c",
+      "search_sin_sufijo": "brenes oliva",
+      "source_rows": [
+        217,
+        218,
+        219
+      ],
+      "status": "activo",
+      "multi_centro": true
+    },
+    {
+      "customer_code": "91006",
+      "legal_name": "GALAN ZAA, MARI CARMEN",
+      "display_name": "GALAN ZAA, MARI CARMEN",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "galan zaa mari carmen",
+      "search_sin_sufijo": "galan zaa mari carmen",
+      "source_rows": [
+        220
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "91007",
+      "legal_name": "RUIZ GARCIA, FRANCISCO",
+      "display_name": "RUIZ GARCIA, FRANCISCO",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "ruiz garcia francisco",
+      "search_sin_sufijo": "ruiz garcia francisco",
+      "source_rows": [
+        221
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "91008",
+      "legal_name": "JIMENEZ LOPEZ, RAFAEL",
+      "display_name": "JIMENEZ LOPEZ, RAFAEL",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "jimenez lopez rafael",
+      "search_sin_sufijo": "jimenez lopez rafael",
+      "source_rows": [
+        222
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "91009",
+      "legal_name": "SALVADOR CRESPO, CESAR",
+      "display_name": "SALVADOR CRESPO, CESAR",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "salvador crespo cesar",
+      "search_sin_sufijo": "salvador crespo cesar",
+      "source_rows": [
+        223
+      ],
+      "status": "activo",
+      "multi_centro": false
+    },
+    {
+      "customer_code": "91012",
+      "legal_name": "ROMERO LOPEZ, LUIS",
+      "display_name": "ROMERO LOPEZ, LUIS",
+      "aliases": [],
+      "centers": [
+        null
+      ],
+      "search_normalized": "romero lopez luis",
+      "search_sin_sufijo": "romero lopez luis",
+      "source_rows": [
+        224
+      ],
+      "status": "activo",
+      "multi_centro": false
+    }
+  ],
+  "filas_fuente": [
+    {
+      "customer_code": "1",
+      "customer_center": null,
+      "legal_name": "NUEVO SANCHEZ, JUAN",
+      "source_row": 2
+    },
+    {
+      "customer_code": "3",
+      "customer_center": null,
+      "legal_name": "JIMENEZ LUQUE, ANTONIO",
+      "source_row": 3
+    },
+    {
+      "customer_code": "8",
+      "customer_center": null,
+      "legal_name": "MARTIN LOPEZ, FRANCISCO JOSE",
+      "source_row": 4
+    },
+    {
+      "customer_code": "23",
+      "customer_center": null,
+      "legal_name": "AUTOSERVICIO USAGRE, S.L.",
+      "source_row": 5
+    },
+    {
+      "customer_code": "23",
+      "customer_center": null,
+      "legal_name": "AUTOSERVICIO USAGRE, S.L.",
+      "source_row": 6
+    },
+    {
+      "customer_code": "49",
+      "customer_center": null,
+      "legal_name": "DELGADO PEREZ, JOSE VICENTE",
+      "source_row": 7
+    },
+    {
+      "customer_code": "55",
+      "customer_center": null,
+      "legal_name": "SALGADO NAVARRO, CARLOS",
+      "source_row": 8
+    },
+    {
+      "customer_code": "108",
+      "customer_center": null,
+      "legal_name": "BEJINES MAYO, MARIA",
+      "source_row": 9
+    },
+    {
+      "customer_code": "121",
+      "customer_center": null,
+      "legal_name": "CANO JIMENEZ, MANOLI",
+      "source_row": 10
+    },
+    {
+      "customer_code": "221",
+      "customer_center": null,
+      "legal_name": "RODRIGUEZ PORTILLO, MARIA DEL CARMEN",
+      "source_row": 11
+    },
+    {
+      "customer_code": "221",
+      "customer_center": null,
+      "legal_name": "RODRIGUEZ PORTILLO, MARIA DEL CARMEN",
+      "source_row": 12
+    },
+    {
+      "customer_code": "224",
+      "customer_center": null,
+      "legal_name": "REY REINA, JOSE ANTONIO",
+      "source_row": 13
+    },
+    {
+      "customer_code": "329",
+      "customer_center": null,
+      "legal_name": "HNOS. GUERRERO JIMENEZ ALIM, S.L.L.",
+      "source_row": 14
+    },
+    {
+      "customer_code": "340",
+      "customer_center": null,
+      "legal_name": "AUTOSERVICIO CARRILLO S.L.",
+      "source_row": 15
+    },
+    {
+      "customer_code": "10010",
+      "customer_center": null,
+      "legal_name": "MUÑOZ CARMONA, DOLORES",
+      "source_row": 16
+    },
+    {
+      "customer_code": "10020",
+      "customer_center": null,
+      "legal_name": "GARCIA GARCIA, RAFAEL",
+      "source_row": 17
+    },
+    {
+      "customer_code": "10033",
+      "customer_center": null,
+      "legal_name": "GARCIA MUÑOZ, SEBASTIAN",
+      "source_row": 18
+    },
+    {
+      "customer_code": "11020",
+      "customer_center": null,
+      "legal_name": "CONDE FERNANDEZ, ROSA Mª",
+      "source_row": 19
+    },
+    {
+      "customer_code": "11024",
+      "customer_center": null,
+      "legal_name": "RUIZ GOMEZ, ISABEL MARIA",
+      "source_row": 20
+    },
+    {
+      "customer_code": "11026",
+      "customer_center": null,
+      "legal_name": "CARMONA LOPEZ, PEDRO",
+      "source_row": 21
+    },
+    {
+      "customer_code": "11030",
+      "customer_center": null,
+      "legal_name": "CONDE FERNÁNDEZ, MARÍA JOSÉ",
+      "source_row": 22
+    },
+    {
+      "customer_code": "13002",
+      "customer_center": null,
+      "legal_name": "RUIZ MUÑOZ, VICTORIA",
+      "source_row": 23
+    },
+    {
+      "customer_code": "13006",
+      "customer_center": null,
+      "legal_name": "SOTILLO GONZALEZ, Mª DEL VALLE",
+      "source_row": 24
+    },
+    {
+      "customer_code": "13016",
+      "customer_center": null,
+      "legal_name": "ALIMENTACIÓN MATEO Y PASTORI S.L.",
+      "source_row": 25
+    },
+    {
+      "customer_code": "14004",
+      "customer_center": null,
+      "legal_name": "CARNICERIA Mª DEL VALLE, S.C.",
+      "source_row": 26
+    },
+    {
+      "customer_code": "14006",
+      "customer_center": null,
+      "legal_name": "JIMENEZ JIMENEZ, MONICA",
+      "source_row": 27
+    },
+    {
+      "customer_code": "14010",
+      "customer_center": null,
+      "legal_name": "ANTONIO DIAZ CHIA, S.L.",
+      "source_row": 28
+    },
+    {
+      "customer_code": "14032",
+      "customer_center": null,
+      "legal_name": "MEDINA FERNANDEZ, ANA",
+      "source_row": 29
+    },
+    {
+      "customer_code": "14036",
+      "customer_center": null,
+      "legal_name": "HEBLES ULINES, RAFAEL",
+      "source_row": 30
+    },
+    {
+      "customer_code": "14038",
+      "customer_center": null,
+      "legal_name": "PORRAS BORREGO, EVA",
+      "source_row": 31
+    },
+    {
+      "customer_code": "20027",
+      "customer_center": null,
+      "legal_name": "GOMEZ NUÑEZ, JOSE Mª",
+      "source_row": 32
+    },
+    {
+      "customer_code": "20028",
+      "customer_center": null,
+      "legal_name": "CARNICERIAS MOYA NUÑEZ S.C.A.",
+      "source_row": 33
+    },
+    {
+      "customer_code": "20073",
+      "customer_center": null,
+      "legal_name": "PLAZA DOMINGUEZ, JUAN ANTONIO",
+      "source_row": 34
+    },
+    {
+      "customer_code": "20118",
+      "customer_center": null,
+      "legal_name": "GRACIA FERRETE, RAFAEL",
+      "source_row": 35
+    },
+    {
+      "customer_code": "20119",
+      "customer_center": null,
+      "legal_name": "SUPERMERCADOS PUERTA RONDA S.COOP.AND.",
+      "source_row": 36
+    },
+    {
+      "customer_code": "20203",
+      "customer_center": "2",
+      "legal_name": "SUPERMERCADOS EL OLVIDO, S.L.",
+      "source_row": 37
+    },
+    {
+      "customer_code": "20204",
+      "customer_center": null,
+      "legal_name": "ALIMENTACION ANRA, S.L.U.",
+      "source_row": 38
+    },
+    {
+      "customer_code": "20206",
+      "customer_center": null,
+      "legal_name": "CRUJERA PEREZ, M ANGELES",
+      "source_row": 39
+    },
+    {
+      "customer_code": "21000",
+      "customer_center": null,
+      "legal_name": "JIMENEZ MARTIN, Mª CARMEN",
+      "source_row": 40
+    },
+    {
+      "customer_code": "21013",
+      "customer_center": null,
+      "legal_name": "MARTOS GALVAN, ALVARO",
+      "source_row": 41
+    },
+    {
+      "customer_code": "21013",
+      "customer_center": null,
+      "legal_name": "MARTOS GALVAN, ALVARO",
+      "source_row": 42
+    },
+    {
+      "customer_code": "22003",
+      "customer_center": null,
+      "legal_name": "MACHUCA ROMERO, ANTONIA",
+      "source_row": 43
+    },
+    {
+      "customer_code": "30001",
+      "customer_center": null,
+      "legal_name": "PRECADOS, S.L.",
+      "source_row": 44
+    },
+    {
+      "customer_code": "30001",
+      "customer_center": "1",
+      "legal_name": "PRECADOS, S.L.",
+      "source_row": 45
+    },
+    {
+      "customer_code": "30006",
+      "customer_center": null,
+      "legal_name": "SUPER 4, S.L.",
+      "source_row": 46
+    },
+    {
+      "customer_code": "30035",
+      "customer_center": null,
+      "legal_name": "MARTIN OLIVA, LORENZO FCO.",
+      "source_row": 47
+    },
+    {
+      "customer_code": "30039",
+      "customer_center": null,
+      "legal_name": "TORRES MARTINEZ, SERGIO",
+      "source_row": 48
+    },
+    {
+      "customer_code": "30042",
+      "customer_center": null,
+      "legal_name": "MEDINA GARCIA, JAIME",
+      "source_row": 49
+    },
+    {
+      "customer_code": "30060",
+      "customer_center": null,
+      "legal_name": "ALIMENTACION JOSE MARIA TORRES S.L.",
+      "source_row": 50
+    },
+    {
+      "customer_code": "30107",
+      "customer_center": null,
+      "legal_name": "MONTORO COBANO, TRINIDAD",
+      "source_row": 51
+    },
+    {
+      "customer_code": "30120",
+      "customer_center": null,
+      "legal_name": "MENACHO NAVARRO, Mª DOLORES",
+      "source_row": 52
+    },
+    {
+      "customer_code": "30128",
+      "customer_center": null,
+      "legal_name": "GARCIA REINADO, SILVIA",
+      "source_row": 53
+    },
+    {
+      "customer_code": "30133",
+      "customer_center": null,
+      "legal_name": "VALIENTE ESCOBAR, PEDRO",
+      "source_row": 54
+    },
+    {
+      "customer_code": "30134",
+      "customer_center": null,
+      "legal_name": "ALBA OLMO, INMACULADA",
+      "source_row": 55
+    },
+    {
+      "customer_code": "30137",
+      "customer_center": null,
+      "legal_name": "GUERRA GARCIA, Mª AUXILIADORA",
+      "source_row": 56
+    },
+    {
+      "customer_code": "30142",
+      "customer_center": null,
+      "legal_name": "OLMO VILLALBA, LAURA",
+      "source_row": 57
+    },
+    {
+      "customer_code": "30451",
+      "customer_center": null,
+      "legal_name": "GARROCHO TINOCO, NURIA",
+      "source_row": 58
+    },
+    {
+      "customer_code": "30452",
+      "customer_center": null,
+      "legal_name": "DURAN VERDUGO, REMEDIOS",
+      "source_row": 59
+    },
+    {
+      "customer_code": "50006",
+      "customer_center": null,
+      "legal_name": "JIMENEZ ALCANTARA, JUAN PABLO",
+      "source_row": 60
+    },
+    {
+      "customer_code": "50009",
+      "customer_center": null,
+      "legal_name": "AGUILERA NAVARRO, JUAN",
+      "source_row": 61
+    },
+    {
+      "customer_code": "50010",
+      "customer_center": null,
+      "legal_name": "URBANO MONTES FCO. JAVIER",
+      "source_row": 62
+    },
+    {
+      "customer_code": "50011",
+      "customer_center": null,
+      "legal_name": "ROMAN ALAMEDA, JOSE ANTONIO",
+      "source_row": 63
+    },
+    {
+      "customer_code": "50020",
+      "customer_center": null,
+      "legal_name": "MORENO ALVAREZ, ALICIA",
+      "source_row": 64
+    },
+    {
+      "customer_code": "50020",
+      "customer_center": null,
+      "legal_name": "MORENO ALVAREZ, ALICIA",
+      "source_row": 65
+    },
+    {
+      "customer_code": "50022",
+      "customer_center": null,
+      "legal_name": "FERNANDEZ FERNANDEZ, PABLO",
+      "source_row": 66
+    },
+    {
+      "customer_code": "50022",
+      "customer_center": null,
+      "legal_name": "FERNANDEZ FERNANDEZ, PABLO",
+      "source_row": 67
+    },
+    {
+      "customer_code": "50027",
+      "customer_center": null,
+      "legal_name": "GOMEZ SERRANO, DAVID",
+      "source_row": 68
+    },
+    {
+      "customer_code": "50049",
+      "customer_center": null,
+      "legal_name": "ROPERO PEREZ, DANIEL",
+      "source_row": 69
+    },
+    {
+      "customer_code": "50059",
+      "customer_center": null,
+      "legal_name": "URBANO MONTES, MANUEL",
+      "source_row": 70
+    },
+    {
+      "customer_code": "50063",
+      "customer_center": null,
+      "legal_name": "MESON LA CASILLA, C.B.",
+      "source_row": 71
+    },
+    {
+      "customer_code": "50064",
+      "customer_center": null,
+      "legal_name": "MOLINA PACHECO, ARACELI",
+      "source_row": 72
+    },
+    {
+      "customer_code": "50145",
+      "customer_center": null,
+      "legal_name": "BARRANCO MEDINA, BEATRIZ",
+      "source_row": 73
+    },
+    {
+      "customer_code": "50146",
+      "customer_center": null,
+      "legal_name": "BOLLYSUR S.L.",
+      "source_row": 74
+    },
+    {
+      "customer_code": "50146",
+      "customer_center": "01",
+      "legal_name": "BOLLYSUR S.L.",
+      "source_row": 75
+    },
+    {
+      "customer_code": "50162",
+      "customer_center": null,
+      "legal_name": "AREVALO HIDALGO, PEDRO",
+      "source_row": 76
+    },
+    {
+      "customer_code": "50179",
+      "customer_center": null,
+      "legal_name": "MELLADO LUQUE, LOURDES",
+      "source_row": 77
+    },
+    {
+      "customer_code": "50185",
+      "customer_center": null,
+      "legal_name": "SIERRA PULIDO, VICTORIA",
+      "source_row": 78
+    },
+    {
+      "customer_code": "50185",
+      "customer_center": "3",
+      "legal_name": "SIERRA PULIDO, VICTORIA",
+      "source_row": 79
+    },
+    {
+      "customer_code": "50194",
+      "customer_center": "1",
+      "legal_name": "FRUTAS ZAFRA, S.L.",
+      "source_row": 80
+    },
+    {
+      "customer_code": "50212",
+      "customer_center": null,
+      "legal_name": "GUARDERIA ARCOIRIS CABRA, S.L.",
+      "source_row": 81
+    },
+    {
+      "customer_code": "50236",
+      "customer_center": null,
+      "legal_name": "PEREZ LARA, FRANCISCO JAVIER",
+      "source_row": 82
+    },
+    {
+      "customer_code": "50238",
+      "customer_center": null,
+      "legal_name": "KIOSCO \"BAR LA GAMBA\", C.B.",
+      "source_row": 83
+    },
+    {
+      "customer_code": "50246",
+      "customer_center": null,
+      "legal_name": "BENITEZ ARANDA, JUAN DAVID",
+      "source_row": 84
+    },
+    {
+      "customer_code": "50249",
+      "customer_center": null,
+      "legal_name": "CARNICERIA REQUEREY, S.L.",
+      "source_row": 85
+    },
+    {
+      "customer_code": "50250",
+      "customer_center": null,
+      "legal_name": "MONTILLA RUIZ, ANA",
+      "source_row": 86
+    },
+    {
+      "customer_code": "50270",
+      "customer_center": null,
+      "legal_name": "COBOS CAPEL, ANTONIA",
+      "source_row": 87
+    },
+    {
+      "customer_code": "50277",
+      "customer_center": null,
+      "legal_name": "SANCHEZ PEREZ, JUAN ANTONIO",
+      "source_row": 88
+    },
+    {
+      "customer_code": "50277",
+      "customer_center": null,
+      "legal_name": "SANCHEZ PEREZ, JUAN ANTONIO",
+      "source_row": 89
+    },
+    {
+      "customer_code": "50288",
+      "customer_center": null,
+      "legal_name": "CARNICERIA ROCIO LUQUE CB",
+      "source_row": 90
+    },
+    {
+      "customer_code": "50300",
+      "customer_center": null,
+      "legal_name": "CAMACHO NAVAS, MANUEL",
+      "source_row": 91
+    },
+    {
+      "customer_code": "50339",
+      "customer_center": null,
+      "legal_name": "MARTINEZ CASTILLO MARIA DEL CARMEN",
+      "source_row": 92
+    },
+    {
+      "customer_code": "50367",
+      "customer_center": null,
+      "legal_name": "QUIROS DIAZ, ANTONIO",
+      "source_row": 93
+    },
+    {
+      "customer_code": "50435",
+      "customer_center": null,
+      "legal_name": "LA MONTANERA DELICATESSEN, C.B.",
+      "source_row": 94
+    },
+    {
+      "customer_code": "50438",
+      "customer_center": null,
+      "legal_name": "ROLDAN RIVAS,  MARIA DE LA FE",
+      "source_row": 95
+    },
+    {
+      "customer_code": "50439",
+      "customer_center": null,
+      "legal_name": "CASH VENTAPLUS, S..L.",
+      "source_row": 96
+    },
+    {
+      "customer_code": "50445",
+      "customer_center": null,
+      "legal_name": "ESPEJO CABALLERO JOSEFA",
+      "source_row": 97
+    },
+    {
+      "customer_code": "50446",
+      "customer_center": null,
+      "legal_name": "CABRERA MARTÍN SL",
+      "source_row": 98
+    },
+    {
+      "customer_code": "50453",
+      "customer_center": null,
+      "legal_name": "MORENO ORTIZ, MARI CARMEN",
+      "source_row": 99
+    },
+    {
+      "customer_code": "50456",
+      "customer_center": null,
+      "legal_name": "MOLINA BONILLA, DOMINGO",
+      "source_row": 100
+    },
+    {
+      "customer_code": "50457",
+      "customer_center": null,
+      "legal_name": "LUCENA LOPERA, CARMEN",
+      "source_row": 101
+    },
+    {
+      "customer_code": "50459",
+      "customer_center": null,
+      "legal_name": "RUIZ GUÁRDELO ANA MARIA",
+      "source_row": 102
+    },
+    {
+      "customer_code": "50461",
+      "customer_center": null,
+      "legal_name": "VERGARA PÉREZ, JOSÉ MANUEL",
+      "source_row": 103
+    },
+    {
+      "customer_code": "50462",
+      "customer_center": null,
+      "legal_name": "SANCHEZ MACHADO RAFAEL",
+      "source_row": 104
+    },
+    {
+      "customer_code": "50464",
+      "customer_center": null,
+      "legal_name": "FRUTERÍA MESON",
+      "source_row": 105
+    },
+    {
+      "customer_code": "50466",
+      "customer_center": null,
+      "legal_name": "MORALES VALVERDE, JOSE ANTONIO",
+      "source_row": 106
+    },
+    {
+      "customer_code": "50569",
+      "customer_center": null,
+      "legal_name": "CAFETERIA BAR JUANITO",
+      "source_row": 107
+    },
+    {
+      "customer_code": "50570",
+      "customer_center": null,
+      "legal_name": "GAMIZ BLÁZQUEZ,  MARÍA DE LA SIERRA",
+      "source_row": 108
+    },
+    {
+      "customer_code": "50571",
+      "customer_center": null,
+      "legal_name": "PANADERIA",
+      "source_row": 109
+    },
+    {
+      "customer_code": "50575",
+      "customer_center": null,
+      "legal_name": "LUQUE CAÑERO ROCIO",
+      "source_row": 110
+    },
+    {
+      "customer_code": "50577",
+      "customer_center": null,
+      "legal_name": "MOSCOSO MESA ARACELI",
+      "source_row": 111
+    },
+    {
+      "customer_code": "50578",
+      "customer_center": null,
+      "legal_name": "PASTRANA CASADO, JOSÉ ANTONIO",
+      "source_row": 112
+    },
+    {
+      "customer_code": "50580",
+      "customer_center": null,
+      "legal_name": "CARNICERÍA BORREGO",
+      "source_row": 113
+    },
+    {
+      "customer_code": "50581",
+      "customer_center": null,
+      "legal_name": "ASADOR MANOLO, S.L.",
+      "source_row": 114
+    },
+    {
+      "customer_code": "60009",
+      "customer_center": null,
+      "legal_name": "BOGAS ESPINO, TRINIDAD",
+      "source_row": 115
+    },
+    {
+      "customer_code": "60023",
+      "customer_center": null,
+      "legal_name": "CABEZAS BOGAS, FRANCISCO",
+      "source_row": 116
+    },
+    {
+      "customer_code": "60030",
+      "customer_center": null,
+      "legal_name": "ALHAMA LUCENA, CARMEN Mª",
+      "source_row": 117
+    },
+    {
+      "customer_code": "60036",
+      "customer_center": null,
+      "legal_name": "PAVON BERCHEZ, JUAN",
+      "source_row": 118
+    },
+    {
+      "customer_code": "60051",
+      "customer_center": null,
+      "legal_name": "LARA JARABO, RAFAEL",
+      "source_row": 119
+    },
+    {
+      "customer_code": "60065",
+      "customer_center": null,
+      "legal_name": "ALCALA HUMANES, FRANCISCA",
+      "source_row": 120
+    },
+    {
+      "customer_code": "60068",
+      "customer_center": null,
+      "legal_name": "CHACON GARCIA, ALONSO",
+      "source_row": 121
+    },
+    {
+      "customer_code": "60098",
+      "customer_center": null,
+      "legal_name": "ALHAMA MARQUEZ, LUIS",
+      "source_row": 122
+    },
+    {
+      "customer_code": "60116",
+      "customer_center": null,
+      "legal_name": "GUIMER C.B.",
+      "source_row": 123
+    },
+    {
+      "customer_code": "60116",
+      "customer_center": null,
+      "legal_name": "GUIMER C.B.",
+      "source_row": 124
+    },
+    {
+      "customer_code": "60116",
+      "customer_center": "1",
+      "legal_name": "GUIMER C.B.",
+      "source_row": 125
+    },
+    {
+      "customer_code": "60124",
+      "customer_center": null,
+      "legal_name": "MULTISERVICIOS, PEREZ ROMERO",
+      "source_row": 126
+    },
+    {
+      "customer_code": "60149",
+      "customer_center": null,
+      "legal_name": "MOYANO ZAPATA, INMACULADA",
+      "source_row": 127
+    },
+    {
+      "customer_code": "60155",
+      "customer_center": null,
+      "legal_name": "JIMENEZ POLONIO, MIGUEL",
+      "source_row": 128
+    },
+    {
+      "customer_code": "60203",
+      "customer_center": null,
+      "legal_name": "ALIMENTACION PEYMA S.L.",
+      "source_row": 129
+    },
+    {
+      "customer_code": "60203",
+      "customer_center": "3",
+      "legal_name": "ALIMENTACION PEYMA S.L.",
+      "source_row": 130
+    },
+    {
+      "customer_code": "60203",
+      "customer_center": "5",
+      "legal_name": "ALIMENTACION PEYMA S.L.",
+      "source_row": 131
+    },
+    {
+      "customer_code": "60219",
+      "customer_center": null,
+      "legal_name": "VIGO LUCENA, TRINIDAD",
+      "source_row": 132
+    },
+    {
+      "customer_code": "60220",
+      "customer_center": null,
+      "legal_name": "AUTOSERVICIO HNOS MONTES PANIAGUA S.L.",
+      "source_row": 133
+    },
+    {
+      "customer_code": "60225",
+      "customer_center": null,
+      "legal_name": "COSANO VALLE, Mª CARMEN",
+      "source_row": 134
+    },
+    {
+      "customer_code": "60251",
+      "customer_center": null,
+      "legal_name": "FERNANDEZ ALCANTARA , JUANA",
+      "source_row": 135
+    },
+    {
+      "customer_code": "60254",
+      "customer_center": null,
+      "legal_name": "PALMA CAÑETE, SONIA",
+      "source_row": 136
+    },
+    {
+      "customer_code": "60255",
+      "customer_center": null,
+      "legal_name": "LUQUE LEIVA, JOSE RAFAEL",
+      "source_row": 137
+    },
+    {
+      "customer_code": "60264",
+      "customer_center": null,
+      "legal_name": "DAPEGU ALIMENTACION, S.L.",
+      "source_row": 138
+    },
+    {
+      "customer_code": "60304",
+      "customer_center": null,
+      "legal_name": "JIMENEZ BONILLA, ISIDRO LUIS",
+      "source_row": 139
+    },
+    {
+      "customer_code": "60333",
+      "customer_center": null,
+      "legal_name": "HNOS. LUCENA PEREZ, S.L.",
+      "source_row": 140
+    },
+    {
+      "customer_code": "60335",
+      "customer_center": null,
+      "legal_name": "GARCIA ARJONA, LIDIA",
+      "source_row": 141
+    },
+    {
+      "customer_code": "60371",
+      "customer_center": null,
+      "legal_name": "AUTOSERVICIO MIGUEL CABEZAS, S.L.U.",
+      "source_row": 142
+    },
+    {
+      "customer_code": "60407",
+      "customer_center": null,
+      "legal_name": "LEON CORDOBA,  MIGUEL  ANGEL",
+      "source_row": 143
+    },
+    {
+      "customer_code": "60411",
+      "customer_center": null,
+      "legal_name": "PÉREZ GAMA, MARIA TERESA",
+      "source_row": 144
+    },
+    {
+      "customer_code": "60424",
+      "customer_center": null,
+      "legal_name": "LLAMAS MORALES, JUAN MIGUEL",
+      "source_row": 145
+    },
+    {
+      "customer_code": "60425",
+      "customer_center": null,
+      "legal_name": "ROMERO JIMENEZ, FRANCISCA",
+      "source_row": 146
+    },
+    {
+      "customer_code": "60432",
+      "customer_center": null,
+      "legal_name": "LOPEZ SIERRA, Mª TERESA",
+      "source_row": 147
+    },
+    {
+      "customer_code": "60435",
+      "customer_center": null,
+      "legal_name": "MANCHEÑO VALLE, JESUS",
+      "source_row": 148
+    },
+    {
+      "customer_code": "60436",
+      "customer_center": null,
+      "legal_name": "ROMERO VALDERRAMAS, RAFAEL",
+      "source_row": 149
+    },
+    {
+      "customer_code": "60441",
+      "customer_center": null,
+      "legal_name": "REINA GALISTEO, JOSE",
+      "source_row": 150
+    },
+    {
+      "customer_code": "60442",
+      "customer_center": null,
+      "legal_name": "LOCAL VITIVINICOLA COOPERATIVA , S.C.A",
+      "source_row": 151
+    },
+    {
+      "customer_code": "60443",
+      "customer_center": null,
+      "legal_name": "BERENGUER  BRG,  S.L",
+      "source_row": 152
+    },
+    {
+      "customer_code": "60443",
+      "customer_center": null,
+      "legal_name": "BERENGUER  BRG,  S.L",
+      "source_row": 153
+    },
+    {
+      "customer_code": "60446",
+      "customer_center": null,
+      "legal_name": "LUQUE MEJIAS, ISABEL",
+      "source_row": 154
+    },
+    {
+      "customer_code": "60451",
+      "customer_center": null,
+      "legal_name": "RODAS DORADO, CARMEN",
+      "source_row": 155
+    },
+    {
+      "customer_code": "60452",
+      "customer_center": null,
+      "legal_name": "RÍOS GÓMEZ LUIS",
+      "source_row": 156
+    },
+    {
+      "customer_code": "60454",
+      "customer_center": null,
+      "legal_name": "LOPEZ PRIEGO,  JUAN BAUTISTA",
+      "source_row": 157
+    },
+    {
+      "customer_code": "60457",
+      "customer_center": null,
+      "legal_name": "PEÑA",
+      "source_row": 158
+    },
+    {
+      "customer_code": "60459",
+      "customer_center": null,
+      "legal_name": "FERNÁNDEZ LÓPEZ MANUEL",
+      "source_row": 159
+    },
+    {
+      "customer_code": "60462",
+      "customer_center": null,
+      "legal_name": "GUTIÉRREZ  ALCALÁ, VERONICA",
+      "source_row": 160
+    },
+    {
+      "customer_code": "60464",
+      "customer_center": null,
+      "legal_name": "PRECOCINADOS",
+      "source_row": 161
+    },
+    {
+      "customer_code": "60468",
+      "customer_center": null,
+      "legal_name": "LA CASONA",
+      "source_row": 162
+    },
+    {
+      "customer_code": "60470",
+      "customer_center": null,
+      "legal_name": "BAR ZURITO",
+      "source_row": 163
+    },
+    {
+      "customer_code": "60471",
+      "customer_center": null,
+      "legal_name": "CAÑETE FRANCO LILIANA PATRICIA",
+      "source_row": 164
+    },
+    {
+      "customer_code": "60472",
+      "customer_center": null,
+      "legal_name": "REINA MARTINEZ, SANDRA",
+      "source_row": 165
+    },
+    {
+      "customer_code": "60473",
+      "customer_center": null,
+      "legal_name": "AHORRONET MARKET",
+      "source_row": 166
+    },
+    {
+      "customer_code": "60474",
+      "customer_center": null,
+      "legal_name": "AUTOSERCIO CICI",
+      "source_row": 167
+    },
+    {
+      "customer_code": "61002",
+      "customer_center": null,
+      "legal_name": "BODEGAS TORO ALBALA S.L.",
+      "source_row": 168
+    },
+    {
+      "customer_code": "80065",
+      "customer_center": null,
+      "legal_name": "CARMONA LUQUE, PRUDENCIA",
+      "source_row": 169
+    },
+    {
+      "customer_code": "80070",
+      "customer_center": null,
+      "legal_name": "RODRIGUEZ-CORDOBA SANCHEZ Mª CARMEN",
+      "source_row": 170
+    },
+    {
+      "customer_code": "80071",
+      "customer_center": null,
+      "legal_name": "GOMEZ CARMONA, RAFAELA",
+      "source_row": 171
+    },
+    {
+      "customer_code": "80085",
+      "customer_center": null,
+      "legal_name": "LOPEZ ALCAIDE, MARIA",
+      "source_row": 172
+    },
+    {
+      "customer_code": "80102",
+      "customer_center": null,
+      "legal_name": "JIMENEZ LUQUE, JOAQUIN",
+      "source_row": 173
+    },
+    {
+      "customer_code": "80131",
+      "customer_center": null,
+      "legal_name": "CASTRO GOMEZ, ANA",
+      "source_row": 174
+    },
+    {
+      "customer_code": "80136",
+      "customer_center": null,
+      "legal_name": "CASTILLO GARCIA, FRANCISCA",
+      "source_row": 175
+    },
+    {
+      "customer_code": "80138",
+      "customer_center": null,
+      "legal_name": "MARQUEZ RUZ, JUAN",
+      "source_row": 176
+    },
+    {
+      "customer_code": "80143",
+      "customer_center": null,
+      "legal_name": "AGUILAR OSUNA, ISABEL",
+      "source_row": 177
+    },
+    {
+      "customer_code": "80146",
+      "customer_center": null,
+      "legal_name": "PORTERO TRILLO, RAFAEL",
+      "source_row": 178
+    },
+    {
+      "customer_code": "80154",
+      "customer_center": null,
+      "legal_name": "JURADO JIMENEZ, JUAN JESUS",
+      "source_row": 179
+    },
+    {
+      "customer_code": "80154",
+      "customer_center": "3",
+      "legal_name": "JURADO JIMENEZ, JUAN JESUS",
+      "source_row": 180
+    },
+    {
+      "customer_code": "80170",
+      "customer_center": null,
+      "legal_name": "LUQUE RUIZ, ALFONSO",
+      "source_row": 181
+    },
+    {
+      "customer_code": "80172",
+      "customer_center": null,
+      "legal_name": "FERNANDEZ LEON, ELENA",
+      "source_row": 182
+    },
+    {
+      "customer_code": "80174",
+      "customer_center": null,
+      "legal_name": "SERRANO ROSAL, ANA",
+      "source_row": 183
+    },
+    {
+      "customer_code": "80177",
+      "customer_center": null,
+      "legal_name": "GONZALEZ LUCENA, ANTONIA",
+      "source_row": 184
+    },
+    {
+      "customer_code": "80187",
+      "customer_center": null,
+      "legal_name": "JAEN MORALES, FRANCISCA",
+      "source_row": 185
+    },
+    {
+      "customer_code": "80188",
+      "customer_center": null,
+      "legal_name": "JIMENEZ JIMENEZ, DIEGO",
+      "source_row": 186
+    },
+    {
+      "customer_code": "80191",
+      "customer_center": null,
+      "legal_name": "PAEZ CRESPIN, RAFAELA",
+      "source_row": 187
+    },
+    {
+      "customer_code": "80198",
+      "customer_center": null,
+      "legal_name": "ALIMENTACIÓN FI-RUZ, S.L.",
+      "source_row": 188
+    },
+    {
+      "customer_code": "80200",
+      "customer_center": null,
+      "legal_name": "SANCHEZ MOHEDANO, MARINA",
+      "source_row": 189
+    },
+    {
+      "customer_code": "80205",
+      "customer_center": null,
+      "legal_name": "MORENO JIMÉNEZ JOSÉ ANTONIO",
+      "source_row": 190
+    },
+    {
+      "customer_code": "80207",
+      "customer_center": null,
+      "legal_name": "BAENA SILLERO MARÍA VICTORIA",
+      "source_row": 191
+    },
+    {
+      "customer_code": "80501",
+      "customer_center": null,
+      "legal_name": "CUESTA BERRAL, ANA Mª",
+      "source_row": 192
+    },
+    {
+      "customer_code": "80503",
+      "customer_center": null,
+      "legal_name": "BERRAL JIMENEZ, JUAN JESUS",
+      "source_row": 193
+    },
+    {
+      "customer_code": "80511",
+      "customer_center": null,
+      "legal_name": "RESTAURANTE CONDE DE FERNAN NUÑEZ",
+      "source_row": 194
+    },
+    {
+      "customer_code": "80512",
+      "customer_center": null,
+      "legal_name": "ACEITUNO URBANO, ANTONIO",
+      "source_row": 195
+    },
+    {
+      "customer_code": "80513",
+      "customer_center": null,
+      "legal_name": "BERRAL ANTUNEZ ANA MARIA",
+      "source_row": 196
+    },
+    {
+      "customer_code": "80517",
+      "customer_center": null,
+      "legal_name": "ARIZA JURADO JUAN FRANCISCO",
+      "source_row": 197
+    },
+    {
+      "customer_code": "80517",
+      "customer_center": "1",
+      "legal_name": "ARIZA JURADO JUAN FRANCISCO",
+      "source_row": 198
+    },
+    {
+      "customer_code": "80519",
+      "customer_center": null,
+      "legal_name": "FERNANDEZ SALADO, JOSEFA",
+      "source_row": 199
+    },
+    {
+      "customer_code": "80524",
+      "customer_center": null,
+      "legal_name": "LA CALDERA",
+      "source_row": 200
+    },
+    {
+      "customer_code": "80546",
+      "customer_center": null,
+      "legal_name": "MORALES RODRÍGUEZ, DOLORES",
+      "source_row": 201
+    },
+    {
+      "customer_code": "80548",
+      "customer_center": null,
+      "legal_name": "FIGUEROA RUZ, VICTOR",
+      "source_row": 202
+    },
+    {
+      "customer_code": "90012",
+      "customer_center": null,
+      "legal_name": "GUISADO FERNANDEZ, MIGUEL ANGEL",
+      "source_row": 203
+    },
+    {
+      "customer_code": "90014",
+      "customer_center": "2",
+      "legal_name": "CARNICERIA EL CHINO, S.L.",
+      "source_row": 204
+    },
+    {
+      "customer_code": "90017",
+      "customer_center": null,
+      "legal_name": "RUIZ GARCIA, JESUS",
+      "source_row": 205
+    },
+    {
+      "customer_code": "90061",
+      "customer_center": null,
+      "legal_name": "CATERING Y SERVICIOS LAS TORRES, S.L.U.",
+      "source_row": 206
+    },
+    {
+      "customer_code": "90069",
+      "customer_center": null,
+      "legal_name": "LABADO SANCHEZ, CONCEPCION",
+      "source_row": 207
+    },
+    {
+      "customer_code": "90070",
+      "customer_center": null,
+      "legal_name": "ROCIO GONZALEZ Y HNOS S.L.",
+      "source_row": 208
+    },
+    {
+      "customer_code": "90070",
+      "customer_center": "2",
+      "legal_name": "ROCIO GONZALEZ Y HNOS S.L.",
+      "source_row": 209
+    },
+    {
+      "customer_code": "90079",
+      "customer_center": null,
+      "legal_name": "CARRION TORRES, S.L.",
+      "source_row": 210
+    },
+    {
+      "customer_code": "90187",
+      "customer_center": null,
+      "legal_name": "SURPERMERCADOS SUPER MAGOSA, S,L,",
+      "source_row": 211
+    },
+    {
+      "customer_code": "90201",
+      "customer_center": null,
+      "legal_name": "FERNANDEZ ROSA, INMACULADA",
+      "source_row": 212
+    },
+    {
+      "customer_code": "90204",
+      "customer_center": null,
+      "legal_name": "GUTIERRE VAZQUE, ANTONIO",
+      "source_row": 213
+    },
+    {
+      "customer_code": "90207",
+      "customer_center": null,
+      "legal_name": "ROSA MORALES ANA MARIA",
+      "source_row": 214
+    },
+    {
+      "customer_code": "90208",
+      "customer_center": null,
+      "legal_name": "MARTÍN GÓMEZ ANA MARIA",
+      "source_row": 215
+    },
+    {
+      "customer_code": "90213",
+      "customer_center": null,
+      "legal_name": "SUPER CASASE 1904 , SL",
+      "source_row": 216
+    },
+    {
+      "customer_code": "90220",
+      "customer_center": null,
+      "legal_name": "BRENES OLIVA, S.C.",
+      "source_row": 217
+    },
+    {
+      "customer_code": "90220",
+      "customer_center": "2",
+      "legal_name": "BRENES OLIVA, S.C.",
+      "source_row": 218
+    },
+    {
+      "customer_code": "90220",
+      "customer_center": "3",
+      "legal_name": "BRENES OLIVA, S.C.",
+      "source_row": 219
+    },
+    {
+      "customer_code": "91006",
+      "customer_center": null,
+      "legal_name": "GALAN ZAA, MARI CARMEN",
+      "source_row": 220
+    },
+    {
+      "customer_code": "91007",
+      "customer_center": null,
+      "legal_name": "RUIZ GARCIA, FRANCISCO",
+      "source_row": 221
+    },
+    {
+      "customer_code": "91008",
+      "customer_center": null,
+      "legal_name": "JIMENEZ LOPEZ, RAFAEL",
+      "source_row": 222
+    },
+    {
+      "customer_code": "91009",
+      "customer_center": null,
+      "legal_name": "SALVADOR CRESPO, CESAR",
+      "source_row": 223
+    },
+    {
+      "customer_code": "91012",
+      "customer_center": null,
+      "legal_name": "ROMERO LOPEZ, LUIS",
+      "source_row": 224
+    },
+    {
+      "customer_code": "100003",
+      "customer_center": null,
+      "legal_name": "PAVON BERCHEZ, ANTONIO",
+      "source_row": 225
+    },
+    {
+      "customer_code": "400016",
+      "customer_center": null,
+      "legal_name": "CARNICAS Y ELABORADOS SERRANO, S.L.",
+      "source_row": 226
+    },
+    {
+      "customer_code": "400016",
+      "customer_center": "03",
+      "legal_name": "CARNICAS Y ELABORADOS SERRANO, S.L.",
+      "source_row": 227
+    },
+    {
+      "customer_code": "405001",
+      "customer_center": "01",
+      "legal_name": "ALIMENTACION PENINSULAR, S.A.",
+      "source_row": 228
+    },
+    {
+      "customer_code": "405001",
+      "customer_center": "01",
+      "legal_name": "ALIMENTACION PENINSULAR, S.A.",
+      "source_row": 229
+    },
+    {
+      "customer_code": "405001",
+      "customer_center": "11",
+      "legal_name": "ALIMENTACION PENINSULAR, S.A.",
+      "source_row": 230
+    },
+    {
+      "customer_code": "405001",
+      "customer_center": "16",
+      "legal_name": "ALIMENTACION PENINSULAR, S.A.",
+      "source_row": 231
+    }
+  ],
+  "approved_by": "Tony (Hundred Agents) — Agenda de Fernando",
+  "approved_at": "2026-08-20T16:50:12.993971+00:00"
+}

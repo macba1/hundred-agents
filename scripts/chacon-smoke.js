@@ -119,6 +119,7 @@ const carritoNativo = require(path.join(ROOT, 'lib/chacon/carrito-nativo'));
    desfasados en la siguiente importación. */
 const tarifasReal = require(path.join(ROOT, 'lib/chacon/tarifas'));
 const privLib = require(path.join(ROOT, 'lib/chacon/privacidad'));
+const agenda = require(path.join(ROOT, 'lib/chacon/clientes'));
 
 /* Las pruebas de flujo dan por hecho que la tienda ya autorizó el canal, que
    es lo normal a partir de su segunda conversación. El aviso en sí se prueba
@@ -2115,7 +2116,7 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     const p = await router.manejar({ telefono: TEL, cliente: null,
       tipo: 'texto', valor: 'Negocio Que No Existe SL' });
     const t = p.map((x) => formato.aTexto(x)).join('\n');
-    assert(/Otro nombre/.test(t), t.slice(0, 160));
+    assert(/otro nombre/i.test(t) || /Probar otro/i.test(t), t.slice(0, 200));
     assert(/Fernando/.test(t));
     // Los títulos de botón tienen que caber en los 20 caracteres de Meta:
     // si se cortan, el cliente lee "Probar otro nomb…".
@@ -2193,8 +2194,8 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
 
       await router.pedirIdentificacion(TEL);
       assert.strictEqual((await estadosLib.leer(TEL)).maquina.estado_previo, previo);
-      await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
-        valor: `Tienda Vuelve ${previo}` });
+      // Se confirma un cliente REAL de la agenda: el vínculo no se inventa.
+      await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'cliente_si:340' });
       assert.strictEqual((await estadosLib.leer(TEL)).maquina.estado, previo,
         `no volvió a ${previo}`);
     }
@@ -2216,24 +2217,20 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
   });
 
   await check('I· con negocios parecidos se pregunta, no se elige', async () => {
-    await repo.crearCliente({ nombre: 'Carnicería Hermanos Ruiz', telefono: '34600777010' });
-    await repo.crearCliente({ nombre: 'Carnicería Hermanos Ruiz e Hijos', telefono: '34600777011' });
-    const r = await ident.porNombre('Carnicería Hermanos Ruiz');
-    // Coincidencia exacta con uno: se resuelve. Lo que no vale es el parecido.
-    const flojo = await ident.porNombre('Hermanos');
-    assert.strictEqual(flojo.estado, 'ambiguo', 'un parecido flojo no puede resolver solo');
-    assert(flojo.candidatos.length >= 2);
+    // "carniceria" sola casa con varios clientes reales de la agenda.
+    const r = agenda.buscar('carniceria');
+    assert.strictEqual(r.tipo, 'varios', `esperaba varios, salió ${r.tipo}`);
+    assert(r.candidatos.length >= 2);
 
     const TEL = '34600777012';
     await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
     await router.pedirIdentificacion(TEL);
     const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
-      valor: 'Hermanos' });
+      valor: 'carniceria' });
     const t = p.map((x) => formato.aTexto(x)).join('\n');
-    assert(/varios negocios parecidos/i.test(t), t.slice(0, 120));
-    assert.strictEqual((await estadosLib.leer(TEL)).maquina.estado, 'CUSTOMER_IDENTIFICATION',
-      'con ambigüedad hay que seguir identificando');
-    void r;
+    assert(/clientes parecidos/i.test(t), t.slice(0, 140));
+    assert.strictEqual((await estadosLib.leer(TEL)).maquina.estado, 'CUSTOMER_IDENTIFICATION');
+    assert.strictEqual(await repo.clientePorTelefono(TEL), null, 'vinculó sin confirmar');
   });
 
   await check('J· pulsar una cantidad SIN tienda abre la identificación', async () => {
@@ -2262,70 +2259,37 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
       `la respuesta al nombre acabó en el buscador: ${t2.slice(0, 140)}`);
   });
 
-  await check('K2· en modo demo, un nombre nuevo puede continuar', async () => {
-    /* Para la demo cualquier nombre entra. La cuenta queda marcada como alta
-       de demo y pendiente de aprobación, para poder repasarla contra el
-       listado real de Chacón después. */
-    process.env.CHACON_ALTA_LIBRE = '1';
-    const TEL = '34600777040';
-    await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
-    await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'quiero chorizo' });
-    await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'cant:0052:1:caja' });
-    const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
-      valor: 'Tony Tienda' });
-    const t = p.map((x) => formato.aTexto(x)).join('\n');
-    assert(/Sí, continuar/.test(t), t.slice(0, 140));
-
-    const alta = await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic',
-      valor: 'alta_negocio' });
-    const t2 = alta.map((x) => formato.aTexto(x)).join('\n');
-    assert(/Perfecto, Tony Tienda/.test(t2), t2.slice(0, 140));
-    assert(/Añadido/i.test(t2), 'tiene que retomar lo que estaba añadiendo');
-
-    const c = await repo.clientePorTelefono(TEL);
-    assert(c && c.nombre === 'Tony Tienda');
-    assert.strictEqual(c.estado, 'pendiente_aprobacion');
-    assert.strictEqual(c.origen, 'alta_libre_demo', 'hay que poder distinguir las altas de demo');
-    const carrito = await repo.getCarrito(c.id);
-    assert.strictEqual(carrito.lineas.length, 1);
-    delete process.env.CHACON_ALTA_LIBRE;
-  });
-
-  await check('K· sin modo demo, una tienda desconocida NO se da de alta', async () => {
-    /* Solo se sirve a clientes existentes. Crear una cuenta desde WhatsApp
-       dejaría entrar a cualquiera, así que aquí solo caben reintentar el
-       nombre o avisar a Fernando. */
+  await check('K· fuera de la agenda no hay cliente, ni con el botón viejo', async () => {
+    /* La agenda de Chacón decide quién es cliente. Ya no existe el alta
+       libre: un negocio que no está no puede comprar, y forzar el botón de
+       una conversación antigua tampoco lo crea. */
     const TEL = '34600777021';
     await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
-    await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'quiero chorizo' });
-    await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'cant:0052:1:caja' });
+    await router.pedirIdentificacion(TEL);
     const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
       valor: 'Tienda Que No Existe SL' });
     const t = p.map((x) => formato.aTexto(x)).join('\n');
-
     assert(/No encuentro/.test(t), t.slice(0, 140));
-    assert(!/continuar|registrar|primer pedido/i.test(t), 'no puede ofrecer seguir sin cuenta');
     assert(!/[Ff]amilias|Embutidos|ofertas/i.test(t), 'no se ofrece catálogo identificando');
-    assert(/Otro nombre/.test(t) && /Fernando/.test(t));
-    assert.strictEqual(await repo.clientePorTelefono(TEL), null,
-      'no puede haberse creado ninguna cuenta');
-    // Y si alguien fuerza el botón, tampoco: no basta con no enseñarlo.
+    assert(/Fernando/.test(t));
+    assert.strictEqual(await repo.clientePorTelefono(TEL), null);
+
     const forzado = await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic',
       valor: 'alta_negocio' });
     assert(!/Perfecto/.test(forzado.map((x) => formato.aTexto(x)).join('\n')));
-    assert.strictEqual(await repo.clientePorTelefono(TEL), null);
+    assert.strictEqual(await repo.clientePorTelefono(TEL), null,
+      'el botón viejo no puede crear un cliente');
   });
 
-  await check('L· el código de cliente identifica sin ambigüedad', async () => {
-    const c = await repo.crearCliente({ nombre: 'Tienda Con Código', telefono: '34600777030' });
+  await check('L· el código de cliente de la agenda identifica sin ambigüedad', async () => {
     const TEL = '34600777031';
     await estadosLib.reiniciar(TEL); await conPrivacidad(TEL);
     await router.pedirIdentificacion(TEL);
-    const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: c.id });
+    // 90014 es CARNICERIA EL CHINO en la agenda real.
+    const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: '90014' });
     const t = p.map((x) => formato.aTexto(x)).join('\n');
-    assert(/Perfecto, Tienda Con Código/.test(t), t.slice(0, 140));
-    const r = await ident.porNombre(c.id);
-    assert.strictEqual(r.por, 'codigo_cliente');
+    assert(/CARNICERIA EL CHINO/.test(t), t.slice(0, 140));
+    assert.strictEqual(agenda.buscar('90014').por, 'codigo');
   });
 
   console.log('\n=== 23) Privacidad, canal y marketing ===');
@@ -2420,23 +2384,18 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     assert(/Tony Tienda/.test(t));
   });
 
-  await check('P-G· un cliente nuevo se crea UNA sola ficha, pendiente', async () => {
-    process.env.CHACON_ALTA_LIBRE = '1';
+  await check('P-G· tras aceptar, un negocio fuera de la agenda no crea ficha', async () => {
     const TEL = '34600666007';
     await estadosLib.reiniciar(TEL);
     await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'hola' });
     await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'privacidad_si' });
     await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'Tienda Nueva P-G' });
-    await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'alta_negocio' });
-
-    const c = await conCliente(TEL);
-    assert(c, 'no se creó la ficha');
-    assert.strictEqual(c.estado, 'pendiente_aprobacion');
-    const todas = (await repo.listarClientes()).filter((x) => x.nombre === 'Tienda Nueva P-G');
-    assert.strictEqual(todas.length, 1, 'se crearon fichas duplicadas');
-    // Y el registro de privacidad queda atado a la ficha.
-    assert.strictEqual((await priv.registro(TEL)).customer_id, c.id);
-    delete process.env.CHACON_ALTA_LIBRE;
+    assert.strictEqual(await repo.clientePorTelefono(TEL), null,
+      'aceptar privacidad no puede crear un cliente de Chacón');
+    // Pero el registro de privacidad sí queda, para que Fernando lo revise.
+    const r = await priv.registro(TEL);
+    assert.strictEqual(r.status, 'aceptado');
+    assert.strictEqual(r.customer_id, null, 'sin cliente todavía');
   });
 
   await check('P-H· el mismo teléfono no crea un segundo cliente', async () => {
@@ -2570,7 +2529,185 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     else delete process.env.CHACON_PRIVACIDAD_URL;
   });
 
-  console.log('\n=== 24) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
+  console.log('\n=== 24) Agenda de clientes de Chacón ===');
+
+  const conAgenda = agenda.disponible();
+  const siAgenda = (label, fn) => (conAgenda ? check(label, fn)
+    : (console.log('  ⏭️ ', label, '— sin agenda importada'), Promise.resolve()));
+
+  await siAgenda('AG-0· la agenda importa 207 clientes sin duplicados', async () => {
+    const r = agenda.resumen();
+    assert.strictEqual(r.filas_fuente, 230);
+    assert.strictEqual(r.duplicados_exactos, 9);
+    assert.strictEqual(r.clientes_unicos, 207, 'un código = un cliente');
+    assert.strictEqual(r.multi_centro, 3);
+    assert(r.aprobada, 'solo manda una versión aprobada');
+    // Los ceros iniciales sobreviven: 01 nunca es 1.
+    assert(r.centros_vistos.includes('01') && r.centros_vistos.includes('1'),
+      '01 y 1 conviven y no son lo mismo');
+    assert(r.centros_vistos.includes('03') && r.centros_vistos.includes('3'));
+  });
+
+  await siAgenda('AG-1· "Carniceria El Chino" resuelve al cliente real', async () => {
+    const r = agenda.buscar('Carniceria El Chino');
+    assert.strictEqual(r.tipo, 'exacto');
+    assert.strictEqual(r.cliente.customer_code, '90014');
+    assert.strictEqual(r.cliente.legal_name, 'CARNICERIA EL CHINO, S.L.');
+    assert.strictEqual(agenda.centroDe(r.cliente).center, '2');
+  });
+
+  await siAgenda('AG-2· "Autoservicio Carrillo" resuelve, y sin centro', async () => {
+    const r = agenda.buscar('Autoservicio Carrillo');
+    assert.strictEqual(r.tipo, 'exacto');
+    assert.strictEqual(r.cliente.customer_code, '340');
+    const c = agenda.centroDe(r.cliente);
+    assert.strictEqual(c.center, null);
+    assert.strictEqual(c.estado, 'sin_centro', 'sin centro NO es centro "0"');
+  });
+
+  await siAgenda('AG-3· "Bollysur" no se duplica pese a tener dos filas', async () => {
+    const r = agenda.buscar('Bollysur');
+    assert.strictEqual(r.tipo, 'exacto');
+    assert.strictEqual(r.cliente.customer_code, '50146');
+    // Dos filas en el Excel (una sin centro, otra con 01) = UN cliente.
+    const iguales = agenda.todos().filter((c) => c.customer_code === '50146');
+    assert.strictEqual(iguales.length, 1);
+    assert(r.cliente.centers.includes('01'), 'el centro 01 tiene que conservarse');
+  });
+
+  await siAgenda('AG-4· con varios centros NO se elige ninguno', async () => {
+    const r = agenda.buscar('Alimentacion Peninsular');
+    assert.strictEqual(r.tipo, 'exacto');
+    assert.strictEqual(r.cliente.customer_code, '405001');
+    const centros = r.cliente.centers.filter(Boolean);
+    assert.deepStrictEqual(centros.sort(), ['01', '11', '16']);
+    const c = agenda.centroDe(r.cliente);
+    assert.strictEqual(c.center, null, 'no puede elegir centro por orden de aparición');
+    assert.strictEqual(c.estado, 'sin_resolver');
+    assert.deepStrictEqual(c.opciones.sort(), ['01', '11', '16']);
+  });
+
+  await siAgenda('AG-5· tildes y abreviaturas del fichero', async () => {
+    // El fichero trae "CARNICERIA Mª DEL VALLE, S.L."
+    const real = agenda.todos().find((c) => /CARNICERIA M. DEL VALLE|CARNICERIA Mª DEL VALLE/i
+      .test(c.legal_name));
+    assert(real, 'hace falta ese cliente para la prueba');
+    const r = agenda.buscar('Carniceria Maria del Valle');
+    assert(['exacto', 'probable', 'varios'].includes(r.tipo), r.tipo);
+    const cands = r.cliente ? [r.cliente] : r.candidatos;
+    assert(cands.some((c) => c.customer_code === real.customer_code),
+      `no encontró ${real.legal_name}`);
+  });
+
+  await siAgenda('AG-6· el sufijo societario no hace falta escribirlo', async () => {
+    for (const [q, code] of [['Carniceria El Chino', '90014'],
+                             ['carniceria el chino s.l.', '90014'],
+                             ['CARNICERIA EL CHINO, S.L.', '90014']]) {
+      const r = agenda.buscar(q);
+      assert(['exacto', 'probable'].includes(r.tipo), `"${q}" -> ${r.tipo}`);
+      assert.strictEqual(r.cliente.customer_code, code);
+    }
+  });
+
+  await siAgenda('AG-7· los duplicados exactos no salen dos veces', async () => {
+    const r = agenda.buscar('Autoservicio Usagre');
+    const cands = r.cliente ? [r.cliente] : (r.candidatos || []);
+    const codigos = cands.map((c) => c.customer_code);
+    assert.strictEqual(new Set(codigos).size, codigos.length);
+    assert.strictEqual(agenda.todos().filter((c) => c.customer_code === '23').length, 1);
+  });
+
+  await siAgenda('AG-8· un negocio que no está NO se convierte en cliente', async () => {
+    const r = agenda.buscar('Tony Tienda');
+    assert.strictEqual(r.tipo, 'nada');
+
+    const TEL = '34600555100';
+    await estadosLib.reiniciar(TEL);
+    await conPrivacidad(TEL);
+    await router.pedirIdentificacion(TEL);
+    const p = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
+      valor: 'Tony Tienda' });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    assert(/No encuentro «Tony Tienda»/.test(t), t.slice(0, 140));
+    assert(/Fernando/.test(t));
+    assert(!/Embutidos|familias/i.test(t), 'no se ofrece catálogo identificando');
+    assert.strictEqual(await repo.clientePorTelefono(TEL), null,
+      'no puede crearse un cliente de Chacón que no está en la agenda');
+  });
+
+  await siAgenda('AG-9· E2E: privacidad → agenda → confirmar → vínculo → 2ª vez', async () => {
+    const TEL = '34600555101';
+    await estadosLib.reiniciar(TEL);
+    // Primera conversación, empezando ya con intención de pedido.
+    const aviso = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
+      valor: 'Hola, quiero hacer un pedido' });
+    assert(/¿Quieres continuar/.test(aviso.map((x) => formato.aTexto(x)).join('\n')));
+
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'privacidad_si' });
+    const prop = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
+      valor: 'Carnicería El Chino' });
+    const tp = prop.map((x) => formato.aTexto(x)).join('\n');
+    assert(/He encontrado/.test(tp) && /CARNICERIA EL CHINO/.test(tp), tp.slice(0, 140));
+    assert(/¿Es tu negocio\?/.test(tp), 'hay que confirmar antes de vincular');
+    // Todavía sin vincular.
+    assert.strictEqual(await repo.clientePorTelefono(TEL), null, 'vinculó sin confirmar');
+
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'cliente_si:90014' });
+    const c = await repo.clientePorTelefono(TEL);
+    assert(c, 'no se creó el vínculo');
+    assert.strictEqual(c.customer_code, '90014');
+    assert.strictEqual(c.customer_center, '2');
+    assert.strictEqual(c.legal_name, 'CARNICERIA EL CHINO, S.L.');
+    assert.strictEqual(c.link_status, 'confirmed');
+    assert.strictEqual(c.link_source, 'whatsapp_self_identification');
+    assert.strictEqual(c.estado, 'verificado');
+    assert(c.linked_at && c.agenda_version);
+
+    // Segunda conversación: NO vuelve a preguntar el nombre.
+    await estadosLib.reiniciar(TEL);
+    const seg = await router.manejar({ telefono: TEL, cliente: c, tipo: 'texto', valor: 'hola' });
+    const ts = seg.map((x) => formato.aTexto(x)).join('\n');
+    assert(!/cómo se llama tu negocio/i.test(ts), 'volvió a pedir el nombre');
+    assert(!/¿Quieres continuar/.test(ts), 'repitió el aviso de privacidad');
+    assert(/CARNICERIA EL CHINO/.test(ts), ts.slice(0, 120));
+  });
+
+  await siAgenda('AG-10· el vínculo va por código, no por fila del Excel', async () => {
+    const TEL = '34600555102';
+    await estadosLib.reiniciar(TEL);
+    await conPrivacidad(TEL);
+    await router.pedirIdentificacion(TEL);
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'Bollysur' });
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'cliente_si:50146' });
+    const c = await repo.clientePorTelefono(TEL);
+    assert.strictEqual(c.customer_code, '50146');
+    // Nada del vínculo depende del número de fila.
+    const json = JSON.stringify(c);
+    assert(!/source_row|row_index/.test(json), 'el vínculo no puede depender de la fila');
+  });
+
+  await siAgenda('AG-11· el carrito sobrevive a identificar contra la agenda', async () => {
+    const TEL = '34600555103';
+    await estadosLib.reiniciar(TEL);
+    await conPrivacidad(TEL);
+    // Se identifica primero para tener carrito.
+    await router.pedirIdentificacion(TEL);
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto', valor: 'Autoservicio Carrillo' });
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'cliente_si:340' });
+    const c = await repo.clientePorTelefono(TEL);
+    await pedidoLib.anadir(c.id, { producto_id: PIEL.id, cantidad: 2, unidad_pedido: 'caja' });
+    const antes = JSON.stringify((await repo.getCarrito(c.id)).lineas
+      .map((l) => [l.codigo, l.cantidad, l.unidad_pedido, l.precio_kg_sin_iva]));
+
+    // Se fuerza otra identificación y se vuelve a confirmar el mismo cliente.
+    await router.pedirIdentificacion(TEL);
+    await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic', valor: 'cliente_si:340' });
+    const despues = JSON.stringify((await repo.getCarrito(c.id)).lineas
+      .map((l) => [l.codigo, l.cantidad, l.unidad_pedido, l.precio_kg_sin_iva]));
+    assert.strictEqual(despues, antes, 'identificar cambió el carrito');
+  });
+
+  console.log('\n=== 25) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
   await check('Chacón y Sanmi no comparten claves de Redis', async () => {
     const claves = [...mem.kv.keys(), ...mem.lists.keys(), ...mem.sets.keys(), ...mem.hashes.keys()];
     const deChacon = claves.filter((k) => k.startsWith('ch:'));

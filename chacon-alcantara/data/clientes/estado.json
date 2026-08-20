@@ -1,0 +1,24 @@
+{
+  "version_activa": 1,
+  "versiones": [
+    {
+      "version": 1,
+      "generado": "2026-08-20T16:50:12.947148+00:00",
+      "source_file": "Agenda clientes por ruta.xlsx",
+      "source_sha256": "c041a0156cc6d58230e9d3bc5ab3d263194c8d350555457cd1d20723e27a74ac",
+      "clientes_unicos": 207,
+      "filas_fuente": 230,
+      "approved": true,
+      "invariantes_fallidos": 0,
+      "approved_by": "Tony (Hundred Agents) — Agenda de Fernando"
+    }
+  ],
+  "auditoria": [
+    {
+      "ts": "2026-08-20T16:50:12.995580+00:00",
+      "accion": "activar_agenda",
+      "version": 1,
+      "por": "Tony (Hundred Agents) — Agenda de Fernando"
+    }
+  ]
+}

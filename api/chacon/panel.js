@@ -23,6 +23,7 @@ const navegacion = require('../../lib/chacon/navegacion');
 const imagenes = require('../../lib/chacon/imagenes');
 const formato = require('../../lib/chacon/wa-formato');
 const privacidad = require('../../lib/chacon/privacidad');
+const agendaClientes = require('../../lib/chacon/clientes');
 const tarifas = require('../../lib/chacon/tarifas');
 const tramos = require('../../lib/chacon/tramos');
 const facturacion = require('../../lib/chacon/facturacion');
@@ -632,8 +633,15 @@ async function vistaClientesPrivacidad(tk) {
     const ops = ESTADOS_CLIENTE.map((e) =>
       `<option value="${e}"${e === c.estado ? ' selected' : ''}>${e}</option>`).join('');
     return `<tr>
-      <td><b>${esc(c.nombre)}</b><br><span class="sub">${esc(c.id)}</span>
-        ${c.origen === 'alta_libre_demo' ? '<br><span class="warn">alta de demo</span>' : ''}</td>
+      <td><b>${esc(c.display_name || c.nombre)}</b>
+        <br><span class="sub">${c.customer_code
+          ? `cód. ${esc(c.customer_code)}${c.customer_center ? ` · centro ${esc(c.customer_center)}` : ''}`
+          : esc(c.id)}</span>
+        ${c.legal_name && c.legal_name !== (c.display_name || c.nombre)
+          ? `<br><span class="sub">${esc(c.legal_name)}</span>` : ''}
+        ${c.center_status === 'sin_resolver'
+          ? '<br><span class="warn">centro sin resolver</span>' : ''}
+        ${c.link_status ? `<br><span class="ok">${esc(c.link_status)}</span>` : ''}</td>
       <td>+${esc(tel)}</td>
       <td>${canal}</td>
       <td>${mk}</td>
@@ -652,7 +660,12 @@ async function vistaClientesPrivacidad(tk) {
         </div></form></td></tr>`;
   }).join('');
 
-  return `<p class="sub"><b>Autorización del canal</b> y <b>marketing</b> son cosas distintas:
+  const ag = agendaClientes.resumen();
+  return `<p class="sub">Agenda oficial: <code>${esc(ag.source_file || 'sin importar')}</code>
+    · v${esc(ag.version_activa || '—')} · ${esc(ag.clientes_unicos || 0)} clientes
+    · ${esc(ag.multi_centro || 0)} con varios centros.
+    Un negocio que no esté en la agenda <b>no puede identificarse solo</b>.</p>
+  <p class="sub"><b>Autorización del canal</b> y <b>marketing</b> son cosas distintas:
     la primera hace falta para gestionar pedidos, la segunda es opcional y rechazarla no impide
     comprar. Por eso no hay una sola casilla de «consentimiento».
     <br>Aviso vigente: <code>${esc(privacidad.VERSION_AVISO)}</code> ·
