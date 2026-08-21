@@ -2906,6 +2906,33 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     assert(/¿Es tu negocio\?/.test(t), 'tiene que confirmarlo igualmente');
   });
 
+  await check('O-9· el código de cliente vale dentro de una frase', async () => {
+    /* Fernando dio su código en producción y no se le encontró: solo
+       funcionaba escrito a secas. */
+    for (const [q, code] of [
+      ['90014', '90014'],
+      ['mi codigo es 90014', '90014'],
+      ['soy el cliente 90014', '90014'],
+      ['codigo 90014', '90014'],
+      ['cliente 340', '340'],
+      ['mi numero de cliente es 50146', '50146'],
+      ['ref 23', '23'],
+      ['el 405001', '405001'],
+    ]) {
+      const r = agenda.buscar(q);
+      assert.strictEqual(r.tipo, 'exacto', `"${q}" -> ${r.tipo}`);
+      assert.strictEqual(r.cliente.customer_code, code, `"${q}"`);
+    }
+
+    // Pero un número suelto dentro de un nombre NO puede resolver por casualidad.
+    const falso = agenda.buscar('carniceria 3');
+    assert(falso.tipo !== 'exacto' || falso.cliente.customer_code !== '3',
+      'un dígito suelto no puede identificar a un cliente');
+
+    // Y el nombre sigue mandando cuando lo hay.
+    assert.strictEqual(agenda.buscar('carniceria el chino').por, 'nombre');
+  });
+
   console.log('\n=== 26) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
   await check('Chacón y Sanmi no comparten claves de Redis', async () => {
     const claves = [...mem.kv.keys(), ...mem.lists.keys(), ...mem.sets.keys(), ...mem.hashes.keys()];
