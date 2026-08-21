@@ -476,12 +476,24 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     const r = await agente.ejecutar(ctx, 'ver_carrito', {});
     assert.strictEqual(r.error, 'tienda_no_identificada');
   });
-  await check('tiendas con nombre parecido no se eligen solas', async () => {
-    await repo.crearCliente({ nombre: 'Casa Manolo', telefono: '34600000005' });
+  await check('el agente NO puede dar de alta clientes fuera de la agenda', async () => {
+    /* Bug real de producción: `identificar_tienda` llamaba a `crearCliente` y
+       creó una ficha para un negocio que no existe en la agenda de Chacón.
+       El agente puede proponer; dar de alta, nunca. */
     const ctx = { telefono: '34600000006', clienteId: null, consultasAlergenoSinDato: [] };
-    const r = await agente.ejecutar(ctx, 'identificar_tienda', { nombre: 'Casa Manolo' });
-    assert.strictEqual(r.requiere_aclaracion, true);
-    assert(r.candidatas.length >= 1);
+    const antes = (await repo.listarClientes()).length;
+
+    const r = await agente.ejecutar(ctx, 'identificar_tienda', { nombre: 'Negocio Inventado SL' });
+    assert.strictEqual(r.encontrado, false);
+    assert(/NO inventes un cliente/.test(r.nota), r.nota);
+    assert.strictEqual((await repo.listarClientes()).length, antes,
+      'el agente creó una ficha de cliente');
+
+    // Con un cliente REAL de la agenda propone, pero exige confirmación.
+    const ok = await agente.ejecutar(ctx, 'identificar_tienda', { nombre: 'Carniceria El Chino' });
+    assert.strictEqual(ok.encontrado, true);
+    assert.strictEqual(ok.requiere_confirmacion, true);
+    assert.strictEqual((await repo.listarClientes()).length, antes, 'vinculó sin confirmar');
   });
   await check('la consulta de alérgenos sin dato se registra', async () => {
     const p = catalogo.todos().find((x) => x.gluten === null);
@@ -2867,6 +2879,31 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     for (const f of ['chorizo cular', 'queso', 'jamón ibérico', '6305']) {
       assert.strictEqual(intenciones.pareceProducto(f), true, `"${f}" debería buscarse`);
     }
+  });
+
+  await check('O-8· si ya dijo quién es, no se le vuelve a preguntar', async () => {
+    /* Captura real: "hola soy carniceria el chino y quiero hacer un pedido",
+       y tras aceptar el aviso le preguntaba otra vez el nombre. */
+    assert.strictEqual(ident.nombreDeNegocio('hola soy carniceria el chino y quiero hacer un pedido'),
+      'carniceria el chino');
+    assert.strictEqual(ident.nombreDeNegocio('buenas somos Autoservicio Carrillo y queremos pedir'),
+      'Autoservicio Carrillo');
+    assert.strictEqual(ident.nombreDeNegocio('hola quiero hacer un pedido'), null,
+      'sin nombre no se puede inventar uno');
+
+    const TEL = '34600888110';
+    await estadosLib.reiniciar(TEL);
+    const aviso = await router.manejar({ telefono: TEL, cliente: null, tipo: 'texto',
+      valor: 'hola soy carniceria el chino y quiero hacer un pedido' });
+    assert(/¿Quieres continuar/.test(aviso.map((x) => formato.aTexto(x)).join('\n')));
+
+    const tras = await router.manejar({ telefono: TEL, cliente: null, tipo: 'clic',
+      valor: 'privacidad_si' });
+    const t = tras.map((x) => formato.aTexto(x)).join('\n');
+    assert(!/cómo se llama tu negocio/i.test(t),
+      `volvió a preguntar el nombre que ya había dado: ${t.slice(0, 140)}`);
+    assert(/CARNICERIA EL CHINO/.test(t), t.slice(0, 140));
+    assert(/¿Es tu negocio\?/.test(t), 'tiene que confirmarlo igualmente');
   });
 
   console.log('\n=== 26) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
