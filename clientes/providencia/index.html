@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dulces prOvidenCia · Asistente Comercial IA — Demo</title>
+<meta name="description" content="Demostración del asistente comercial de WhatsApp para Dulces prOvidenCia: atención inmediata a nuevos clientes y distribuidores, 24 horas al día. Preparada por Hundred Agents." />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="theme-color" content="#0b2440" />
+<meta property="og:title" content="Dulces prOvidenCia · Asistente Comercial IA" />
+<meta property="og:description" content="Demostración funcional del asistente comercial de WhatsApp. Preparada por Hundred Agents." />
+<link rel="icon" href="/clientes/providencia/assets/img/marca/isotipo.webp" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/clientes/providencia/assets/css/providencia.css" />
+</head>
+<body>
+
+<!-- ============ barra de demo: esto NO es producción ============ -->
+<div class="demobar">
+  <div class="wrap">
+    <span><strong>Demostración</strong> — no es el WhatsApp de producción de Dulces prOvidenCia. Nadie del equipo recibe estos mensajes.</span>
+    <span class="pill viva">Demo preparada por Hundred&nbsp;Agents</span>
+  </div>
+</div>
+
+<header class="top">
+  <div class="wrap">
+    <img class="logo" src="/clientes/providencia/assets/img/marca/logotipo.webp" alt="Dulces prOvidenCia" width="280" height="92" />
+    <nav>
+      <a href="#agente">El asistente</a>
+      <a href="#catalogo">Lo que ya conoce</a>
+      <a href="#validacion">Validemos el alcance</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ HERO + AGENTE ============ -->
+<section class="hero" id="agente">
+  <div class="wrap">
+    <span class="eyebrow">Asistente Comercial IA · WhatsApp</span>
+    <h1>Dulces prOvidenCia<br /><em>Asistente Comercial IA</em></h1>
+    <p class="sub">Atención inmediata para nuevos clientes y distribuidores, 24 horas al día.</p>
+    <div class="hero-datos">
+      <span><b>5–15</b> prospectos nuevos al día</span>
+      <span>Responde <b>fuera de horario</b></span>
+      <span>Califica antes de pasar a <b>Ventas</b></span>
+      <span>Piloto <b>antes de octubre</b></span>
+    </div>
+
+    <div class="consola">
+      <!-- ---- simulador de WhatsApp ---- -->
+      <div class="fono">
+        <div class="fono-pantalla">
+          <div class="wa-top">
+            <span class="wa-avatar"><img src="/clientes/providencia/assets/img/marca/isotipo.webp" alt="" /></span>
+            <span class="wa-quien">
+              <b>Dulces prOvidenCia</b>
+              <span id="wa-sub">en línea</span>
+            </span>
+            <span class="wa-estado">demo</span>
+          </div>
+
+          <div class="wa-hilo" id="hilo" role="log" aria-live="polite" aria-label="Conversación con el asistente">
+            <div class="wa-aviso">Conversación de demostración. El asistente responde en vivo con el catálogo real de Dulces prOvidenCia.</div>
+          </div>
+
+          <div class="wa-sugerencias" id="sugerencias"></div>
+
+          <form class="wa-barra" id="forma">
+            <label class="sr" for="entrada">Escribe tu mensaje</label>
+            <textarea id="entrada" rows="1" placeholder="Escribe como lo haría un cliente…" autocomplete="off"></textarea>
+            <button type="submit" id="enviar" aria-label="Enviar mensaje">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ---- panel: lo que el agente va capturando ---- -->
+      <aside class="panel">
+        <article class="tarjeta" id="tarjeta-lead" hidden>
+          <div class="lead-cab">
+            <div class="t"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg> Lead calificado</div>
+            <div class="n" id="lead-nombre">—</div>
+            <div class="f" id="lead-folio">—</div>
+          </div>
+          <dl class="lead-campos" id="lead-campos"></dl>
+          <div class="lead-pie" id="lead-pie"></div>
+        </article>
+
+        <article class="tarjeta" id="tarjeta-traza">
+          <h3><span class="punto"></span> Lo que hace el asistente por dentro</h3>
+          <div class="cuerpo">
+            <p class="vacio" id="traza-vacia">Aquí aparece cada consulta al catálogo, cada escalamiento al equipo y la ficha del prospecto, conforme va conversando.</p>
+            <ul class="traza" id="traza" hidden></ul>
+          </div>
+        </article>
+
+        <article class="tarjeta">
+          <h3><span class="punto"></span> Lo que nunca va a inventar</h3>
+          <div class="cuerpo">
+            <p class="vacio">Precios · tarifas de mayoreo · descuentos · mínimos de compra · stock · zonas y costos de envío · tiempos de entrega · crédito · alérgenos y certificados por producto.<br /><br />
+            Si le preguntan cualquiera de estos, lo reconoce y lo pasa al equipo comercial. Son exactamente los datos que faltan por confirmar con ustedes.</p>
+          </div>
+        </article>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CATÁLOGO ============ -->
+<section class="bloque crema" id="catalogo">
+  <div class="wrap">
+    <div class="cabecera-bloque">
+      <span class="eyebrow">Base de conocimiento</span>
+      <h2>Lo que el agente ya conoce</h2>
+      <p>Catálogo tomado de la web pública de Dulces prOvidenCia: siete categorías, sus productos y las presentaciones publicadas. Es exactamente la misma fuente que consulta el asistente en cada respuesta.</p>
+    </div>
+
+    <div class="cats" id="cats" role="tablist" aria-label="Categorías del catálogo"></div>
+    <p class="cat-desc" id="cat-desc"></p>
+    <div class="rejilla" id="rejilla"></div>
+
+    <p class="nota-precio"><b>Precios, presentaciones comerciales y disponibilidad:</b> por validar con el equipo comercial. En esta demostración el asistente no maneja ninguna lista de precios, y no la va a improvisar.</p>
+
+    <dl class="empresa" id="empresa"></dl>
+  </div>
+</section>
+
+<!-- ============ VALIDACIÓN ============ -->
+<section class="bloque" id="validacion">
+  <div class="wrap">
+    <div class="cabecera-bloque">
+      <span class="eyebrow">Para recorrer juntos en la reunión</span>
+      <h2>Validemos juntos el alcance</h2>
+      <p>Esto es lo que entendimos del diagnóstico. Antes de ponerlo en producción queremos confirmar las reglas reales del negocio. Sus respuestas se guardan en este navegador conforme avanzan: si se recarga la página, no se pierde nada.</p>
+    </div>
+
+    <div class="pasos" id="pasos"></div>
+    <div class="barra"><i id="barra" style="width:0%"></i></div>
+
+    <div class="hoja" id="hoja"></div>
+  </div>
+</section>
+
+</main>
+
+<footer class="pie">
+  <div class="wrap">
+    <div>
+      <img src="/clientes/providencia/assets/img/marca/logotipo-blanco.webp" alt="Dulces prOvidenCia" />
+      <p class="fino">Bartolomé de las Casas 304, La Tinajita<br />San Miguel el Alto, Jalisco · CP 47147</p>
+    </div>
+    <div>
+      <h4>Contacto publicado</h4>
+      <p class="fino">
+        <a href="mailto:ventas@dulcesprovidencia.mx">ventas@dulcesprovidencia.mx</a><br />
+        (347) 788-2503<br />(347) 788-3930<br />(347) 788-3300
+      </p>
+    </div>
+    <div>
+      <h4>Sobre esta demostración</h4>
+      <p class="fino">Demo funcional preparada por <a href="https://thehagentic.com">Hundred Agents</a> para la reunión con Dulces prOvidenCia. El asistente conversa en vivo, pero ningún mensaje llega al equipo comercial y ningún dato de esta página sale de su navegador.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="/clientes/providencia/assets/js/agente.js"></script>
+<script src="/clientes/providencia/assets/js/catalogo.js"></script>
+<script src="/clientes/providencia/assets/js/validacion.js"></script>
+</body>
+</html>

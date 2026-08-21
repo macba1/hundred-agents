@@ -1,0 +1,219 @@
+{
+  "negocio": "Dulces prOvidenCia",
+  "moneda": "MXN",
+  "ubicacion": "San Miguel el Alto, Jalisco, México",
+  "direccion": "Bartolomé de las Casas 304, La Tinajita, San Miguel el Alto, Jalisco, CP 47147",
+  "tel_llamadas": "(347) 788-2503 · (347) 788-3930 · (347) 788-3300",
+  "email": "ventas@dulcesprovidencia.mx",
+  "sitio_web": "https://dulcesprovidencia.mx",
+  "horarios": {
+    "lunes": "08:00-14:00 y 15:30-18:30",
+    "martes": "08:00-14:00 y 15:30-18:30",
+    "miercoles": "08:00-14:00 y 15:30-19:00",
+    "jueves": "08:00-14:00 y 15:30-19:00",
+    "viernes": "08:00-14:00 y 15:30-18:30",
+    "sabado": "NO PUBLICADO — no está confirmado si abren. Ofrece confirmarlo con el equipo.",
+    "domingo": "NO PUBLICADO — no está confirmado si abren. Ofrece confirmarlo con el equipo.",
+    "nota": "Son DOS ventanas al día: mañana 08:00-14:00 y tarde 15:30-18:30 (miércoles y jueves hasta las 19:00). Fuera de ese horario el asistente sigue atendiendo, pero un vendedor humano responde al siguiente día hábil."
+  },
+  "empresa": {
+    "fundacion": "1987, en San Miguel el Alto, Jalisco",
+    "trayectoria": "Más de 35 años elaborando dulces mexicanos tradicionales",
+    "descripcion": "Fábrica de dulces típicos mexicanos artesanales, elaborados con ingredientes 100% naturales y leche natural, siguiendo recetas tradicionales.",
+    "certificaciones_publicadas": "La web menciona certificaciones HACCP y FDA, y reconocimientos por buenas prácticas laborales y administrativas. NO tenemos el detalle de qué certificado aplica a qué producto: eso lo confirma el equipo.",
+    "presencia": "La web indica presencia en México, Estados Unidos y Centroamérica. ATENCIÓN: esto NO significa que se envíe a cualquier dirección de esos países. Cobertura y condiciones concretas las confirma el equipo comercial.",
+    "marcas_hermanas": "La familia prOvidenCia incluye Dulces prOvidenCia, Lácteos prOvidenCia y Distribuidora San Miguel.",
+    "canales_de_venta_publicos": "La empresa vende también a través de Amazon y Mercado Libre, y a través de su red de distribuidores. NO tenemos el listado exacto de qué productos hay en cada marketplace."
+  },
+  "notas_precios": "NO CONFIRMADO. En esta fase el asistente NO tiene lista de precios, ni tarifas de mayoreo, ni descuentos, ni mínimos de compra, ni escalas por volumen. Nunca los inventes ni los estimes: pásalo al equipo comercial.",
+  "estado_menu": "Catálogo tomado de la web pública de Dulces prOvidenCia (categorías, productos, descripciones y presentaciones). NO incluye precios, SKU, EAN, stock, alérgenos por producto ni fichas técnicas: esos datos todavía no los tenemos.",
+  "envios": "NO CONFIRMADO. No tenemos zonas de entrega, costos de envío, tiempos ni política de paquetería. Cualquier pregunta de cobertura o envío se pasa al equipo comercial.",
+  "pagos": "NO CONFIRMADO. No tenemos condiciones de pago, crédito, ni política de anticipos. Se pasa al equipo comercial.",
+  "notas_generales": [
+    "Los prospectos nuevos, mayoristas y distribuidores son la prioridad de este canal.",
+    "La web invita explícitamente a negocios a convertirse en distribuidores de Dulces prOvidenCia.",
+    "Dulces prOvidenCia no vende directamente desde su propia web."
+  ],
+  "categorias": {
+    "jamoncillos": {
+      "jamoncillos": {
+        "descripcion": "Dulces mexicanos artesanales de textura suave con un toque de nuez. Elaborados con leche y nuez 100% naturales, en variedad de formas y estilos.",
+        "sinonimos": ["jamoncillo", "leche", "nuez", "marina", "becerrin", "becerrín"],
+        "items": [
+          {
+            "nombre": "Marina",
+            "descripcion": "Su combinación única de suavidad y crocancia de la nuez te lleva directo a los sabores más entrañables de México.",
+            "presentaciones": ["36 piezas", "24 piezas", "16 piezas"],
+            "_imagen": "marina.webp"
+          },
+          {
+            "nombre": "Jamoncillo",
+            "descripcion": "Disponible con o sin nuez. Textura cremosa y sabor inolvidable, ideal para compartir en familia o regalar.",
+            "presentaciones": [
+              "Jumbo 15 piezas",
+              "Jumbo Display 12 piezas",
+              "Jumbo Estuche 15 piezas",
+              "Con Nuez 10 piezas",
+              "Extra Becerrín 27 piezas",
+              "Extra Becerrín 30 piezas",
+              "Mini Becerrín 50 piezas",
+              "Va-k-niño 200 g",
+              "Jamoncillo cuadro display 576 g"
+            ],
+            "_imagen": "jamoncillo-jumbo.webp"
+          },
+          {
+            "nombre": "Becerrín",
+            "descripcion": "Combina lo mejor de la Marina y el Jamoncillo en una presentación única, con textura suave y sabor artesanal.",
+            "presentaciones": ["Becerrín Mix 40 piezas", "Becerrín Mix 60 piezas", "Becerrín Mix 100 piezas", "Becerrín Mix 140 piezas"],
+            "_imagen": "becerrin-100.webp"
+          }
+        ]
+      }
+    },
+    "natillas": {
+      "natillas": {
+        "descripcion": "Elaboradas con leche y un toque de canela, vainilla, cajeta o café. Sabor suave y cremoso, con ingredientes 100% naturales.",
+        "sinonimos": ["natilla", "gloria", "glorias", "natillon", "natillón", "cubito", "chicloso", "chiclosos"],
+        "items": [
+          {
+            "nombre": "Glorias",
+            "descripcion": "Llevan las natillas a otro nivel mezclando leche, nuez y café en un dulce que deleita los sentidos.",
+            "presentaciones": ["Glorias 10 piezas", "Mini Glorias 100 g", "Mini Glorias 200 g", "Mini Glorias 400 g"],
+            "_imagen": "glorias.webp"
+          },
+          {
+            "nombre": "Natillón",
+            "descripcion": "En versión larga o corta. Textura suave y equilibrio entre la leche y las especias.",
+            "presentaciones": ["Natillón 200 piezas (vitrolero)", "Natillón Corto 50 piezas", "Natillón Corto 100 piezas", "Natillón Grande 30 piezas"],
+            "_imagen": "natillon-200.webp"
+          },
+          {
+            "nombre": "Cubito",
+            "descripcion": "Natillas en forma de cubos con un toque de cajeta. Para regalar o compartir.",
+            "presentaciones": ["Cubito 400 g", "Cubito a granel"],
+            "_imagen": "cubito.webp"
+          },
+          {
+            "nombre": "Mini Chicloso",
+            "descripcion": "Suave dulce de leche, para compartir con la familia y los amigos.",
+            "presentaciones": ["Mini Chicloso 50 piezas"],
+            "_imagen": "mini-chiclosos.webp"
+          }
+        ]
+      }
+    },
+    "confitados": {
+      "confitados": {
+        "descripcion": "Cacahuates confitados: combinan lo crujiente del cacahuate con una capa de chocolate y dulce, en colores vibrantes.",
+        "sinonimos": ["confitado", "cacahuate", "cacahuates", "chocolate", "rickysimo", "riquisimo", "garapiñado", "vitrolero"],
+        "items": [
+          {
+            "nombre": "Confitados en Bolsa",
+            "descripcion": "Para pequeños momentos de alegría.",
+            "presentaciones": ["500 g"],
+            "_imagen": "confitado-bolsa.webp"
+          },
+          {
+            "nombre": "Confitados en Vitrolero",
+            "descripcion": "Perfectos para compartir con toda la familia.",
+            "presentaciones": ["750 g"],
+            "_imagen": "confitado-vitrolero.webp"
+          }
+        ]
+      }
+    },
+    "cocadas": {
+      "cocadas": {
+        "descripcion": "Elaboradas con pulpa natural de coco. Coco fresco, sabor natural y textura suave y ligeramente crujiente.",
+        "sinonimos": ["cocada", "coco", "cocoy", "bandera", "banderas", "barra"],
+        "items": [
+          {
+            "nombre": "Cocoy Jumbo",
+            "descripcion": "Más grande, más delicioso. Porciones generosas del sabor auténtico del coco.",
+            "presentaciones": ["Cocoy Display 12 piezas", "Cocoy Estuche 12 piezas"],
+            "_imagen": "cocoy-display.webp"
+          },
+          {
+            "nombre": "Barra de Coco",
+            "descripcion": "Dulzura que une generaciones. Disponibles en dos colores: blanco y amarillo.",
+            "presentaciones": ["Coco Blanco 18 piezas", "Coco Amarillo 18 piezas"],
+            "_imagen": "barra-coco-blanco.webp"
+          },
+          {
+            "nombre": "Coco Bandera",
+            "descripcion": "Los colores vibrantes mexicanos y el coco fresco de nuestras costas en un mismo dulce.",
+            "presentaciones": ["Piñatera 50 piezas", "Grande 20 piezas", "Jumbo 10 piezas"],
+            "_imagen": "bandera-grande.webp"
+          }
+        ]
+      }
+    },
+    "obleas": {
+      "obleas": {
+        "descripcion": "Dulce tipo sándwich con centro cremoso de cajeta. Ingredientes naturales y cajeta 100% auténtica de leche de vaca, con textura suave y ligera.",
+        "sinonimos": ["oblea", "cajeta", "sandwich", "sándwich"],
+        "items": [
+          {
+            "nombre": "Obleas Medianas",
+            "descripcion": "Tamaño ideal para los momentos de charla y conexión.",
+            "presentaciones": ["5 piezas"],
+            "_imagen": "oblea-mediana.webp"
+          },
+          {
+            "nombre": "Mini Obleas",
+            "descripcion": "Tamaño mini, para saborear la tradición mexicana en cualquier momento y lugar.",
+            "presentaciones": ["20 piezas"],
+            "_imagen": "mini-obleas-20.webp"
+          },
+          {
+            "nombre": "Tira Mini Obleas",
+            "descripcion": "Perfectas para compartir en familia.",
+            "presentaciones": ["10 piezas"],
+            "_imagen": "tira-mini-obleas.webp"
+          }
+        ]
+      }
+    },
+    "surtidos": {
+      "surtidos": {
+        "descripcion": "Selecciones de varios dulces tradicionales en una misma presentación. Un mix de tradición y sabor.",
+        "sinonimos": ["surtido", "provimix", "canasta", "canastas", "mix", "regalo", "carretilla"],
+        "items": [
+          {
+            "nombre": "Provimix",
+            "descripcion": "Una selección de los dulces tradicionales de la casa, desde el antojo individual hasta el granel para eventos o negocios.",
+            "presentaciones": ["Especial 400 g", "Bolsa Chica 150 g", "Bolsa Grande 500 g", "A Granel"],
+            "_imagen": "provimix-500.webp"
+          },
+          {
+            "nombre": "Canasta",
+            "descripcion": "Canastas de dulces diseñadas para regalar momentos de sabor y tradición mexicana.",
+            "presentaciones": ["Mediana", "Grande", "En Carretilla"],
+            "_imagen": "canasta-grande.webp"
+          }
+        ]
+      }
+    },
+    "cajeta": {
+      "cajeta": {
+        "descripcion": "Uno de los dulces más representativos de México. Receta tradicional con leche e ingredientes 100% naturales, para postres o para emprender.",
+        "sinonimos": ["cajeta", "dulce de leche", "granel", "envase", "pomo", "cubeta"],
+        "items": [
+          {
+            "nombre": "Envase de Cajeta",
+            "descripcion": "Cajeta lista para acompañar tus postres favoritos, en envase individual.",
+            "presentaciones": ["Cajeta Chica 500 g", "Cajeta Mediana 650 g", "Cajeta Grande 1 kg"],
+            "_imagen": "cajeta-1kg.webp"
+          },
+          {
+            "nombre": "Cajeta en Granel",
+            "descripcion": "Para quienes necesitan mayor cantidad, ya sea para compartir o para emprender.",
+            "presentaciones": ["Granel Chico 5 kg", "Granel Grande 24 kg"],
+            "_imagen": "cajeta-granel-5kg.webp"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -2707,7 +2707,169 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     assert.strictEqual(despues, antes, 'identificar cambió el carrito');
   });
 
-  console.log('\n=== 25) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
+  console.log('\n=== 25) Ciclo de vida del pedido (bugs de Fernando) ===');
+
+  const intenciones = require(path.join(ROOT, 'lib/chacon/intenciones'));
+  const descLib = require(path.join(ROOT, 'lib/chacon/descubrimiento'));
+
+  await check('O-1· "pedido nuevo" NUNCA llega al buscador de productos', async () => {
+    /* El bug: contestaba "no consigo dar con «Quiero hacer un pedido nuevo»".
+       Se espía el buscador para demostrar que no se le llama. */
+    const frases = ['Quiero hacer un pedido nuevo', 'nuevo pedido', 'quiero otro pedido',
+      'empezar otro pedido', 'hacer otro pedido', 'quiero pedir de nuevo', 'empecemos otro'];
+    for (const f of frases) {
+      const i = intenciones.reconocer(f);
+      assert(i, `"${f}" no se reconoce como intención`);
+      assert.strictEqual(i.intent, 'START_NEW_ORDER', `"${f}" -> ${i.intent}`);
+      assert.strictEqual(intenciones.pareceProducto(f), false,
+        `"${f}" puede acabar en el buscador de productos`);
+    }
+
+    const TEL = '34600888100';
+    const c = await repo.crearCliente({ nombre: 'Tienda Intents', telefono: TEL });
+    await conPrivacidad(TEL);
+    await estadosLib.reiniciar(TEL);
+
+    const original = descLib.buscar;
+    let llamadas = 0;
+    descLib.buscar = (...a) => { llamadas += 1; return original(...a); };
+    try {
+      const p = await router.manejar({ telefono: TEL, cliente: c, tipo: 'texto',
+        valor: 'Quiero hacer un pedido nuevo' });
+      const t = p.map((x) => formato.aTexto(x)).join('\n');
+      assert.strictEqual(llamadas, 0, 'se llamó al buscador de productos');
+      assert(!/No consigo dar con|No he encontrado/.test(t), t.slice(0, 140));
+      assert(/pedido nuevo/i.test(t), t.slice(0, 140));
+    } finally { descLib.buscar = original; }
+  });
+
+  await check('O-2· E2E: pedido A completo, confirmado y cerrado', async () => {
+    const TEL = '34600888101';
+    const c = await repo.crearCliente({ nombre: 'Tienda Ciclo', telefono: TEL });
+    await conPrivacidad(TEL); await estadosLib.reiniciar(TEL);
+    await pedidoLib.vaciar(c.id);
+
+    await router.manejar({ telefono: TEL, cliente: c, tipo: 'texto', valor: 'quiero hacer un pedido' });
+    await router.manejar({ telefono: TEL, cliente: c, tipo: 'texto', valor: 'chorizo cular' });
+    await router.manejar({ telefono: TEL, cliente: c, tipo: 'clic', valor: 'cant:6305:1:caja' });
+    await router.manejar({ telefono: TEL, cliente: c, tipo: 'texto', valor: 'queso curado ocaña' });
+    await router.manejar({ telefono: TEL, cliente: c, tipo: 'clic', valor: 'cant:7001:2:caja' });
+    assert.strictEqual((await repo.getCarrito(c.id)).lineas.length, 2);
+
+    // Terminar tiene que llevar al checkout, no a enseñar el carrito otra vez.
+    const fin = await router.manejar({ telefono: TEL, cliente: c, tipo: 'texto',
+      valor: 'terminar pedido' });
+    assert.strictEqual((await estadosLib.leer(TEL)).maquina.estado, 'CHECKOUT');
+    const tf = fin.map((x) => formato.aTexto(x)).join('\n');
+    assert(/¿Confirmas el pedido\?/.test(tf), 'el resumen tiene que ofrecer confirmar');
+    // Y con BOTONES: sin ellos no había forma de cerrar el pedido.
+    assert(fin.some((x) => x.type === 'interactive' && x.interactive.type === 'button'),
+      'el checkout sin botones deja al cliente sin poder confirmar');
+
+    const conf = await router.manejar({ telefono: TEL, cliente: c, tipo: 'texto', valor: 'CONFIRMAR' });
+    const tc = conf.map((x) => formato.aTexto(x)).join('\n');
+    assert(/Pedido confirmado/.test(tc), tc.slice(0, 140));
+    assert(/PED-/.test(tc), 'falta el número de pedido');
+    assert.strictEqual((await estadosLib.leer(TEL)).maquina.estado, 'ORDER_COMPLETE');
+    // El carrito deja de existir: un pedido confirmado no es carrito activo.
+    assert.strictEqual((await repo.getCarrito(c.id)).lineas.length, 0);
+    assert.strictEqual((await repo.pedidosDeCliente(c.id)).length, 1);
+  });
+
+  await check('O-3· confirmar dos veces NO crea dos pedidos', async () => {
+    const TEL = '34600888102';
+    const c = await repo.crearCliente({ nombre: 'Tienda Doble', telefono: TEL });
+    await conPrivacidad(TEL); await estadosLib.reiniciar(TEL);
+    await pedidoLib.vaciar(c.id);
+    await pedidoLib.anadir(c.id, { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' });
+    await router.manejar({ telefono: TEL, cliente: c, tipo: 'clic', valor: 'terminar_pedido' });
+
+    await router.manejar({ telefono: TEL, cliente: c, tipo: 'clic', valor: 'confirmar_pedido' });
+    const antes = (await repo.pedidosDeCliente(c.id)).length;
+    // Segunda pulsación / webhook repetido.
+    await router.manejar({ telefono: TEL, cliente: c, tipo: 'clic', valor: 'confirmar_pedido' });
+    assert.strictEqual((await repo.pedidosDeCliente(c.id)).length, antes,
+      'se creó un pedido duplicado');
+    assert.strictEqual(antes, 1);
+  });
+
+  await check('O-4· un pedido confirmado no reaparece como carrito', async () => {
+    const TEL = '34600888103';
+    const c = await repo.crearCliente({ nombre: 'Tienda Cerrada', telefono: TEL });
+    await conPrivacidad(TEL); await estadosLib.reiniciar(TEL);
+    await pedidoLib.vaciar(c.id);
+    await pedidoLib.anadir(c.id, { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' });
+    await router.manejar({ telefono: TEL, cliente: c, tipo: 'clic', valor: 'terminar_pedido' });
+    await router.manejar({ telefono: TEL, cliente: c, tipo: 'clic', valor: 'confirmar_pedido' });
+
+    // Conversación nueva: no puede resucitar el pedido cerrado.
+    await estadosLib.reiniciar(TEL);
+    const p = await router.manejar({ telefono: TEL, cliente: c, tipo: 'texto',
+      valor: 'Hola, quiero hacer un pedido' });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    assert(!/Tu pedido/.test(t), 'resucitó el pedido confirmado como carrito');
+    assert.strictEqual((await repo.getCarrito(c.id)).lineas.length, 0);
+  });
+
+  await check('O-5· con borrador vivo se pregunta, no se pisa ni se enseña a secas', async () => {
+    const TEL = '34600888104';
+    const c = await repo.crearCliente({ nombre: 'Tienda Borrador', telefono: TEL });
+    await conPrivacidad(TEL); await estadosLib.reiniciar(TEL);
+    await pedidoLib.vaciar(c.id);
+    await pedidoLib.anadir(c.id, { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' });
+    await pedidoLib.anadir(c.id, { producto_id: catalogo.todos().find((x) => x.codigo === '4315').id,
+      cantidad: 2, unidad_pedido: 'caja' });
+
+    // "quiero hacer un pedido" -> explica que hay uno en curso.
+    const p = await router.manejar({ telefono: TEL, cliente: c, tipo: 'texto',
+      valor: 'quiero hacer un pedido' });
+    const t = p.map((x) => formato.aTexto(x)).join('\n');
+    assert(/pedido en curso con 2 producto/i.test(t), t.slice(0, 140));
+    assert(/Continuar/.test(t) && /nuevo/i.test(t));
+
+    // "pedido nuevo" -> avisa antes de abandonarlo.
+    const n = await router.manejar({ telefono: TEL, cliente: c, tipo: 'texto',
+      valor: 'quiero hacer un pedido nuevo' });
+    const tn = n.map((x) => formato.aTexto(x)).join('\n');
+    assert(/sin confirmar/i.test(tn), tn.slice(0, 140));
+    assert.strictEqual((await repo.getCarrito(c.id)).lineas.length, 2,
+      'no puede vaciar el borrador sin preguntar');
+
+    // Al confirmar, el viejo queda ABANDONED y el nuevo empieza vacío.
+    await router.manejar({ telefono: TEL, cliente: c, tipo: 'clic', valor: 'nuevo_pedido_si' });
+    assert.strictEqual((await repo.getCarrito(c.id)).lineas.length, 0);
+    assert.strictEqual((await estadosLib.leer(TEL)).maquina.estado, 'PRODUCT_DISCOVERY');
+  });
+
+  await check('O-6· cancelar pide confirmación y deja el carrito vacío', async () => {
+    const TEL = '34600888105';
+    const c = await repo.crearCliente({ nombre: 'Tienda Cancela', telefono: TEL });
+    await conPrivacidad(TEL); await estadosLib.reiniciar(TEL);
+    await pedidoLib.vaciar(c.id);
+    await pedidoLib.anadir(c.id, { producto_id: PIEL.id, cantidad: 1, unidad_pedido: 'caja' });
+
+    const p = await router.manejar({ telefono: TEL, cliente: c, tipo: 'texto',
+      valor: 'cancelar pedido' });
+    assert(/¿Quieres cancelar/.test(p.map((x) => formato.aTexto(x)).join('\n')));
+    assert.strictEqual((await repo.getCarrito(c.id)).lineas.length, 1, 'canceló sin preguntar');
+
+    await router.manejar({ telefono: TEL, cliente: c, tipo: 'clic', valor: 'cancelar_si' });
+    assert.strictEqual((await repo.getCarrito(c.id)).lineas.length, 0);
+    assert.strictEqual((await repo.pedidosDeCliente(c.id)).length, 0, 'cancelar no crea pedido');
+  });
+
+  await check('O-7· el buscador no es el cajón de sastre', async () => {
+    for (const f of ['vale', 'gracias', 'ok', 'sí', 'adiós', 'ver mi pedido', 'terminar pedido']) {
+      assert.strictEqual(intenciones.pareceProducto(f), false,
+        `"${f}" no puede acabar en el buscador`);
+    }
+    // Lo que sí es un producto sigue pasando.
+    for (const f of ['chorizo cular', 'queso', 'jamón ibérico', '6305']) {
+      assert.strictEqual(intenciones.pareceProducto(f), true, `"${f}" debería buscarse`);
+    }
+  });
+
+  console.log('\n=== 26) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
   await check('Chacón y Sanmi no comparten claves de Redis', async () => {
     const claves = [...mem.kv.keys(), ...mem.lists.keys(), ...mem.sets.keys(), ...mem.hashes.keys()];
     const deChacon = claves.filter((k) => k.startsWith('ch:'));

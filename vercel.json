@@ -42,6 +42,10 @@
     },
     "api/chacon/diagnostico.js": {
       "maxDuration": 30
+    },
+    "api/demo-chat.js": {
+      "maxDuration": 60,
+      "includeFiles": "lib/wa/clients/**"
     }
   }
 }

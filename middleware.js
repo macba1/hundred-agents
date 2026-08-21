@@ -20,7 +20,7 @@ import { next, rewrite } from '@vercel/edge';
 // Add future clients here. The subdomain's first label is the slug,
 // which maps to /clientes/<slug>/. Keeping it a Set makes adding a
 // client a one-line change.
-const CLIENT_SLUGS = new Set(['sanmi']);
+const CLIENT_SLUGS = new Set(['sanmi', 'providencia']);
 
 // Hosts that must always pass through untouched (the main site).
 const ROOT_HOSTS = new Set(['thehagentic.com', 'www.thehagentic.com']);

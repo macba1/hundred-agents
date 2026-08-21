@@ -46,6 +46,7 @@ reemplazó.
 | Discovery (Gabi) | `api/discovery/*` | Redis vía `lib/discovery/store.js` |
 | Leads / chat del sitio | `api/lead.js`, `api/chat.js` | Notion + OpenAI |
 | **Agente de WhatsApp** | `api/wa/*` | Redis vía `lib/wa/store.js`; clientes en `lib/wa/clients/` |
+| Demos web de agente | `api/demo-chat.js` | `lib/wa/demo.js`: reutiliza prompt y catálogo del cliente, sin Redis ni Meta. Solo clientes con `demo_web: true` (hoy `providencia`) |
 
 El código Python en `whatsapp-agent/` está **deprecado**: sirve como referencia y
 para correr las pruebas de regresión offline, pero la versión viva es `api/wa/`.

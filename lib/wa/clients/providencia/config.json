@@ -1,0 +1,31 @@
+{
+  "clave": "providencia",
+  "nombre": "Dulces prOvidenCia",
+  "activo": false,
+  "_activo_nota": "INACTIVO A PROPÓSITO. Este cliente existe hoy solo para la DEMO WEB (/clientes/providencia/ + POST /api/demo-chat). No está enrutado a ningún número de Meta y por eso no aparece en el mapa de phone_number_id: no puede colisionar con Chacón ni con Sanmi. Para pasarlo a WhatsApp real hacen falta las dos cosas: (1) poner aquí el phone_number_id del número de Dulces prOvidenCia y activo=true; (2) apuntar el webhook de Meta a /api/wa/webhook. Antes de eso, revisar la lista de datos NO CONFIRMADOS en prompt.md.",
+  "phone_number_id": "",
+  "human_notify_wa": "",
+  "_human_notify_wa_nota": "Vacío a propósito: en la demo web NADIE recibe notificaciones de WhatsApp. lib/wa/demo.js nunca llama a Meta. No poner aquí un número real hasta que Providencia confirme quién debe recibir los leads (bloque D del wizard de validación).",
+  "max_turns": 60,
+  "memoria_mensajes": 30,
+  "folio_prefix": "PRV",
+  "modo": "demo_web",
+  "modo_demo": false,
+  "_modo_demo_nota": "false a propósito. modo_demo=true inyecta el aviso de 'pedido de práctica' de lib/wa/clients.js, que habla de pedidos y aquí no aplica: este agente no toma pedidos, cualifica prospectos. El aviso de demo de la web lo pone la landing y la sección DEMO de prompt.md.",
+  "zona_horaria": "America/Mexico_City",
+  "etiqueta_zona": "Centro de México",
+  "acento_panel": "#a3232b",
+  "datos": {},
+  "_datos_nota": "Vacío a propósito: dirección, teléfonos, horarios, empresa y avisos de 'NO CONFIRMADO' salen de catalogo.json, que es también lo que devuelve buscar_catalogo. Poner algo aquí SOBRESCRIBE al catálogo en el system prompt y rompe la única fuente de verdad.",
+  "mensaje_cierre": "Aquí termina este recorrido de demostración. ¡Gracias por probar el asistente de Dulces prOvidenCia!",
+  "base_web": "/clientes/providencia/",
+  "_base_web_nota": "Prefijo público de los assets de la landing. Tiene que ser ABSOLUTO: en providencia.thehagentic.com el middleware NO reescribe rutas con extensión (su matcher excluye cualquier ruta con punto), así que un `assets/img/x.webp` relativo se pediría a la raíz del subdominio y daría 404. Con el prefijo absoluto la petición ya cae en el archivo real y el middleware ni interviene.",
+  "demo_web": true,
+  "_demo_web_nota": "Bandera que api/demo-chat.js exige para aceptar peticiones desde la web. Sin ella, el endpoint devuelve 404 aunque el cliente exista.",
+  "sugerencias_inicio": [
+    "Ver productos",
+    "Quiero vender sus productos",
+    "Dónde comprar",
+    "Hablar con Ventas"
+  ]
+}
