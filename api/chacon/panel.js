@@ -145,6 +145,25 @@ module.exports = async function handler(req, res) {
             aviso = `<p class="ok">${esc(c.nombre)} → <b>${esc(c.estado)}</b>, por ${esc(por)}.</p>`;
           }
         }
+      } else if (accion === 'cliente_borrar') {
+        /* Destructivo y sin papelera. Se exige firmar Y teclear el nombre
+           exacto: un botón suelto en una tabla se pulsa por error. */
+        const c = await repo.clientePorId(String(b.cliente_id || ''));
+        if (!por) {
+          aviso = '<p class="bad">Escribe tu nombre: cada borrado queda firmado.</p>';
+        } else if (!c) {
+          aviso = '<p class="bad">No existe ese cliente.</p>';
+        } else if (String(b.confirmar || '').trim() !== c.nombre) {
+          aviso = `<p class="bad">Para borrar hay que teclear el nombre exacto: `
+            + `<code>${esc(c.nombre)}</code>. No se ha borrado nada.</p>`;
+        } else {
+          const r = await repo.borrarCliente(c.id, { purgarPedidos: b.purgar === '1' });
+          console.log('[chacon][evento] customer_deleted_by=%j id=%s', por, c.id);
+          aviso = `<p class="ok">Ficha <b>${esc(c.nombre)}</b> (${esc(c.id)}) borrada por `
+            + `${esc(por)}. Teléfonos desvinculados: `
+            + `${(r.ficha.telefonos || []).length}. Pedidos `
+            + `${r.pedidos_purgados ? 'purgados' : 'conservados'}: ${r.pedidos.length}.</p>`;
+        }
       } else if (accion === 'marketing') {
         if (!por) {
           aviso = '<p class="bad">Escribe tu nombre: cada cambio queda firmado.</p>';
@@ -657,7 +676,16 @@ async function vistaClientesPrivacidad(tk) {
         <input type="hidden" name="valor" value="${r && r.marketing_opt_in ? '0' : '1'}">
         <div class="row"><label>Tu nombre<input name="por" required style="width:120px"></label>
         <button type="submit">${r && r.marketing_opt_in ? 'Quitar' : 'Activar'} marketing</button>
-        </div></form></td></tr>`;
+        </div></form>
+        <form method="post" action="/api/chacon/panel?v=clientes&amp;${tk}" class="pf">
+        <input type="hidden" name="accion" value="cliente_borrar">
+        <input type="hidden" name="cliente_id" value="${esc(c.id)}">
+        <div class="row"><label>Tu nombre<input name="por" required style="width:120px"></label>
+        <label>Teclea <code>${esc(c.nombre)}</code><input name="confirmar" required style="width:160px"></label>
+        <label class="sub"><input type="checkbox" name="purgar" value="1"> borrar sus pedidos</label>
+        <button type="submit">Borrar ficha</button></div>
+        <div class="sub">Solo para fichas creadas por error. No hay papelera.</div>
+        </form></td></tr>`;
   }).join('');
 
   const ag = agendaClientes.resumen();
