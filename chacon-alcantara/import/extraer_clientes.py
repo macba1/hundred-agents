@@ -79,6 +79,49 @@ def sin_sufijo(normalizado: str) -> str:
     return s
 
 
+# Cabeceras con las que Chacón puede titular la columna de teléfono. La
+# posición no se supone: la agenda actual no la trae y cuando llegue puede
+# ponerse en cualquier sitio.
+CABECERAS_TELEFONO = ("telefono", "telefonos", "tlf", "tel", "movil", "moviles",
+                      "whatsapp", "contacto telefono", "telefono contacto")
+
+# Un mismo campo suele traer varios números separados a mano.
+SEPARADORES_TELEFONO = re.compile(r"[;,/|]+|\s{2,}| y | Y ")
+
+
+def normalizar_telefono(valor) -> str | None:
+    """Misma forma canónica que `lib/chacon/confianza.js`. Si las dos no
+    coinciden, la agenda y WhatsApp nunca casarían."""
+    if valor is None:
+        return None
+    if isinstance(valor, float) and valor.is_integer():
+        valor = int(valor)
+    solo = re.sub(r"[^\d+]", "", str(valor))
+    solo = solo[:1] + solo[1:].replace("+", "")
+    if not solo:
+        return None
+    n = solo.lstrip("+")
+    if n.startswith("00"):
+        n = n[2:]
+    if re.fullmatch(r"[6789]\d{8}", n):
+        n = "34" + n
+    return n if re.fullmatch(r"\d{8,15}", n) else None
+
+
+def telefonos_de(celda) -> list[str]:
+    """Todos los números legibles de una celda, sin repetir y en orden."""
+    if celda is None:
+        return []
+    if isinstance(celda, float) and celda.is_integer():
+        celda = int(celda)
+    out = []
+    for trozo in SEPARADORES_TELEFONO.split(str(celda)):
+        tel = normalizar_telefono(trozo)
+        if tel and tel not in out:
+            out.append(tel)
+    return out
+
+
 def leer(xlsx: Path) -> list[dict]:
     try:
         import openpyxl
@@ -87,17 +130,30 @@ def leer(xlsx: Path) -> list[dict]:
 
     wb = openpyxl.load_workbook(xlsx, data_only=True)
     ws = wb[wb.sheetnames[0]]
+
+    # Las tres primeras columnas son fijas y ya están verificadas. El teléfono
+    # se localiza por cabecera porque todavía no existe.
+    cabecera = next(ws.iter_rows(min_row=1, max_row=1, values_only=True), ()) or ()
+    cols_tel = [i for i, h in enumerate(cabecera)
+                if h is not None and normalizar(str(h)) in CABECERAS_TELEFONO]
+
     filas = []
     for n, valores in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
         codigo, centro, razon = (tuple(valores) + (None,) * 3)[:3]
         if codigo is None and razon is None:
             continue
+        telefonos = []
+        for i in cols_tel:
+            for tel in telefonos_de(valores[i] if i < len(valores) else None):
+                if tel not in telefonos:
+                    telefonos.append(tel)
         filas.append({
             # Identificadores: SIEMPRE texto. `01` no puede volverse `1`.
             "customer_code": str(codigo).strip() if codigo is not None else None,
             "customer_center": (str(centro).strip()
                                 if centro is not None and str(centro).strip() else None),
             "legal_name": str(razon).strip() if razon is not None else None,
+            "phones": telefonos,
             "source_row": n,
         })
     return filas
@@ -125,6 +181,7 @@ def construir(filas: list[dict]) -> tuple[list[dict], dict]:
                 # Sin nombre comercial todavía: se rellena desde el panel.
                 "display_name": f["legal_name"],
                 "aliases": [],
+                "phones": [],
                 "centers": [],
                 "search_normalized": normalizar(f["legal_name"]),
                 "search_sin_sufijo": sin_sufijo(normalizar(f["legal_name"])),
@@ -134,6 +191,9 @@ def construir(filas: list[dict]) -> tuple[list[dict], dict]:
         c = por_codigo[cod]
         if c["legal_name"] != f["legal_name"]:
             conflictos_nombre.append((cod, c["legal_name"], f["legal_name"]))
+        for tel in f.get("phones", []):
+            if tel not in c["phones"]:
+                c["phones"].append(tel)
         if f["customer_center"] not in c["centers"]:
             c["centers"].append(f["customer_center"])
         c["source_rows"].append(f["source_row"])
@@ -145,6 +205,16 @@ def construir(filas: list[dict]) -> tuple[list[dict], dict]:
         c["centers"].sort(key=lambda x: (x is None, x or ""))
         c["multi_centro"] = len([x for x in c["centers"] if x]) > 1
 
+    # Un teléfono en dos tiendas no se rechaza —un dueño con dos comercios es
+    # normal— pero no puede identificar a nadie: se deja registrado para que
+    # Chacón lo vea y lo arregle si es un error.
+    por_telefono: dict[str, list[str]] = {}
+    for c in clientes:
+        for tel in c["phones"]:
+            por_telefono.setdefault(tel, []).append(c["customer_code"])
+    telefonos_ambiguos = [{"telefono": t, "codigos": v}
+                          for t, v in sorted(por_telefono.items()) if len(v) > 1]
+
     resumen = {
         "filas_fuente": len(filas),
         "duplicados_exactos": duplicados_exactos,
@@ -154,6 +224,9 @@ def construir(filas: list[dict]) -> tuple[list[dict], dict]:
         "multi_centro": sum(1 for c in clientes if c["multi_centro"]),
         "conflictos_nombre": conflictos_nombre,
         "centros_vistos": sorted({x for c in clientes for x in c["centers"] if x}),
+        "con_telefono": sum(1 for c in clientes if c["phones"]),
+        "telefonos_totales": len(por_telefono),
+        "telefonos_ambiguos": telefonos_ambiguos,
     }
     return clientes, resumen
 
@@ -179,6 +252,15 @@ def invariantes(clientes: list[dict], resumen: dict) -> list[str]:
         for cen in c["centers"]:
             if cen is not None and not isinstance(cen, str):
                 fallos.append(f"centro que no es texto en {c['customer_code']}: {cen!r}")
+        # Los teléfonos entran ya normalizados y como texto. Un número guardado
+        # como entero pierde el prefijo y jamás casaría con el de WhatsApp.
+        for tel in c["phones"]:
+            if not isinstance(tel, str):
+                fallos.append(f"teléfono que no es texto en {c['customer_code']}: {tel!r}")
+            elif not re.fullmatch(r"\d{8,15}", tel):
+                fallos.append(f"teléfono sin forma canónica en {c['customer_code']}: {tel!r}")
+        if len(set(c["phones"])) != len(c["phones"]):
+            fallos.append(f"teléfonos repetidos en {c['customer_code']}")
         if not c["legal_name"]:
             fallos.append(f"cliente {c['customer_code']} sin razón social")
 

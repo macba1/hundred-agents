@@ -12,6 +12,8 @@
 
 const assert = require('assert');
 const crypto = require('crypto');
+const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { Readable } = require('stream');
 
@@ -120,6 +122,7 @@ const carritoNativo = require(path.join(ROOT, 'lib/chacon/carrito-nativo'));
 const tarifasReal = require(path.join(ROOT, 'lib/chacon/tarifas'));
 const privLib = require(path.join(ROOT, 'lib/chacon/privacidad'));
 const agenda = require(path.join(ROOT, 'lib/chacon/clientes'));
+const confianza = require(path.join(ROOT, 'lib/chacon/confianza'));
 
 /* Las pruebas de flujo dan por hecho que la tienda ya autorizó el canal, que
    es lo normal a partir de su segunda conversación. El aviso en sí se prueba
@@ -2931,6 +2934,204 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
 
     // Y el nombre sigue mandando cuando lo hay.
     assert.strictEqual(agenda.buscar('carniceria el chino').por, 'nombre');
+  });
+
+  console.log('\n=== 27) Suplantación: quién dice ser quién ===');
+
+  await check('S-1· normalizar teléfonos deja una sola forma comparable', () => {
+    const n = confianza.normalizarTelefono;
+    assert.strictEqual(n('696 45 71 29'), '34696457129');
+    assert.strictEqual(n('+34 696-45-71-29'), '34696457129');
+    assert.strictEqual(n('0034696457129'), '34696457129');
+    assert.strictEqual(n(696457129), '34696457129');
+    assert.strictEqual(n('34696457129'), '34696457129');
+    // No se inventa país para lo que no tiene forma española.
+    assert.strictEqual(n('16503849019'), '16503849019');
+    assert.strictEqual(n('no tiene'), null);
+    assert.strictEqual(n(''), null);
+    assert.strictEqual(n(null), null);
+  });
+
+  await check('S-2· un pedido de teléfono sin verificar avisa a Chacón, arriba', () => {
+    const v = { verificado: false, nivel: 'autoidentificado',
+      señales: [{ clave: 'tienda_ya_tiene_telefonos', gravedad: 'alta',
+                  texto: 'Esta tienda ya tiene 1 teléfono(s) verificado(s) y este no es ninguno de ellos.' }] };
+    const txt = fabrica.componerMensaje({
+      id: 'PED-2026-00099', creado: new Date().toISOString(),
+      cliente: { nombre: 'CARNICERIA EL CHINO, S.L.', telefonos: ['34600000000'] },
+      lineas: [], totales: {}, verificacion: v });
+    assert(txt.includes('TELÉFONO SIN VERIFICAR'), 'falta el aviso');
+    assert(txt.indexOf('TELÉFONO SIN VERIFICAR') < txt.indexOf('PED-2026-00099'),
+      'el aviso tiene que ir ANTES del número de pedido: se lee en un móvil');
+    assert(txt.includes('ya tiene 1 teléfono'), 'falta la señal de riesgo');
+  });
+
+  await check('S-3· un teléfono verificado NO añade sello a cada pedido', () => {
+    const txt = fabrica.componerMensaje({
+      id: 'PED-2026-00098', creado: new Date().toISOString(),
+      cliente: { nombre: 'X', telefonos: ['34600000000'] },
+      lineas: [], totales: {},
+      verificacion: { verificado: true, nivel: 'agenda', señales: [] } });
+    assert(!txt.includes('SIN VERIFICAR'), 'no debe avisar de lo que está verificado');
+    /* Un sello de "todo correcto" en cada pedido enseña a ignorarlo, y
+       entonces el aviso que sí importa también se ignora. */
+    assert(!/VERIFICAD[OA]/.test(txt.split('Productos')[0].replace('SIN VERIFICAR', '')),
+      'sin sello de conformidad');
+  });
+
+  await check('S-4· sin teléfono, un pedido no se marca como verificado', () => {
+    assert.strictEqual(confianza.esVerificado(undefined), false);
+    assert.strictEqual(confianza.esVerificado(null), false);
+    assert.strictEqual(confianza.esVerificado('autoidentificado'), false);
+    assert.strictEqual(confianza.esVerificado('agenda'), true);
+    assert.strictEqual(confianza.esVerificado('aprobado'), true);
+    // Un nivel inventado NUNCA cuenta como verificado.
+    assert.strictEqual(confianza.esVerificado('verificado_supongo'), false);
+  });
+
+  await check('S-5· la agenda sin teléfonos no identifica a nadie sola', () => {
+    /* Estado real de hoy: Chacón todavía no ha dado los teléfonos. Nadie
+       puede quedar identificado automáticamente por ese camino. */
+    assert.strictEqual(agenda.conTelefono(), 0);
+    assert.strictEqual(agenda.porTelefonoAgenda('34696457129'), null);
+    assert.strictEqual(agenda.porTelefonoAgenda(''), null);
+    assert.deepStrictEqual(agenda.telefonosAmbiguos(), []);
+  });
+
+  await check('S-6· un teléfono en dos tiendas no identifica a ninguna', () => {
+    /* Un dueño con dos comercios es normal, así que no se rechaza la agenda;
+       pero adivinar cuál de las dos pide sería servir el pedido equivocado. */
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ag-'));
+    fs.writeFileSync(path.join(dir, 'estado.json'), JSON.stringify({ version_activa: 1 }));
+    fs.writeFileSync(path.join(dir, 'version-1.json'), JSON.stringify({
+      approved: true, clientes: [
+        { customer_code: 'A1', legal_name: 'TIENDA A', phones: ['34600111222'], centers: [] },
+        { customer_code: 'B2', legal_name: 'TIENDA B', phones: ['34600111222'], centers: [] },
+        { customer_code: 'C3', legal_name: 'TIENDA C', phones: ['34600999888'], centers: [] }] }));
+    const antes = process.env.CHACON_AGENDA_DIR;
+    process.env.CHACON_AGENDA_DIR = dir;
+    agenda.recargar();
+    try {
+      assert.strictEqual(agenda.porTelefonoAgenda('34600111222'), null, 'compartido: no resuelve');
+      assert.strictEqual(agenda.porTelefonoAgenda('600999888').customer_code, 'C3');
+      assert.strictEqual(agenda.telefonosAmbiguos().length, 1);
+      assert.strictEqual(agenda.conTelefono(), 3);
+    } finally {
+      if (antes === undefined) delete process.env.CHACON_AGENDA_DIR;
+      else process.env.CHACON_AGENDA_DIR = antes;
+      agenda.recargar();
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  await check('S-7· la confianza no baja sola ni sube sola', async () => {
+    const ficha = { id: 'CLI-X', customer_code: '90014', nombre: 'EL CHINO',
+      telefonos: ['34600111222'], telefonos_verificados: ['34600111222'],
+      link_trust: 'aprobado' };
+    const v = await confianza.evaluar('34600111222', ficha);
+    assert.strictEqual(v.verificado, true);
+    assert.deepStrictEqual(v.señales, [], 'un teléfono verificado no genera señales');
+
+    // Otro número reclamando la misma tienda: la señal más fuerte que hay.
+    const otro = await confianza.evaluar('34699999999', ficha);
+    assert.strictEqual(otro.verificado, true,
+      'link_trust es de la ficha; la señal la da evaluar, no el nivel');
+    const soloAuto = await confianza.evaluar('34699999999',
+      { ...ficha, link_trust: 'autoidentificado' });
+    assert.strictEqual(soloAuto.verificado, false);
+    const claves = soloAuto.señales.map((x) => x.clave);
+    assert(claves.includes('tienda_ya_tiene_telefonos'), claves.join(','));
+    assert.strictEqual(soloAuto.señales[0].gravedad, 'alta', 'lo grave va primero');
+  });
+
+  await check('S-8· la verificación se congela dentro del pedido', () => {
+    /* Que Chacón verifique el teléfono mañana no puede cambiar el pedido de
+       hoy: es el registro de lo que pasó, no una vista de lo que se sabe. */
+    const src = fs.readFileSync(path.join(__dirname, '..', 'lib', 'chacon', 'pedido.js'), 'utf8');
+    assert(/verificacion,/.test(src), 'el pedido debe guardar la verificación');
+    assert(!/verificacion\s*=\s*await\s+confianza\.evaluar/.test(
+      src.split('async function confirmar')[0] || ''), 'no se evalúa fuera de confirmar');
+  });
+
+  await check('S-9· si Chacón dio el teléfono, no se pregunta el nombre', async () => {
+    const TEL = '34600000091';
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ag2-'));
+    fs.writeFileSync(path.join(dir, 'estado.json'), JSON.stringify({ version_activa: 1 }));
+    fs.writeFileSync(path.join(dir, 'version-1.json'), JSON.stringify({
+      approved: true,
+      clientes: [{ customer_code: '90014', legal_name: 'CARNICERIA EL CHINO, S.L.',
+                   display_name: 'CARNICERIA EL CHINO, S.L.', aliases: [],
+                   phones: [TEL], centers: ['2'],
+                   search_normalized: 'carniceria el chino s l',
+                   search_sin_sufijo: 'carniceria el chino' }] }));
+    const antesDir = process.env.CHACON_AGENDA_DIR;
+    process.env.CHACON_AGENDA_DIR = dir;
+    agenda.recargar();
+    try {
+      await conPrivacidad(TEL);
+      const r = await router.pedirIdentificacion(TEL);
+      const dicho = JSON.stringify(r);
+      assert(!/nombre de tu (tienda|negocio)|cómo se llama/i.test(dicho),
+        'no puede preguntar el nombre de quien ya está identificado: ' + dicho.slice(0, 160));
+
+      const ficha = await repo.clientePorTelefono(TEL);
+      assert(ficha, 'no ató el teléfono');
+      assert.strictEqual(ficha.customer_code, '90014');
+      assert.strictEqual(ficha.link_trust, 'agenda');
+      assert.strictEqual(ficha.link_source, 'agenda_telefono');
+      assert(ficha.telefonos_verificados.includes(TEL), 'el teléfono queda verificado');
+
+      // Y su pedido sale SIN aviso, porque no hay nada que comprobar.
+      const v = await confianza.evaluar(TEL, ficha);
+      assert.strictEqual(v.verificado, true);
+      assert.deepStrictEqual(confianza.avisoParaChacon(v), []);
+    } finally {
+      if (antesDir === undefined) delete process.env.CHACON_AGENDA_DIR;
+      else process.env.CHACON_AGENDA_DIR = antesDir;
+      agenda.recargar();
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  await check('S-10· quien se identifica solo pide entero, y el pedido sale marcado', async () => {
+    /* La decisión de producto: no se bloquea a nadie. El pedido se hace
+       completo y Chacón decide antes de servir. */
+    const TEL = '34600000092'; await conPrivacidad(TEL);
+    const cli = await repo.crearCliente({ nombre: 'CARNICERIA EL CHINO, S.L.', telefono: TEL });
+    cli.customer_code = '90014';
+    cli.link_trust = 'autoidentificado';
+    await repo.guardarCliente(cli);
+    await repo.anotarReclamacion(TEL, '90014');
+
+    const carrito = await repo.getCarrito(cli.id);
+    carrito.lineas = [{ codigo: '0053', descripcion: 'PRUEBA', cantidad: 1,
+                        unidad_pedido: 'caja', precio_kg_sin_iva: null, bloqueos: [] }];
+    await repo.guardarCarrito(carrito);
+
+    const r = await pedidoLib.confirmar(cli.id, { telefono: TEL });
+    assert(r.ok, 'el pedido tiene que poder hacerse entero: ' + JSON.stringify(r.problemas || {}));
+    assert.strictEqual(r.pedido.verificacion.verificado, false);
+    assert.strictEqual(r.pedido.verificacion.nivel, 'autoidentificado');
+    assert.strictEqual(r.pedido.verificacion.telefono, TEL);
+
+    const txt = fabrica.componerMensaje(r.pedido);
+    assert(txt.includes('TELÉFONO SIN VERIFICAR'), 'Chacón tiene que verlo');
+    assert(txt.includes('CARNICERIA EL CHINO'), 'y saber de qué tienda se trata');
+
+    /* Un segundo teléfono reclamando la MISMA tienda es la señal fuerte. */
+    const TEL2 = '34600000093'; await conPrivacidad(TEL2);
+    cli.telefonos_verificados = [TEL];
+    await repo.guardarCliente(cli);
+    const v2 = await confianza.evaluar(TEL2, cli);
+    assert.strictEqual(v2.verificado, false);
+    assert(v2.señales.some((x) => x.clave === 'tienda_ya_tiene_telefonos'),
+      'debe avisar de que la tienda ya tiene otro número verificado');
+
+    /* Y un teléfono que ha dicho ser dos tiendas distintas. */
+    await repo.anotarReclamacion(TEL2, '340');
+    const v3 = await confianza.evaluar(TEL2, cli);
+    assert(v3.señales.some((x) => x.clave === 'telefono_reclamo_varias_tiendas'),
+      'un teléfono que reclama dos tiendas tiene que salir señalado');
   });
 
   console.log('\n=== 26) Aislamiento entre tenants (sin regresiones en Sanmi) ===');

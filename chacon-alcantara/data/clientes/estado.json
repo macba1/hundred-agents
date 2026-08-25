@@ -11,6 +11,16 @@
       "approved": true,
       "invariantes_fallidos": 0,
       "approved_by": "Tony (Hundred Agents) — Agenda de Fernando"
+    },
+    {
+      "version": 2,
+      "generado": "2026-08-25T12:58:29.887725+00:00",
+      "source_file": "Agenda clientes por ruta.xlsx",
+      "source_sha256": "c041a0156cc6d58230e9d3bc5ab3d263194c8d350555457cd1d20723e27a74ac",
+      "clientes_unicos": 207,
+      "filas_fuente": 230,
+      "approved": false,
+      "invariantes_fallidos": 0
     }
   ],
   "auditoria": [

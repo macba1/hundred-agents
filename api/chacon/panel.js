@@ -24,6 +24,7 @@ const imagenes = require('../../lib/chacon/imagenes');
 const formato = require('../../lib/chacon/wa-formato');
 const privacidad = require('../../lib/chacon/privacidad');
 const agendaClientes = require('../../lib/chacon/clientes');
+const confianza = require('../../lib/chacon/confianza');
 const tarifas = require('../../lib/chacon/tarifas');
 const tramos = require('../../lib/chacon/tramos');
 const facturacion = require('../../lib/chacon/facturacion');
@@ -143,6 +144,42 @@ module.exports = async function handler(req, res) {
             c.verificado_en = new Date().toISOString();
             await repo.guardarCliente(c);
             aviso = `<p class="ok">${esc(c.nombre)} → <b>${esc(c.estado)}</b>, por ${esc(por)}.</p>`;
+          }
+        }
+      } else if (accion === 'confianza') {
+        /* Verificar es afirmar que ese teléfono es de esa tienda. Va firmado
+           porque es la decisión que sostiene todo lo demás. */
+        if (!por) {
+          aviso = '<p class="bad">Escribe tu nombre: cada verificación queda firmada.</p>';
+        } else {
+          const c = await repo.clientePorId(String(b.cliente_id || ''));
+          const tel = confianza.normalizarTelefono(b.telefono);
+          if (!c || !tel) {
+            aviso = '<p class="bad">No existe ese cliente o el teléfono no es válido.</p>';
+          } else if (b.valor === '1') {
+            c.telefonos_verificados = [...new Set([...(c.telefonos_verificados || []), tel])];
+            c.link_trust = confianza.NIVELES.APROBADO;
+            c.trust_verified_by = por;
+            c.trust_verified_at = new Date().toISOString();
+            await repo.guardarCliente(c);
+            console.log('[chacon][evento] phone_verified tel=%s code=%s por=%j',
+              tel, c.customer_code, por);
+            aviso = `<p class="ok">+${esc(tel)} verificado como <b>${esc(c.nombre)}</b>, `
+              + `por ${esc(por)}. Sus próximos pedidos salen sin aviso.</p>`;
+          } else {
+            /* Rechazar NO borra la ficha: la tienda es real, lo que no se da
+               por bueno es este teléfono. Se desata y se deja constancia. */
+            c.telefonos_verificados = (c.telefonos_verificados || []).filter((t) => t !== tel);
+            c.telefonos = (c.telefonos || []).filter((t) => t !== tel);
+            c.link_trust = confianza.NIVELES.AUTOIDENTIFICADO;
+            c.telefonos_rechazados = [...new Set([...(c.telefonos_rechazados || []), tel])];
+            c.trust_verified_by = por;
+            c.trust_verified_at = new Date().toISOString();
+            await repo.guardarCliente(c);
+            console.log('[chacon][evento] phone_rejected tel=%s code=%s por=%j',
+              tel, c.customer_code, por);
+            aviso = `<p class="ok">+${esc(tel)} desvinculado de <b>${esc(c.nombre)}</b>, `
+              + `por ${esc(por)}. La ficha de la tienda no se ha tocado.</p>`;
           }
         }
       } else if (accion === 'cliente_borrar') {
@@ -660,7 +697,11 @@ async function vistaClientesPrivacidad(tk) {
           ? `<br><span class="sub">${esc(c.legal_name)}</span>` : ''}
         ${c.center_status === 'sin_resolver'
           ? '<br><span class="warn">centro sin resolver</span>' : ''}
-        ${c.link_status ? `<br><span class="ok">${esc(c.link_status)}</span>` : ''}</td>
+        ${c.link_status ? `<br><span class="ok">${esc(c.link_status)}</span>` : ''}
+        <br>${confianza.esVerificado(c.link_trust)
+          ? `<span class="ok">teléfono verificado${c.trust_verified_by
+              ? ' · ' + esc(c.trust_verified_by) : ''}</span>`
+          : '<span class="warn">teléfono SIN verificar</span>'}</td>
       <td>+${esc(tel)}</td>
       <td>${canal}</td>
       <td>${mk}</td>
@@ -685,7 +726,26 @@ async function vistaClientesPrivacidad(tk) {
         <label class="sub"><input type="checkbox" name="purgar" value="1"> borrar sus pedidos</label>
         <button type="submit">Borrar ficha</button></div>
         <div class="sub">Solo para fichas creadas por error. No hay papelera.</div>
-        </form></td></tr>`;
+        </form>
+        ${confianza.esVerificado(c.link_trust) ? '' : `<form method="post"
+          action="/api/chacon/panel?v=clientes&amp;${tk}" class="pf">
+        <input type="hidden" name="accion" value="confianza">
+        <input type="hidden" name="cliente_id" value="${esc(c.id)}">
+        <input type="hidden" name="telefono" value="${esc(tel)}">
+        <input type="hidden" name="valor" value="1">
+        <div class="row"><label>Tu nombre<input name="por" required style="width:120px"></label>
+        <button type="submit">✓ Es su teléfono</button></div>
+        <div class="sub">Confirma que +${esc(tel)} es de esta tienda. Sus pedidos
+          dejarán de salir con aviso.</div></form>`}
+        ${(c.telefonos_verificados || []).includes(confianza.normalizarTelefono(tel))
+          ? `<form method="post" action="/api/chacon/panel?v=clientes&amp;${tk}" class="pf">
+        <input type="hidden" name="accion" value="confianza">
+        <input type="hidden" name="cliente_id" value="${esc(c.id)}">
+        <input type="hidden" name="telefono" value="${esc(tel)}">
+        <input type="hidden" name="valor" value="0">
+        <div class="row"><label>Tu nombre<input name="por" required style="width:120px"></label>
+        <button type="submit">✗ No es su teléfono</button></div></form>` : ''}
+        </td></tr>`;
   }).join('');
 
   const ag = agendaClientes.resumen();
