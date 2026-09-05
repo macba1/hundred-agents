@@ -1,0 +1,17 @@
+{
+  "version_activa": 2,
+  "versiones": [
+    {
+      "version": 1,
+      "creada": "2026-09-05T13:39:07.599827+00:00",
+      "fichas": 50,
+      "fallos": 0
+    },
+    {
+      "version": 2,
+      "creada": "2026-09-05T13:40:07.515805+00:00",
+      "fichas": 50,
+      "fallos": 0
+    }
+  ]
+}

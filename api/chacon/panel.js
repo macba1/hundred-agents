@@ -25,6 +25,7 @@ const formato = require('../../lib/chacon/wa-formato');
 const privacidad = require('../../lib/chacon/privacidad');
 const agendaClientes = require('../../lib/chacon/clientes');
 const confianza = require('../../lib/chacon/confianza');
+const fichasLib = require('../../lib/chacon/fichas');
 const tarifas = require('../../lib/chacon/tarifas');
 const tramos = require('../../lib/chacon/tramos');
 const facturacion = require('../../lib/chacon/facturacion');
@@ -144,6 +145,30 @@ module.exports = async function handler(req, res) {
             c.verificado_en = new Date().toISOString();
             await repo.guardarCliente(c);
             aviso = `<p class="ok">${esc(c.nombre)} → <b>${esc(c.estado)}</b>, por ${esc(por)}.</p>`;
+          }
+        }
+      } else if (accion === 'ficha_campo') {
+        /* Validar un campo es autorizar que ese texto se le enseñe a una
+           tienda. En alérgenos eso puede acabar en la mesa de alguien, así
+           que va firmado y el texto se guarda tal como quede aquí. */
+        if (!por) {
+          aviso = '<p class="bad">Escribe tu nombre: cada validación queda firmada.</p>';
+        } else if (!Object.keys(fichasLib.CAMPOS).includes(String(b.campo))) {
+          aviso = '<p class="bad">Ese campo no existe.</p>';
+        } else {
+          const cod = fichasLib.normalizarCodigo(b.product_code);
+          const estado = b.estado === fichasLib.ESTADOS.VALIDADO
+            ? fichasLib.ESTADOS.VALIDADO : fichasLib.ESTADOS.RECHAZADO;
+          const texto = String(b.texto || '').trim();
+          if (estado === fichasLib.ESTADOS.VALIDADO && !texto) {
+            aviso = '<p class="bad">No se puede validar un texto vacío.</p>';
+          } else {
+            await repo.guardarRevisionCampo(cod, String(b.campo),
+              { estado, por, texto: estado === fichasLib.ESTADOS.VALIDADO ? texto : null });
+            console.log('[chacon][evento] ficha_campo_%s codigo=%s campo=%s por=%j',
+              estado, cod, b.campo, por);
+            aviso = `<p class="ok">[${esc(cod)}] ${esc(fichasLib.CAMPOS[b.campo])} → `
+              + `<b>${esc(estado)}</b>, por ${esc(por)}.</p>`;
           }
         }
       } else if (accion === 'confianza') {
@@ -266,6 +291,8 @@ module.exports = async function handler(req, res) {
       cuerpo = await vistaFacturacion(tk, req.query.q || '');
     } else if (vista === 'simulador') {
       cuerpo = await vistaSimulador(req.query.msg || '', tk);
+    } else if (vista === 'fichas') {
+      cuerpo = await vistaFichas(tk);
     } else if (vista === 'clientes') {
       cuerpo = await vistaClientesPrivacidad(tk);
     } else if (vista === 'config') {
@@ -292,6 +319,7 @@ module.exports = async function handler(req, res) {
                 ['imagenes', 'Imágenes'], ['simulador', 'Simulador'],
                 ['ofertas', 'Ofertas y precios'], ['catalogo', 'Catálogo'],
                 ['conflictos', 'Precios repetidos'], ['clientes', 'Clientes'],
+                ['fichas', 'Fichas técnicas'],
                 ['config', 'Configuración pendiente']]
     .map(([k, t]) => `<a href="/api/chacon/panel?v=${k}&${tk}" class="${vista === k ? 'on' : ''}">${t}</a>`).join('');
 
@@ -663,6 +691,78 @@ async function vistaFacturacion(tk, q) {
   ${fichas || '<p class="sub">Nada sin confirmar.</p>'}`;
 }
 
+
+/* ---- fichas técnicas: validar antes de enseñar ------------------------ */
+/**
+ * Cada campo extraído se muestra junto al PDF del que sale, para poder
+ * compararlos sin salir de aquí. Lo extraído NO se está enseñando a nadie
+ * mientras siga sin validar, y eso se dice arriba con todas las letras: si
+ * quien revisa cree que ya está publicado, no revisa.
+ */
+async function vistaFichas(tk) {
+  const r = await fichasLib.resumen();
+  const fichas = fichasLib.todas();
+  if (!fichas.length) {
+    return '<p class="sub">No hay ninguna versión de fichas aprobada.</p>';
+  }
+
+  const bloques = [];
+  for (const f of fichas) {
+    const rev = await fichasLib.revision(f.product_code);
+    const campos = Object.entries(f.campos || {});
+    const enlace = `/api/chacon/ficha?p=${encodeURIComponent(f.product_code)}`;
+
+    if (!campos.length) {
+      const motivo = f.sin_capa_texto
+        ? 'Es un escaneo: no se ha leído ni una palabra, así que el agente '
+          + 'no afirmará nada de su contenido. El PDF sí se puede enviar.'
+        : 'No se ha podido extraer ningún campo con garantías. El PDF sí se puede enviar.';
+      bloques.push(`<div class="card"><p><b>[${esc(f.product_code)}]</b>
+        ${esc(f.descripcion_catalogo || 'sin producto en el catálogo')}
+        · <a href="${enlace}" target="_blank">ver PDF</a></p>
+        <p class="sub">${esc(motivo)}</p></div>`);
+      continue;
+    }
+
+    const filas = campos.map(([campo, texto]) => {
+      const d = rev[campo];
+      const estado = d ? d.estado : fichasLib.ESTADOS.PROPUESTO;
+      const pill = estado === fichasLib.ESTADOS.VALIDADO
+        ? '<span class="ok">validado' + (d.por ? ' · ' + esc(d.por) : '') + '</span>'
+        : estado === fichasLib.ESTADOS.RECHAZADO
+          ? '<span class="bad">rechazado</span>'
+          : '<span class="warn">sin validar · no se enseña</span>';
+      return `<form method="post" action="/api/chacon/panel?v=fichas&amp;${tk}" class="pf">
+        <input type="hidden" name="accion" value="ficha_campo">
+        <input type="hidden" name="product_code" value="${esc(f.product_code)}">
+        <input type="hidden" name="campo" value="${esc(campo)}">
+        <p><b>${esc(fichasLib.CAMPOS[campo])}</b> ${pill}</p>
+        <textarea name="texto" rows="4" style="width:100%">${
+          esc((d && d.texto) || texto)}</textarea>
+        <div class="row"><label>Tu nombre<input name="por" required style="width:120px"></label>
+          <button type="submit" name="estado" value="${fichasLib.ESTADOS.VALIDADO}"
+            >✓ Validar y publicar</button>
+          <button type="submit" name="estado" value="${fichasLib.ESTADOS.RECHAZADO}"
+            >✗ Está mal extraído</button></div>
+        <p class="sub">Corrige el texto si hace falta antes de validar. Se enseñará
+          exactamente lo que quede aquí.</p></form>`;
+    }).join('');
+
+    bloques.push(`<div class="card"><p><b>[${esc(f.product_code)}]</b>
+      ${esc(f.descripcion_catalogo || 'sin producto en el catálogo')}
+      · <a href="${enlace}" target="_blank">ver PDF</a></p>${filas}</div>`);
+  }
+
+  return `<p class="sub">El PDF del fabricante <b>ya se envía</b> a quien pregunte, para
+    las ${esc(r.fichas || 0)} fichas. Lo que está aquí es distinto: para que el agente
+    <b>afirme un dato por escrito</b> —"lleva soja", "a 4 ºC"— alguien tiene que
+    comprobarlo contra el documento. La extracción automática acierta en muchas y se
+    equivoca en otras, y un texto tomado del sitio equivocado no parece un error, parece
+    un dato.<br>Validados: <b class="ok">${esc(r.campos_validados)}</b> ·
+    sin validar: <b class="warn">${esc(r.campos_pendientes)}</b> ·
+    escaneadas sin texto: ${esc(r.sin_capa_texto || 0)} ·
+    versión ${esc(r.version_activa || '—')}</p>${bloques.join('')}`;
+}
 
 /* ---- clientes: canal y marketing, separados --------------------------- */
 async function vistaClientesPrivacidad(tk) {

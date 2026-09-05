@@ -123,6 +123,7 @@ const tarifasReal = require(path.join(ROOT, 'lib/chacon/tarifas'));
 const privLib = require(path.join(ROOT, 'lib/chacon/privacidad'));
 const agenda = require(path.join(ROOT, 'lib/chacon/clientes'));
 const confianza = require(path.join(ROOT, 'lib/chacon/confianza'));
+const fichasLib = require(path.join(ROOT, 'lib/chacon/fichas'));
 
 /* Las pruebas de flujo dan por hecho que la tienda ya autorizó el canal, que
    es lo normal a partir de su segunda conversación. El aviso en sí se prueba
@@ -138,7 +139,8 @@ function makeRes() {
   return { statusCode: 200, headers: {}, body: null,
     setHeader(k, v) { this.headers[k.toLowerCase()] = v; },
     status(c) { this.statusCode = c; return this; },
-    json(o) { this.body = o; return this; }, send(s) { this.body = s; return this; } };
+    json(o) { this.body = o; return this; }, send(s) { this.body = s; return this; },
+    end(s) { if (s !== undefined) this.body = s; return this; } };
 }
 function postReq(payload, { secret = APP_SECRET } = {}) {
   const raw = Buffer.from(JSON.stringify(payload));
@@ -3132,6 +3134,110 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     const v3 = await confianza.evaluar(TEL2, cli);
     assert(v3.señales.some((x) => x.clave === 'telefono_reclamo_varias_tiendas'),
       'un teléfono que reclama dos tiendas tiene que salir señalado');
+  });
+
+  console.log('\n=== 28) Fichas técnicas: literal o nada ===');
+
+  await check('F-1· un campo extraído NO se enseña hasta que alguien lo valida', async () => {
+    /* Extraer de veinte maquetaciones distintas acierta en muchas y falla en
+       otras. Un texto tomado del sitio equivocado no parece un error, parece
+       un dato. Así que propuesto ≠ publicable. */
+    const conCampos = fichasLib.todas().find((f) => Object.keys(f.campos || {}).length);
+    assert(conCampos, 'la versión activa no trae ningún campo extraído');
+    const r = await fichasLib.consultar(conCampos.product_code, Object.keys(conCampos.campos)[0]);
+    assert.strictEqual(r.hay, false, 'sin validar no puede salir');
+    assert.strictEqual(r.motivo, 'pendiente_de_validar');
+    assert.deepStrictEqual(await fichasLib.camposVisibles(conCampos.product_code), {});
+  });
+
+  await check('F-2· validado se enseña LITERAL, y el texto sale del PDF', async () => {
+    const f = fichasLib.todas().find((x) => x.campos && x.campos.ingredientes);
+    await repo.guardarRevisionCampo(f.product_code, 'ingredientes',
+      { estado: fichasLib.ESTADOS.VALIDADO, por: 'Fernando' });
+    const r = await fichasLib.consultar(f.product_code, 'ingredientes');
+    assert.strictEqual(r.hay, true);
+    assert.strictEqual(r.texto, f.campos.ingredientes,
+      'el texto que se enseña tiene que ser exactamente el del documento');
+    assert.strictEqual(r.etiqueta, 'Ingredientes');
+  });
+
+  await check('F-3· rechazado NO se enseña, aunque esté extraído', async () => {
+    const f = fichasLib.todas().find((x) => x.campos && x.campos.conservacion);
+    await repo.guardarRevisionCampo(f.product_code, 'conservacion',
+      { estado: fichasLib.ESTADOS.RECHAZADO, por: 'Fernando', nota: 'es el pie de página' });
+    const r = await fichasLib.consultar(f.product_code, 'conservacion');
+    assert.strictEqual(r.hay, false);
+  });
+
+  await check('F-4· de un escaneo no se afirma NADA', async () => {
+    const esc = fichasLib.todas().find((f) => f.sin_capa_texto);
+    assert(esc, 'debería haber fichas escaneadas');
+    assert.deepStrictEqual(esc.campos, {}, 'un escaneo no puede traer campos');
+    const r = await fichasLib.consultar(esc.product_code, 'alergenos');
+    assert.strictEqual(r.hay, false);
+    assert.strictEqual(r.motivo, 'ficha_escaneada');
+    assert.strictEqual(r.pdf, true, 'pero el documento sí se puede enviar');
+  });
+
+  await check('F-5· sin dato, la frase la escribe el código y ofrece el PDF', () => {
+    const conPdf = fichasLib.textoSinDato(
+      { motivo: 'pendiente_de_validar', pdf: true }, { nombreProducto: 'CHORIZO' });
+    assert(/no te lo voy a suponer/i.test(conPdf), conPdf);
+    assert(/ficha técnica/i.test(conPdf), 'tiene que ofrecer el documento');
+
+    const sinFicha = fichasLib.textoSinDato({ motivo: 'sin_ficha', pdf: false });
+    assert(/No tenemos ficha técnica/i.test(sinFicha), sinFicha);
+    // Nunca puede sonar a que sabe la respuesta.
+    for (const t of [conPdf, sinFicha]) {
+      assert(!/probablemente|seguramente|suele|normalmente|no contiene/i.test(t), t);
+    }
+  });
+
+  await check('F-6· sin base pública NO se promete un adjunto que no llega', () => {
+    const antes = process.env.CHACON_IMAGENES_BASE_URL;
+    delete process.env.CHACON_IMAGENES_BASE_URL;
+    try {
+      assert.strictEqual(fichasLib.urlPdf('53'), null);
+    } finally {
+      if (antes !== undefined) process.env.CHACON_IMAGENES_BASE_URL = antes;
+    }
+    process.env.CHACON_IMAGENES_BASE_URL = 'https://ejemplo.test/';
+    try {
+      assert.strictEqual(fichasLib.urlPdf('0053'), 'https://ejemplo.test/api/chacon/ficha?p=53',
+        'los ceros de relleno no son parte del código');
+      assert.strictEqual(fichasLib.urlPdf('99999'), null, 'sin PDF no hay enlace');
+    } finally {
+      if (antes === undefined) delete process.env.CHACON_IMAGENES_BASE_URL;
+      else process.env.CHACON_IMAGENES_BASE_URL = antes;
+    }
+  });
+
+  await check('F-7· la ruta pública solo sirve códigos de la versión aprobada', async () => {
+    const handler = require(path.join(ROOT, 'api/chacon/ficha'));
+    const pide = async (p) => {
+      const res = makeRes();
+      await handler({ method: 'GET', query: { p } }, res);
+      return res.statusCode;
+    };
+    assert.strictEqual(await pide('0053'), 200);
+    assert.strictEqual(await pide('53'), 200, 'mismo código con y sin ceros');
+    assert.strictEqual(await pide('99999'), 404, 'no se puede enumerar');
+    assert.strictEqual(await pide('../../etc/passwd'), 404, 'ni salir del directorio');
+    assert.strictEqual(await pide(''), 400);
+  });
+
+  await check('F-8· el PDF llega como adjunto, después del texto', () => {
+    const pantallas = require(path.join(ROOT, 'api/chacon/webhook')).componerPantallas({
+      respuesta: 'No tengo ese dato por escrito.',
+      tools: [{ nombre: 'consultar_ficha_tecnica', args: { producto_id: '0053#2.1' },
+                res: { ok: true, dato_disponible: false,
+                       adjuntar_pdf: 'https://ejemplo.test/api/chacon/ficha?p=53' } }],
+    });
+    assert(Array.isArray(pantallas), 'tiene que componer pantallas');
+    assert.strictEqual(pantallas[0].type, 'text');
+    assert.strictEqual(pantallas[1].type, 'document', 'el PDF va detrás del texto');
+    assert(pantallas[1].document.link.includes('/api/chacon/ficha'));
+    assert(pantallas[1].document.filename.endsWith('.pdf'));
   });
 
   console.log('\n=== 26) Aislamiento entre tenants (sin regresiones en Sanmi) ===');

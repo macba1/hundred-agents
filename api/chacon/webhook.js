@@ -223,6 +223,20 @@ function componerPantallas(r, eco = '') {
   if (!eco && r.respuesta && r.respuesta.includes('¿Qué necesitas hoy?')) {
     return [formato.accesosRapidos(r.respuesta.split('\n')[0])];
   }
+
+  /* Ficha técnica: el PDF se adjunta DESPUÉS del texto. Cuando no sabemos un
+     dato, el documento del fabricante es la respuesta, así que tiene que
+     llegar de verdad y no quedarse en una promesa. */
+  const ficha = ultima(['consultar_ficha_tecnica']);
+  if (ficha && ficha.res.adjuntar_pdf) {
+    const out = [];
+    const intro = (eco + r.respuesta).trim();
+    if (intro) out.push(formato.texto(intro));
+    out.push(formato.documento(ficha.res.adjuntar_pdf,
+      `ficha-${ficha.args?.producto_id || 'producto'}.pdf`,
+      'Ficha técnica del fabricante.'));
+    return out;
+  }
   return null;
 }
 
@@ -321,4 +335,8 @@ async function atender(value, m) {
 }
 
 module.exports = handler;
+
+/* Se expone solo para poder probar la composición de pantallas sin montar un
+   webhook entero. No forma parte de la ruta HTTP. */
+module.exports.componerPantallas = componerPantallas;
 module.exports.config = { api: { bodyParser: false } };

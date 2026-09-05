@@ -1,0 +1,854 @@
+{
+  "version": 2,
+  "creada": "2026-09-05T13:40:07.515805+00:00",
+  "source_dir": "chacon-alcantara/fuentes/fichas",
+  "approved": true,
+  "approved_by": "Tony",
+  "invariantes_fallidos": [],
+  "resumen": {
+    "fichas": 50,
+    "con_texto": 38,
+    "sin_capa_texto": 12,
+    "escaneadas": [
+      "0203.pdf",
+      "1106.pdf",
+      "1240.pdf",
+      "1241.pdf",
+      "3900.pdf",
+      "3901.pdf",
+      "3909.pdf",
+      "3911.pdf",
+      "3924.pdf",
+      "3926.pdf",
+      "4983.pdf",
+      "4998.pdf"
+    ],
+    "en_catalogo": 39,
+    "huerfanas": [
+      {
+        "archivo": "0014.pdf",
+        "product_code": "14"
+      },
+      {
+        "archivo": "0050.pdf",
+        "product_code": "50"
+      },
+      {
+        "archivo": "0117.pdf",
+        "product_code": "117"
+      },
+      {
+        "archivo": "0203.pdf",
+        "product_code": "203"
+      },
+      {
+        "archivo": "0232.pdf",
+        "product_code": "232"
+      },
+      {
+        "archivo": "0552.pdf",
+        "product_code": "552"
+      },
+      {
+        "archivo": "0906.pdf",
+        "product_code": "906"
+      },
+      {
+        "archivo": "2503.pdf",
+        "product_code": "2503"
+      },
+      {
+        "archivo": "3924.pdf",
+        "product_code": "3924"
+      },
+      {
+        "archivo": "3926.pdf",
+        "product_code": "3926"
+      },
+      {
+        "archivo": "4983.pdf",
+        "product_code": "4983"
+      }
+    ],
+    "cobertura_campos": {
+      "alergenos": 7,
+      "conservacion": 13,
+      "denominacion": 10,
+      "ingredientes": 22,
+      "modo_empleo": 11,
+      "presentacion": 10
+    },
+    "descartados_por_calidad": {
+      "alergenos": 9,
+      "conservacion": 4,
+      "denominacion": 2,
+      "ingredientes": 11,
+      "modo_empleo": 1,
+      "presentacion": 4
+    },
+    "productos_catalogo": 90
+  },
+  "fichas": [
+    {
+      "product_code": "1",
+      "archivo": "0001.pdf",
+      "sha256": "a5892b5fd13a733a6bc1e533df42f9dec44d565f46eb61cea9116e629f419c1f",
+      "bytes": 207536,
+      "paginas": 2,
+      "sin_capa_texto": false,
+      "campos": {
+        "denominacion": "del producto \nPella Salada",
+        "ingredientes": "cuantitativa y \ncualitativa \n98% Pella de cerdo y 2% sal \nProceso de \nelaboración \nLa materia prima se recibe congelada o refrigerada. En el primer caso se \nalmacena en la cámara de materias primas y en el segundo caso pasaría \ndirectamente a la cámara de salazones 2 o 3. Una vez en cámara de salazones \n(donde el producto se descongela progresivamente, si venía congelado), se \nañade sal gorda a las piezas hasta cubrirlas por completo y se van apilando \nsobre palets de plástico. Permanecen aquí durante un mínimo de 15 días. \nLuego las piezas se cortan en la sala de corte, se sacude la sal vieja y se añade \nsal fina nueva, se envasan en el obrador y se distribuyen.",
+        "presentacion": "Se presentan en bolsas en formatos de 5 ó 10Kg \nEnvasado/Embalado Se envasan en bolsas de plástico aptas para uso alimentario, de 5 ó 10 kg y se \npaletizan.",
+        "modo_empleo": "Consumir cocinado a 120ºC mínimo 45 minutos."
+      },
+      "descartados": {
+        "conservacion": "contiene membrete, laboratorio o pie de página"
+      },
+      "en_catalogo": true,
+      "descripcion_catalogo": "PELLA AÑEJA DEL MIO"
+    },
+    {
+      "product_code": "1100",
+      "archivo": "1100.pdf",
+      "sha256": "d97f44ca7f137e6a0508511bfbe629d0f88118f72d69ceadc6a755ce60fc56c2",
+      "bytes": 896372,
+      "paginas": 1,
+      "sin_capa_texto": false,
+      "campos": {
+        "conservacion": "En el almacenamiento, expedición y venta mantener siempre el producto entre 0 y 4 ºC.\nPara la distribución, emplear vehículo refrigerado con el mismo rango de temperaturas.",
+        "modo_empleo": "Consumir completamente cocinado: baño maría, fritas,\nplancha, etc."
+      },
+      "descartados": {
+        "ingredientes": "contiene membrete, laboratorio o pie de página"
+      },
+      "en_catalogo": true,
+      "descripcion_catalogo": "HOT DOG DE POLLO"
+    },
+    {
+      "product_code": "1106",
+      "archivo": "1106.pdf",
+      "sha256": "b73272a1e5fb1f2a497b24165e5477aed3dfa7906818ccf8a78bbf567e532765",
+      "bytes": 359614,
+      "paginas": 1,
+      "sin_capa_texto": true,
+      "campos": {},
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "SALCHICHAS DE POLLO MINI 400GM"
+    },
+    {
+      "product_code": "117",
+      "archivo": "0117.pdf",
+      "sha256": "f75b90d45c99dc7384ab3b6ba855f81f9a07acc16a4065b7cee8055c33958ac4",
+      "bytes": 49970,
+      "paginas": 2,
+      "sin_capa_texto": false,
+      "campos": {
+        "ingredientes": "Carne de cerdo ibérico, sal, pimentón, ajo, orégano, dextrina, proteína de soja, dextrosa, emulgentes (E-450i, E-\n450iii, E-451i, E-452i, E-452ii), azúcar, lactosa, caseinato, antioxidantes (E-331iii) y conservadores (E-250, E-\n252). Tripa natural de cerdo. \nCARACTERÍSTICAS \nMICROBIOLÓGICAS \nSalmonella: Ausencia ufc/25g \nListeria: < 100 ufc/g \nCARACTERÍSTICAS \nFÍSICO/QUÍMICAS \nNitritos añadidos: < 150 ppm \nNitratos añadidos: < 150 ppm \nAw < 0,92 (alimento no favorecedor de para el desarrollo de Listeria monocytogenes). \nCARACTERÍSTICAS \nORGANOLÉPTICAS \nAspecto: característico y típico del producto \nColor: rojo intenso heterogéneo. La mayor parte de la grasa ha tomado tonalidades rojizas, siendo el resto blanco.\nSabor: característico, intenso a pimentón, de intensidad media-alta y perdurabilidad alta. \nOlor: característico, cárnico y pimentón, de intensidad media y perdurabilidad media.",
+        "alergenos": "ALIMENTARIOS \nProteínas de soja, lactosa y caseinato (proteína de leche). \nTRATAMIENTOS \nAPLICADOS \nRecepción de magros Picado Aditivación Mezclado Maceración Embutido \n Etiquetado Secado (natural / artificial) Envasado (en su caso) \nCONDICIONES DE \nDISTRIBUCIÓN Y \nTRANSPORTE \nIdentificados con la etiqueta original, y en vehículos específicamente utilizados para productos alimenticios. \nNo es preciso que los vehículos utilizados para su transporte sean de temperatura regulada (ni frigoríficos ni \nisotermos). \nDESCRIPCIÓN DEL \nENVASE Y EMBALAJE \nLa presentación es en piezas enteras envasadas o sin envasar, y fraccionadas envasadas al vacío en envases \naptos para la industria alimentaria."
+      },
+      "descartados": {},
+      "en_catalogo": false,
+      "descripcion_catalogo": null
+    },
+    {
+      "product_code": "1240",
+      "archivo": "1240.pdf",
+      "sha256": "df88611084bd76f4a5cab5e7615e9dc67c56142dd8ed6b0b247aa6cf7f420491",
+      "bytes": 225024,
+      "paginas": 1,
+      "sin_capa_texto": true,
+      "campos": {},
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "HUESOS DE QUIJADA IBERICO"
+    },
+    {
+      "product_code": "1241",
+      "archivo": "1241.pdf",
+      "sha256": "df88611084bd76f4a5cab5e7615e9dc67c56142dd8ed6b0b247aa6cf7f420491",
+      "bytes": 225024,
+      "paginas": 1,
+      "sin_capa_texto": true,
+      "campos": {},
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "HUESOS DE TESTUZO IBERICO"
+    },
+    {
+      "product_code": "14",
+      "archivo": "0014.pdf",
+      "sha256": "379877811962ec15b3bb58f81a57e553fb241099535c64d8334d4c6b1ae29fb9",
+      "bytes": 211047,
+      "paginas": 2,
+      "sin_capa_texto": false,
+      "campos": {
+        "denominacion": "del producto \nPanceta salada",
+        "ingredientes": "cuantitativa y \ncualitativa \n98% Panceta de cerdo y 2% de sal. \nProceso de \nelaboración \nLa materia prima se recibe congelada o refrigerada. En el primer caso se \nalmacena en la cámara de materias primas y en el segundo caso pasaría \ndirectamente a la cámara de salazones 2 o 3. Una vez en cámara de salazones \n(donde el producto se descongela progresivamente, si venía congelado), se \nañade sal gorda a las piezas hasta cubrirlas por completo y se van apilando \nsobre palets de plástico. Permanecen aquí durante un mínimo de 15 días. \nLuego las piezas se cortan en la sala de corte, se sacude la sal vieja y se añade \nsal fina nueva, se envasan en el obrador y se distribuyen.",
+        "presentacion": "Se presentan en bolsas en formatos de 5 ó 10Kg \nEnvasado/Embalado Se envasan en bolsas de plástico aptas para uso alimentario de 5 ó 10kg y se \npaletizan.",
+        "modo_empleo": "Consumir cocinado a 120ºC mínimo 45 minutos."
+      },
+      "descartados": {
+        "conservacion": "contiene membrete, laboratorio o pie de página"
+      },
+      "en_catalogo": false,
+      "descripcion_catalogo": null
+    },
+    {
+      "product_code": "1503",
+      "archivo": "1503.pdf",
+      "sha256": "337c19624cb5a2132d668cdf7503cac52034510eb80a7da59351ad3e32f993d5",
+      "bytes": 171441,
+      "paginas": 2,
+      "sin_capa_texto": false,
+      "campos": {},
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "CENTRO JAMON 2 PZAS C/ MUÑOZ ROJO"
+    },
+    {
+      "product_code": "2003",
+      "archivo": "2003.pdf",
+      "sha256": "b476ee042db63bff25055da378a5ee610daece4ee5671b0251d40691aa2d9182",
+      "bytes": 111566,
+      "paginas": 3,
+      "sin_capa_texto": false,
+      "campos": {
+        "denominacion": "Fiambre de lomo al horno semicocido mitades sin alérgenos \nCÓDIGO ARTÍCULO \n22561",
+        "ingredientes": "Lomo de cerdo (55%), agua, fécula de patata, sal, maltodextrina, proteína de cerdo, antioxidantes (E-331iii, E-\n316, E-306, E-392), emulgentes (E-451i, E-450iii, E-407, E-415), aromas, conservadores (E-250, E-243, E-202), \nfibra vegetal, proteína vegetal, oleorresina de pimentón, colorante (E-120). \nInformación para alérgicos: Sin alérgenos. \nTIPO DE TRATAMIENTO \nProducto sometido a un tratamiento térmico de pasteurización. \nPRESENTACIONES \nPiezas de 3 Kg. aproximadamente, embuchado en tripa plástica, envasado al vacío y embaladas en cajas de \ncartón. \nUnidad de venta: Cajas de cuatro unidades. \nCONDICIONES DE TRANSPORTE Y ALMACENAMIENTO \nMantener entre 0 y 5 ºC.",
+        "conservacion": "Consumo preferente antes de los 150 días posteriores a su elaboración en las condiciones de almacenamiento \ny uso prescritas. \n \n \nValor energético \n(kJ/Kcal) \nGrasa bruta \n(g) \nde los cuales \nsaturados (g) \nHidratos de \ncarbono (g) \nde los cuales \nazúcares (g) \nProteínas \n(g) \nSal (g) \n424/101 \n4,4 \n1,3 \n3,5 \n0,9 \n11,9 \n3,9 \nL. monocytogenes \nSalmonella spp \n<100 ufc/g \nAusencia en 25 g \n\n \n \n \nFICHA TÉCNICA DE PRODUCTO CÁRNICO \nTRATADO POR CALOR \n \n \nRevisión 01 \n(29/06/2022) \n \nPágina 2 de 3 \nRG067.02 \n \n \nUSO Y CONSUMO PREVISTO \n• \nProducto apto para ser consumido por cualquier tipo de grupo de población, incluyendo grupos \nvulnerables (ancianos, niños, alérgicos) salvo prescripción médica \n• \nPara venta previo fraccionamiento. \n• \nConsumir previo completo cocinado. (70ºC en el centro de la pieza durante 2 minutos o \ntratamiento equivalente). \n \n \n \n\n \n \n \nDECLARACIÓN DE ALÉRGENOS"
+      },
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "1/2 FBRE. LOMO CDO. ADB. C/2P DEL MIO"
+    },
+    {
+      "product_code": "203",
+      "archivo": "0203.pdf",
+      "sha256": "64d8b0e3c85caf956e47478a821da5096596f2a9f290ae5ad99dc7416b3bce30",
+      "bytes": 670659,
+      "paginas": 2,
+      "sin_capa_texto": true,
+      "campos": {},
+      "descartados": {},
+      "en_catalogo": false,
+      "descripcion_catalogo": null
+    },
+    {
+      "product_code": "212",
+      "archivo": "212.pdf",
+      "sha256": "5b4881c257a071729955e5f5f5f2157f4f289800ca18bb8182f66385cc499b25",
+      "bytes": 229089,
+      "paginas": 4,
+      "sin_capa_texto": false,
+      "campos": {
+        "ingredientes": "FIAMBRE DE PALETA COCIDA.\nIngredientes: Paleta de cerdo (54%), agua, almidón, estabilizantes (E-420, E-451, E-407a, E-412, E-508), aromas, aroma de humo, sal,\ndextrosa, potenciador del sabor (E-621), antioxidante (E-316), colorante (E-120), conservador (E-250).\nRecubrimiento decorativo: agua, gelatina de cerdo, azúcar y colorante (E-150d).\nENERGIA\n - KCAL\n - KJ\n112.0\n56\n468.15999999999997\n234.08\n-\n8360.0\nAdios\n2000.0\nGRASAS\n3.5\n1\n3.0\n70.0\nGRASAS SATURADAS\n1.4\n0\n4.0\n20.0\nHIDRATOS DE CARBONO\n7.0\n3\n0.0\n270.0\nAZUCARES\n1.3\n0\n1.0\n90.0\nPROTEINAS\n13.0\n6\n0.0\n50.0\nSAL\n2.0\n1\n17.0\n6.0\n (VALORES PROMEDIOS POR 100G)\nINFORMACIÓN\nParámetro\nPor 100g\nPor porción\n%RI\nRI\nDATOS ANALÍTICOS\n\nFBRE PALETA HORNO CF\nCOD. 212 - (PLANTA FB16)\nValor Energético\nKcal:\nKJ:\n112.0\n468.159999999\nParámetro\nTipo\nValor\nToler.\nMax.\nMin.\nUnd.\nEnterobacterias\nM\n1x101\n0.0\n0.0\n0.0\nufc/gr\nF.A.M.T.\nM\n1x102\n0.0\n0.0\n0.0",
+        "presentacion": "En tubo específico de producto y etiqueta báscula. Piezas de 5,4 kg. aprox.\nPESOS\nUnidad: 1.0\nMedio:\n5.4\nKg\nMEDIDAS\nProfundo:\nAncho:\nAlto:\n282.0\n220.0\n115.0\nmm\nmm\nmm\nCalibre:\n0.0\nmm\nCONSERVACIÓN / VIDA\nMantener entre 0º y 5º C\n120 días"
+      },
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "FIAMBRE PALETA HORNO CAMPOFRIO C/2U"
+    },
+    {
+      "product_code": "232",
+      "archivo": "0232.pdf",
+      "sha256": "d49fe7859030aba4bb85819cbe90b65bccf32140a98e783ada640423e588e456",
+      "bytes": 69887,
+      "paginas": 2,
+      "sin_capa_texto": false,
+      "campos": {
+        "alergenos": "ALERGENO \nReglamento (UE) nº 1169/201 \nINCORPORACION DIRECTA \nPRESENCIA EN EMPRESA \nSI \nNO \nSI \nNO \nCEREALES/derivados \n \nX \nX \n \nCRUSTACEOS/derivados \n \nX \nX \n \nHUEVOS/derivados \n \nX \nX \n \nPESCADO/derivados \n \nX \nX \n \nCACAHUETES/derivados \n \nX \n \nX \nSOJA/derivados \nX \n \nX \n \nLECHE/derivados \n \nX \nX \n \nFRUTOS DE CASCARA/derivados \n \nX \nX \n \nAPIO/derivados \n \nX \nX \n \nMOSTAZA/derivados \n \nX \nX \n \nGRANOS SESAMO/derivados \n \nX \n \nX \nDIOXIDO DE AZUFRE Y SULFITOS \n \nX \nX \n \nALTRAMUCES/derivados \n \nX \nX \n \nMOLUSCOS/derivados \n \nX \n \nX \n \n \n \n Declaración GMO: \n \nEste producto no contiene ni está compuesto por Organismos Modificados Genéticamente, ni \nestá producido a partir de Organismos Modificados Genéticamente, por lo que no es aplicable lo \nindicado en los Reglamentos 1829/2003 y 1830/2003 del Parlamento Europeo y del Consejo. \n \n\"Este producto no se ha elaborado a partir de OMG\""
+      },
+      "descartados": {},
+      "en_catalogo": false,
+      "descripcion_catalogo": null
+    },
+    {
+      "product_code": "2503",
+      "archivo": "2503.pdf",
+      "sha256": "896c5d66afdccdd329a95dc3506650ea1a40d1740935c1293e95f131b45190c9",
+      "bytes": 190827,
+      "paginas": 2,
+      "sin_capa_texto": false,
+      "campos": {
+        "denominacion": "Queso de oveja y cabra curado en aceite de oliva \nTiempo de maduración \n4 – 6 meses Flojo \n6 – 12 meses Fuerte",
+        "ingredientes": "Leche cruda de oveja (98%) y cabra (2%), cuajo animal en polvo, sal y aceite de oliva.",
+        "alergenos": "Contiene leche \nOGMs \nProductos libre de O.G.M., ni ha sido producido a partir de ingredientes genéticamente \nmodificados \n \n4. Condiciones del producto \n \nVida útil del producto \n3 años \nLoteado \nNº Correlativo de elaboración",
+        "conservacion": "Mantener en refrigeración \nUso \nAlimento listo para el consumo \n \n5. Información nutricional \n \nResultado \nUd. \nValor Energético \n1753 \nkJ. \n419 \nKcal \nGrasas \n34 \ng/100 g \nde las cuales Saturadas \n19 \ng/100 g \nHidratos de Carbono \n1,8 \ng/100 g \nde los cuales Azúcares \n1,8 \ng/100 g \nProteínas \n22 \ng/100 g \nSal \n2,0 \ng/100 g \n \n \n \n \n \n\n [FICHA TÉCNICA – QUESO CURADO DE OVEJA Y CABRA EN ACEITE DE OLIVA] \nOctubre de \n2024 \nEd: 04 \n \nELABORADO POR NABLA 2000, SL. PARA NIETOS DE MIGUEL ROMERO S.L. \n2",
+        "presentacion": "Se presenta cortado a la mitad y envasado al vacío. En el envase se adhiere una etiqueta \nen la cara frontal con la información según lo establece el Reglamento 1169/2011 sobre \nla información alimentaria facilitada al consumidor."
+      },
+      "descartados": {},
+      "en_catalogo": false,
+      "descripcion_catalogo": null
+    },
+    {
+      "product_code": "2736",
+      "archivo": "2736.pdf",
+      "sha256": "cd92f7c7e51170ac15e93826ba21ccdbab667405fb014c23ef67878c7183bcad",
+      "bytes": 245667,
+      "paginas": 4,
+      "sin_capa_texto": false,
+      "campos": {
+        "ingredientes": "Ingredientes: Carne separada mecánicamente de pollo, agua, grasa de cerdo, dextrosa, sal, almidón, estabilizantes (E-466, E-451),\nespecias, aromas, antioxidante (E-316), aroma de humo, conservador (E-250).\nRecubrimiento: colágeno.\nPuede contener trazas de SOJA y proteína de LECHE.\nENERGIA\n - KCAL\n - KJ\n198.0\n0\n827.64\n0.00\n-\n8360.0\nAdios\n2000.0\nGRASAS\n15.0\n0\n0.0\n70.0\nGRASAS SATURADAS\n5.0\n0\n0.0\n20.0\n (VALORES PROMEDIOS POR 100G)\nINFORMACIÓN\nParámetro\nPor 100g\nPor porción\n%RI\nRI\n\nSALCHICHAS FRANKFURT CF 140G P4\nCOD. 2736 - (PLANTA FB03)\nHIDRATOS DE CARBONO\n2.8\n0\n0.0\n270.0\nAZUCARES\n1.3\n0\n0.0\n90.0\nPROTEINAS\n13.0\n0\n0.0\n50.0\nSAL\n2.0\n0\n0.0\n6.0\nDATOS ANALÍTICOS\nValor Energético\nKcal:\nKJ:\n198.0\n827.64",
+        "alergenos": "Soja y productos a base de soja.\nLeche y sus derivados (excluida la lactosa)."
+      },
+      "descartados": {
+        "presentacion": "contiene membrete, laboratorio o pie de página"
+      },
+      "en_catalogo": true,
+      "descripcion_catalogo": "SALCHICHAS FRAN. CAMPOFRIO 4 PACK C/12U"
+    },
+    {
+      "product_code": "3",
+      "archivo": "0003.pdf",
+      "sha256": "3670df1ab80f95cabba68bbdbd6d44a3a3c70ef6d4bae2436ee2b441ef6abf6f",
+      "bytes": 91833,
+      "paginas": 1,
+      "sin_capa_texto": false,
+      "campos": {
+        "conservacion": "FORMA DE ELABORACIÓN \nSacar las materia primas de la cámara de refrigeración a 4ºC. Mantenerlas \n24 horas en agua. Escurrir en cajas. Salar como mínimo un mes. \nCONDICIONES DE \nALMACENAMIENTO \nTª AMBIENTE"
+      },
+      "descartados": {
+        "ingredientes": "no enumera ingredientes"
+      },
+      "en_catalogo": true,
+      "descripcion_catalogo": "PIEL DE POLLO"
+    },
+    {
+      "product_code": "3286",
+      "archivo": "3286.pdf",
+      "sha256": "6eda3fc57786706c503cb139f253847eafee8716f86af7525b361e20e958511c",
+      "bytes": 187559,
+      "paginas": 4,
+      "sin_capa_texto": false,
+      "campos": {
+        "presentacion": "Centros de jamón curado envasados al vacío en film de material plástico anónimo. Etiqueta autoadhesiva de producto y etiqueta báscula.\nPeso mínimo: 4 kg.\nPESOS\nUnidad: 1.0\nMedio:\n4.75\nKg\nMEDIDAS\nProfundo:\nAncho:\nAlto:\n350.0\n230.0\n90.0\nmm\nmm\nmm\nCalibre:\n0.0\nmm\nCONSERVACIÓN / VIDA\nConservar entre 0º y 7º C. Para su transporte y almacenaje, en refrigeración.\n180 das"
+      },
+      "descartados": {
+        "ingredientes": "no enumera ingredientes"
+      },
+      "en_catalogo": true,
+      "descripcion_catalogo": "CENTRO DE JAMON NAVIDUL C/2 U"
+    },
+    {
+      "product_code": "3500",
+      "archivo": "3500.pdf",
+      "sha256": "1fc26af87dd3588bd1f3b28aeb77c7d18f4836ea989a1303c4c0f291d7dde8cb",
+      "bytes": 16562,
+      "paginas": 1,
+      "sin_capa_texto": false,
+      "campos": {
+        "presentacion": "ENVOLTURA\nPESO PIEZA:\n1.700 KG APROX.\nEAN PIEZA:\n8410057000076\nDATOS DE UNIDAD DE EXPEDICIÓN / CAJA\nDIMENSIONES CAJA (mm)\n512\nTIPO:\nCARTÓN\nPIEZAS / CAJA:\n2 UD\nPESO CAJA:\n3.400 KG APROX.\nEAN CAJA:\n98410057000512\n152\n98\nDATOS DE UNIDAD DE EXPEDICIÓN / PALET\nTIPO:\nEUROPEO\nCAJAS / CAPA:\n8\nCAPAS / PALET:\n12\nCAJAS / PALET:\n96\nINFORMACIÓN NUTRICIONAL\nVALORES MEDIOS POR 100 G\nValor energético\nGrasas\nde las cuales, saturadas\nHidrátos de Carbono\nde los cuales, azúcares\nProteínas\nSal\n 1923 kJ \n/ 465 kcal\n43\ng\n17.2\ng\n2\ng\n2\ng\n17.5\ng\n2.7\ng\nFecha de impresión: 25.11.2025\nUltima modificación: 31.01.2025"
+      },
+      "descartados": {
+        "conservacion": "parece una tabla, no un texto"
+      },
+      "en_catalogo": true,
+      "descripcion_catalogo": "CHORIZO PAMPLONA EXTRA 2 PIEZAS"
+    },
+    {
+      "product_code": "3502",
+      "archivo": "3502.pdf",
+      "sha256": "038fe2de27f9179d0ce95cd7e8f0031fb7b2f741b070ae3e1d25312098042daf",
+      "bytes": 15771,
+      "paginas": 1,
+      "sin_capa_texto": false,
+      "campos": {
+        "presentacion": "AL VACÍO\nPESO PIEZA:\n1.300 KG\nEAN PIEZA:\n8410057002117\nDATOS DE UNIDAD DE EXPEDICIÓN / CAJA\nDIMENSIONES CAJA (mm)\n338\nTIPO:\nCARTÓN\nPIEZAS / CAJA:\n4 UD\nPESO CAJA:\n5.200 KG\nEAN CAJA:\n18410057002114\n153\n162\nDATOS DE UNIDAD DE EXPEDICIÓN / PALET\nTIPO:\nEUROPEO\nCAJAS / CAPA:\n17\nCAPAS / PALET:\n5\nCAJAS / PALET:\n85\nINFORMACIÓN NUTRICIONAL\nVALORES MEDIOS POR 100 G\nValor energético\nGrasas\nde las cuales, saturadas\nHidrátos de Carbono\nde los cuales, azúcares\nProteínas\nSal\n 857\nkJ \n/ 206 kcal\n16\ng\n5.5\ng\n6.1\ng\n1.8\ng\n9.5\ng\n2.4\ng\nFecha de impresión: 25.11.2025\nUltima modificación: 23.09.2025"
+      },
+      "descartados": {
+        "conservacion": "parece una tabla, no un texto"
+      },
+      "en_catalogo": true,
+      "descripcion_catalogo": "BARRA LUNCH 1.3 KG.PAMPLONICA"
+    },
+    {
+      "product_code": "3506",
+      "archivo": "3506.pdf",
+      "sha256": "6c716d699cdb7a59bf182b85af3b5052278ce289ac83893e87c9b66e6b3cac79",
+      "bytes": 304290,
+      "paginas": 5,
+      "sin_capa_texto": false,
+      "campos": {
+        "ingredientes": "Callos de vacuno (30%), morros de cerdo \n(13%), agua, cortezas de cerdo, tomate, \ncebolla, aceite de oliva, sal, *almidón de arroz, \npimentón, ajo, especias.",
+        "alergenos": "NO \n \nCADUCIDAD \nFórmula utilizada \n \nLugar de impresión \n4 años. \nConsumir preferentemente antes del fin de: \n(ver envase) \n Mes-Año. \nEn la tapa. \n \nOTRAS LEYENDAS \nConservar lugar fresco y seco. \n*Una vez abierta la lata conservar entre 0ºC y 5ºC y consumir en plazo máximo de 3 días. \nSin lactosa. Sin gluten. \n \nEn los PLATOS COCINADO PAMPLONICA la cocción se realiza en la misma lata a temperaturas \nque garantizan su seguridad sin necesidad de añadir conservantes, al igual que en una olla a \npresión. \nEl resultado es un producto que conserva todo su sabor. \n \nCONSEJOS DE PREPARACIÓN: \n• \nClásico: Verter el contenido en un cazo y calentar a fuego lento entre 3 y 5 \nminutos. \n• \nAl baño maría: Abrir el envase y calentar el recipiente con agua caliente durante \nunos 15 minutos. \n• \nMICROONDAS: Verter el contenido en un recipiente apto para microondas y \ncalentar entre 3 y 4 minutos dep",
+        "presentacion": "ENVASE PRIMARIO \nDescripción del formato \nEnvase metálico litografiado de fácil apertura. \nDimensiones \nDiámetro: 111 mm \nAltura: 57 mm"
+      },
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "CALLOS L/T MADRILEÑA 380G PAMPLONICA"
+    },
+    {
+      "product_code": "3900",
+      "archivo": "3900.pdf",
+      "sha256": "26a0ae461a919e14235d4c6f89446fca65c5c958b5c37502ec4557476fc5c8fe",
+      "bytes": 437815,
+      "paginas": 1,
+      "sin_capa_texto": true,
+      "campos": {},
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "VIOLINES C/ 8 PACK 4 UD.CARLOS III"
+    },
+    {
+      "product_code": "3901",
+      "archivo": "3901.pdf",
+      "sha256": "26a0ae461a919e14235d4c6f89446fca65c5c958b5c37502ec4557476fc5c8fe",
+      "bytes": 437815,
+      "paginas": 1,
+      "sin_capa_texto": true,
+      "campos": {},
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "OCHITOS C/ 8 PACK 4 UDS.HORNO CARLOS III"
+    },
+    {
+      "product_code": "3909",
+      "archivo": "3909.pdf",
+      "sha256": "26a0ae461a919e14235d4c6f89446fca65c5c958b5c37502ec4557476fc5c8fe",
+      "bytes": 437815,
+      "paginas": 1,
+      "sin_capa_texto": true,
+      "campos": {},
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "SACO DE ROSQUILLAS DE 7,5 KG."
+    },
+    {
+      "product_code": "3911",
+      "archivo": "3911.pdf",
+      "sha256": "26a0ae461a919e14235d4c6f89446fca65c5c958b5c37502ec4557476fc5c8fe",
+      "bytes": 437815,
+      "paginas": 1,
+      "sin_capa_texto": true,
+      "campos": {},
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "INTEGRALES VIOLINES C/ 8 PACK 4 U.HORNO CARLOS III"
+    },
+    {
+      "product_code": "3924",
+      "archivo": "3924.pdf",
+      "sha256": "26a0ae461a919e14235d4c6f89446fca65c5c958b5c37502ec4557476fc5c8fe",
+      "bytes": 437815,
+      "paginas": 1,
+      "sin_capa_texto": true,
+      "campos": {},
+      "descartados": {},
+      "en_catalogo": false,
+      "descripcion_catalogo": null
+    },
+    {
+      "product_code": "3926",
+      "archivo": "3926.pdf",
+      "sha256": "ae404c4e0121b8557784f541e4dfc3686a9fc170a9dc748e98cc32b90a3bfd63",
+      "bytes": 440473,
+      "paginas": 1,
+      "sin_capa_texto": true,
+      "campos": {},
+      "descartados": {},
+      "en_catalogo": false,
+      "descripcion_catalogo": null
+    },
+    {
+      "product_code": "4100",
+      "archivo": "4100.pdf",
+      "sha256": "121347da03ea9f717e4c97309c656989a8e8087fb537aa3c4ce499889509c678",
+      "bytes": 337671,
+      "paginas": 2,
+      "sin_capa_texto": false,
+      "campos": {
+        "ingredientes": "Composición cualitativa \nLomo de cerdo, manteca de cerdo ibérico y especias. Puede contener trazas de GLUTEN, ALTRAMUCES, SOJA, \nSULFITOS, LACTOSA. \n \nComposición cuantitativa \n(kg/kg producto terminado \no %) \nLomo \n90 \nManteca blanca de lomo F-426 \n10 \n \n \nDeclaración de Alérgenos y \nOMG,s \n(+) \nA \nAdición directa \n(+) T \nTrazas: Presente en la misma línea \nN \nNo presente en planta",
+        "conservacion": "Integran este grupo los derivados cárnicos sometidos a tratamiento térmico de pasteurización, bien mediante \ncocción u otro tratamiento térmico equivalente, que requieren refrigeración para su conservación. \nPresentación, envasado y embalado",
+        "presentacion": "CONSERVAR REFRIGERADO ENTRE 0 Y 5 ºC.\nEL CASERITO\nCárnicas y Elaborados\nSerrano, S.L.\nAvda. Mª Auxiliadora, 11 Telf: 955903770 – Écija\nArte Sano\nES\n10.14761/SE\nC.E."
+      },
+      "descartados": {
+        "alergenos": "contiene membrete, laboratorio o pie de página"
+      },
+      "en_catalogo": true,
+      "descripcion_catalogo": "ZURRAPA DE LOMO BLANCA 500 GM."
+    },
+    {
+      "product_code": "4101",
+      "archivo": "4101.pdf",
+      "sha256": "121347da03ea9f717e4c97309c656989a8e8087fb537aa3c4ce499889509c678",
+      "bytes": 337671,
+      "paginas": 2,
+      "sin_capa_texto": false,
+      "campos": {
+        "ingredientes": "Composición cualitativa \nLomo de cerdo, manteca de cerdo ibérico y especias. Puede contener trazas de GLUTEN, ALTRAMUCES, SOJA, \nSULFITOS, LACTOSA. \n \nComposición cuantitativa \n(kg/kg producto terminado \no %) \nLomo \n90 \nManteca blanca de lomo F-426 \n10 \n \n \nDeclaración de Alérgenos y \nOMG,s \n(+) \nA \nAdición directa \n(+) T \nTrazas: Presente en la misma línea \nN \nNo presente en planta",
+        "conservacion": "Integran este grupo los derivados cárnicos sometidos a tratamiento térmico de pasteurización, bien mediante \ncocción u otro tratamiento térmico equivalente, que requieren refrigeración para su conservación. \nPresentación, envasado y embalado",
+        "presentacion": "CONSERVAR REFRIGERADO ENTRE 0 Y 5 ºC.\nEL CASERITO\nCárnicas y Elaborados\nSerrano, S.L.\nAvda. Mª Auxiliadora, 11 Telf: 955903770 – Écija\nArte Sano\nES\n10.14761/SE\nC.E."
+      },
+      "descartados": {
+        "alergenos": "contiene membrete, laboratorio o pie de página"
+      },
+      "en_catalogo": true,
+      "descripcion_catalogo": "ZURRAPA DE LOMO COLORA 500 GM."
+    },
+    {
+      "product_code": "4315",
+      "archivo": "4315.pdf",
+      "sha256": "41f5655a73d370e9c5de3a2aaa36482de642aea0f32dbb76eb5d87206f87e71b",
+      "bytes": 147822,
+      "paginas": 3,
+      "sin_capa_texto": false,
+      "campos": {
+        "modo_empleo": "Retirar la tripa si lo desea y / o consumir directamente \nLÍMITES MICROBIOLÓGICOS \n \n \nReglamento 2073/2005 y posteriores modificaciones \nCATEGORIZACIÓN \nAw < 0,92 \n \nListeria monocytogenes n=5 \nNo detectado en 25g (antes de que el producto haya dejado el control \ninmediato del explotador de la empresa alimentaria que lo ha producido). \nListeria monocytogenes n=5 \n100 ufc / g ( producto comercializado durante su vida útil) \nSalmonella n=5 \nNo detectado en 25g \nCONTAMINANTES QUÍMICOS \n- \nSuma de Dioxinas ≤1,0 pg/ g grasa \n- \nSuma de Dioxinas y PCBs ≤ 1,25 pg/g grasa \n- \nSuma de PCB28, PCB52, PCB101, PCB138, PCB153 y PCB180………≤40 ng/grasa \n- \nMelamina ≤ 2,5 mg/Kg. \nADITIVOS LIMITADOS LEGALMENTE (en base a proveedor) \nE-450…………≤ 5000 mg/kg \nE-316…………≤ 500 mg/kg \nE-252…………≤ 150 mg/"
+      },
+      "descartados": {
+        "ingredientes": "es la tabla de contaminación cruzada, no los ingredientes",
+        "alergenos": "no nombra ningún alérgeno de declaración obligatoria"
+      },
+      "en_catalogo": true,
+      "descripcion_catalogo": "SALCHICHON CASERO PRIMERA"
+    },
+    {
+      "product_code": "4316",
+      "archivo": "4316.pdf",
+      "sha256": "d0edafa40131f78054ee67dec11c1e44258acbd8b27a7d3e27c613146ee4837b",
+      "bytes": 357092,
+      "paginas": 5,
+      "sin_capa_texto": false,
+      "campos": {
+        "modo_empleo": "Consumir tras tratamiento térmico completo: Cocción 96ºC 10min/ Horno 220ºC10min/Fritura 190ºC 4 min. \nLÍMITES MICROBIOLÓGICOS \n \n \nE. coli \nn = 5 c = 0 \nm=500 M=5000 \nSalmonella \nn = 5 c = 0 \nNo detectado/10g \nReglamento 2073/2005 y posteriores modificaciones. \nCONTAMINANTES QUÍMICOS \n- \nSuma de Dioxinas ≤1,0 pg/ g grasa \n- \nSuma de Dioxinas y PCBs ≤ 1,25 pg/g grasa \n- \nSuma de PCB28, PCB52, PCB101, PCB138, PCB153 y PCB180………≤40 ng/grasa \n- \nMelamina ≤ 2,5 mg/Kg. \nADITIVOS LIMITADOS LEGALMENTE \nE-120…………≤ 100 mg/kg \nE-450+ E-451……………..≤5000 mg/kg \nINFORMACIÓN NUTRICIONAL (datos aportados por el cliente) \nValores medios por 100g de producto \nvalor energético \n1067 KJ/256kcal \ngrasas \n17g \nde las cuales: \n \n- saturadas \n6 g \nhidratos de carbono \n9,8g \nde los cuales: \n \n- azúcares"
+      },
+      "descartados": {
+        "ingredientes": "contiene membrete, laboratorio o pie de página",
+        "alergenos": "no nombra ningún alérgeno de declaración obligatoria"
+      },
+      "en_catalogo": true,
+      "descripcion_catalogo": "CHORIZO ROSARIO OREADO DEL MÍO"
+    },
+    {
+      "product_code": "449",
+      "archivo": "0449.pdf",
+      "sha256": "64ffeccaf27f6dde0ea0cd2893adb26dcae93e60153c441a6fe818a9482c5c8a",
+      "bytes": 40307,
+      "paginas": 1,
+      "sin_capa_texto": false,
+      "campos": {
+        "modo_empleo": "INFORMACION NUTRICIONAL POR 100G PRODUCTO \n \n \n \nValor energético \n1144kj \n275kcal \nGrasas \nde las cuales saturadas \n21.3g \n9.0g \nHidratos de carbono \nde los cuales azucares \n3.5g \n2.9g \nProteínas \n17.5g \nSal \n2.04g \nFORMA DE ELABORACIÓN \nSacar materias primas congeladas, a Tª aprox. -18ºC (pollo) , 12 horas antes \nde su utilización alojándolas en la cámara de refrigeración a una Tª aprox. \n4ºC para su descongelación. Tras esto sacarlas de la cámara de \nrefrigeración para su posterior picado con placa de 6 mm. Pasar a la \namasadora añadiendo los aditivos correspondientes. Amasar durante \naproximadamente 4 minutos. Se embute, ata y grapamos el embutido. \nFinalmente se almacena en la cámara de producto terminado fresco.\nCONDICIONES DE \nALMACENAMIENTO \nCAMARA FRIGORIFICA DE 0º C / 4 º C"
+      },
+      "descartados": {
+        "ingredientes": "no enumera ingredientes",
+        "alergenos": "demasiado corto"
+      },
+      "en_catalogo": true,
+      "descripcion_catalogo": "EMBUTIDO DE POLLO DEL MIO"
+    },
+    {
+      "product_code": "4983",
+      "archivo": "4983.pdf",
+      "sha256": "43c1f4d50828472dce072e877ac66a82c265e9d990ecbc01666301ab1e11d12d",
+      "bytes": 262300,
+      "paginas": 1,
+      "sin_capa_texto": true,
+      "campos": {},
+      "descartados": {},
+      "en_catalogo": false,
+      "descripcion_catalogo": null
+    },
+    {
+      "product_code": "4998",
+      "archivo": "4998.pdf",
+      "sha256": "43c1f4d50828472dce072e877ac66a82c265e9d990ecbc01666301ab1e11d12d",
+      "bytes": 262300,
+      "paginas": 1,
+      "sin_capa_texto": true,
+      "campos": {},
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "VIOLINES 8 PACK DE 4 UN DEL MIO"
+    },
+    {
+      "product_code": "50",
+      "archivo": "0050.pdf",
+      "sha256": "d0edafa40131f78054ee67dec11c1e44258acbd8b27a7d3e27c613146ee4837b",
+      "bytes": 357092,
+      "paginas": 5,
+      "sin_capa_texto": false,
+      "campos": {
+        "modo_empleo": "Consumir tras tratamiento térmico completo: Cocción 96ºC 10min/ Horno 220ºC10min/Fritura 190ºC 4 min. \nLÍMITES MICROBIOLÓGICOS \n \n \nE. coli \nn = 5 c = 0 \nm=500 M=5000 \nSalmonella \nn = 5 c = 0 \nNo detectado/10g \nReglamento 2073/2005 y posteriores modificaciones. \nCONTAMINANTES QUÍMICOS \n- \nSuma de Dioxinas ≤1,0 pg/ g grasa \n- \nSuma de Dioxinas y PCBs ≤ 1,25 pg/g grasa \n- \nSuma de PCB28, PCB52, PCB101, PCB138, PCB153 y PCB180………≤40 ng/grasa \n- \nMelamina ≤ 2,5 mg/Kg. \nADITIVOS LIMITADOS LEGALMENTE \nE-120…………≤ 100 mg/kg \nE-450+ E-451……………..≤5000 mg/kg \nINFORMACIÓN NUTRICIONAL (datos aportados por el cliente) \nValores medios por 100g de producto \nvalor energético \n1067 KJ/256kcal \ngrasas \n17g \nde las cuales: \n \n- saturadas \n6 g \nhidratos de carbono \n9,8g \nde los cuales: \n \n- azúcares"
+      },
+      "descartados": {
+        "ingredientes": "contiene membrete, laboratorio o pie de página",
+        "alergenos": "no nombra ningún alérgeno de declaración obligatoria"
+      },
+      "en_catalogo": false,
+      "descripcion_catalogo": null
+    },
+    {
+      "product_code": "5076",
+      "archivo": "5076.pdf",
+      "sha256": "4b1b8a24b02c89b3d76bf30da313526b4c739896449106eb8ba6a9ac63d216fd",
+      "bytes": 368140,
+      "paginas": 2,
+      "sin_capa_texto": false,
+      "campos": {
+        "ingredientes": "Carne de cerdo (77%), agua, fécula de patata, sal, \ndextrosa, especias (ajo 0,15%), proteína de leche \n(lactosa), \nestabilizantes \n(E-451, \nE-452) , \nantioxidante \n(E-301), \nconservador \n(E-250) , \ncolorante (E-120). Tripa no comestible.\nInformación nutricional por 100 g\nEnergia (kJ / kcal)\nGrasas (g)\nde las cuales saturadas (g)\nHidratos de carbono (g)\nde los cuales azúcares (g)\nProteinas (g)\nSal (g)\n1000\n241\n25,5\n7,4\n3,6\n2\n11,7\n2,7"
+      },
+      "descartados": {
+        "alergenos": "contiene membrete, laboratorio o pie de página"
+      },
+      "en_catalogo": true,
+      "descripcion_catalogo": "SALCHICHON DE AJO PROLONGO"
+    },
+    {
+      "product_code": "5100",
+      "archivo": "5100.pdf",
+      "sha256": "fd51bb42197f3ef7a8e84223890de16d766534efb6422e093fe59b67b9f2cda8",
+      "bytes": 434535,
+      "paginas": 2,
+      "sin_capa_texto": false,
+      "campos": {
+        "modo_empleo": "CONSEJO REGULADOR de La INDICACIÓN \nGEOGRÁFICA PROTEGIDA: \nCaballa de Andalucía y Melva de Andalucía \nConsérvese en lugar \nlimpio, fresco, seco y al \nabrigo de la luz. \nPalet europeo, \nretractilado. \nTemperatura \nambiente. Carga \nmáxima 800kg. \nVenta y \ndistribución a \nMayoristas y \nMinoristas. \nProducto apto para consumo humano. \nConsumir el producto en su totalidad una \nvez abierto el envase. \nFECHA DE CONSUMO Y NÚMERO DE \nLOTE \nINFORMACIÓN NUTRICIONAL \nIngesta de referencia de un adulto medio (8400 KJ/2000 \nKcal) \nINDICACIÓN \nGEOGRÁFICA \nPROTEGIDA \nGUSTO DEL SUR \n▪ Todos los productos tienen una fecha de \nconsumo preferente de 5 años. \n▪ La indicación del Lote figura en la tapa del \nenvase y en el estuche de cartón, en su caso. \n▪ El sistema de codificación corresponde al año \nde consumo preferente seguido del número \nsecuencial del día de envasado acompañado \nde los dos últimos dígi"
+      },
+      "descartados": {
+        "denominacion": "parece una tabla, no un texto",
+        "ingredientes": "demasiado corto",
+        "presentacion": "demasiado corto"
+      },
+      "en_catalogo": true,
+      "descripcion_catalogo": "MELVA 1800 FILETE DE ALMADRABA RO C/6"
+    },
+    {
+      "product_code": "5102",
+      "archivo": "5102.pdf",
+      "sha256": "fd51bb42197f3ef7a8e84223890de16d766534efb6422e093fe59b67b9f2cda8",
+      "bytes": 434535,
+      "paginas": 2,
+      "sin_capa_texto": false,
+      "campos": {
+        "modo_empleo": "CONSEJO REGULADOR de La INDICACIÓN \nGEOGRÁFICA PROTEGIDA: \nCaballa de Andalucía y Melva de Andalucía \nConsérvese en lugar \nlimpio, fresco, seco y al \nabrigo de la luz. \nPalet europeo, \nretractilado. \nTemperatura \nambiente. Carga \nmáxima 800kg. \nVenta y \ndistribución a \nMayoristas y \nMinoristas. \nProducto apto para consumo humano. \nConsumir el producto en su totalidad una \nvez abierto el envase. \nFECHA DE CONSUMO Y NÚMERO DE \nLOTE \nINFORMACIÓN NUTRICIONAL \nIngesta de referencia de un adulto medio (8400 KJ/2000 \nKcal) \nINDICACIÓN \nGEOGRÁFICA \nPROTEGIDA \nGUSTO DEL SUR \n▪ Todos los productos tienen una fecha de \nconsumo preferente de 5 años. \n▪ La indicación del Lote figura en la tapa del \nenvase y en el estuche de cartón, en su caso. \n▪ El sistema de codificación corresponde al año \nde consumo preferente seguido del número \nsecuencial del día de envasado acompañado \nde los dos últimos dígi"
+      },
+      "descartados": {
+        "denominacion": "parece una tabla, no un texto",
+        "ingredientes": "demasiado corto",
+        "presentacion": "demasiado corto"
+      },
+      "en_catalogo": true,
+      "descripcion_catalogo": "MELVA FILETE DE ALMADRABA 1000 C/ 12"
+    },
+    {
+      "product_code": "52",
+      "archivo": "0052.pdf",
+      "sha256": "d0edafa40131f78054ee67dec11c1e44258acbd8b27a7d3e27c613146ee4837b",
+      "bytes": 357092,
+      "paginas": 5,
+      "sin_capa_texto": false,
+      "campos": {
+        "modo_empleo": "Consumir tras tratamiento térmico completo: Cocción 96ºC 10min/ Horno 220ºC10min/Fritura 190ºC 4 min. \nLÍMITES MICROBIOLÓGICOS \n \n \nE. coli \nn = 5 c = 0 \nm=500 M=5000 \nSalmonella \nn = 5 c = 0 \nNo detectado/10g \nReglamento 2073/2005 y posteriores modificaciones. \nCONTAMINANTES QUÍMICOS \n- \nSuma de Dioxinas ≤1,0 pg/ g grasa \n- \nSuma de Dioxinas y PCBs ≤ 1,25 pg/g grasa \n- \nSuma de PCB28, PCB52, PCB101, PCB138, PCB153 y PCB180………≤40 ng/grasa \n- \nMelamina ≤ 2,5 mg/Kg. \nADITIVOS LIMITADOS LEGALMENTE \nE-120…………≤ 100 mg/kg \nE-450+ E-451……………..≤5000 mg/kg \nINFORMACIÓN NUTRICIONAL (datos aportados por el cliente) \nValores medios por 100g de producto \nvalor energético \n1067 KJ/256kcal \ngrasas \n17g \nde las cuales: \n \n- saturadas \n6 g \nhidratos de carbono \n9,8g \nde los cuales: \n \n- azúcares"
+      },
+      "descartados": {
+        "ingredientes": "contiene membrete, laboratorio o pie de página",
+        "alergenos": "no nombra ningún alérgeno de declaración obligatoria"
+      },
+      "en_catalogo": true,
+      "descripcion_catalogo": "CHORIZO PINCHO 1,5 KG APROX. DEL MIO"
+    },
+    {
+      "product_code": "53",
+      "archivo": "0053.pdf",
+      "sha256": "42c5e3028565afc96242ab3424211b7ac79f194dd4e73926959bf066ae7556ff",
+      "bytes": 362846,
+      "paginas": 5,
+      "sin_capa_texto": false,
+      "campos": {},
+      "descartados": {
+        "ingredientes": "es la tabla de contaminación cruzada, no los ingredientes",
+        "alergenos": "contiene membrete, laboratorio o pie de página",
+        "modo_empleo": "contiene membrete, laboratorio o pie de página"
+      },
+      "en_catalogo": true,
+      "descripcion_catalogo": "CHORIZO PICANTE HRA. DEL MÍO"
+    },
+    {
+      "product_code": "552",
+      "archivo": "0552.pdf",
+      "sha256": "2ea83fb9bcd4afc83da667a7e1d0044b7c8e5330f392f26c22313af5ac97657c",
+      "bytes": 92174,
+      "paginas": 3,
+      "sin_capa_texto": false,
+      "campos": {
+        "denominacion": "Ingredientes: en negrita los alérgenos que contiene. \nInformación nutricional por 100 gr. \nConsérvese Refrigerado entre 0º a 4ºC. \nUna vez abierto consumir antes de 48 horas. \nModo de Preparación: consumir directamente o tras calentar al horno, microondas o a la plancha. \nLote \nFecha de consumo preferente \nMarca identificativa \nPeso neto: en venta. \n \n\n \n \n \n \nPOLLO RELLENO AL HORNO 2,2 KG \nFOGON DEL REY",
+        "alergenos": "Contenido en el \nproducto \nPosibilidad de \ntrazas \nLeche y productos derivados (incluida la lactosa)\n-\nHuevos y productos a base de huevo\n-\nSoja y productos a base de soja\n+\nCereales que contengan gluten y productos derivados (1) \n-\nPescado y productos a base de pescado\n-\nCrustáceos y productos a base de crustáceos\n-\nFrutos de cáscara y productos derivados (excepto cacahuetes) (2)\n-\nCacahuetes y productos a base de cacahuetes\n-\nGranos de sésamo y productos a base de granos de sésamo\n-\nAnhídrido sulfuroso y sulfitos en concentraciones >10mg/kg ó 10mg/l \nexpresado como SO2 \n-\nApio y productos derivados\n-\nMostaza y productos derivados\n-\nAltramuces y productos a base de altramuces\n-\nMoluscos y productos a base de moluscos\n-\n \n+ presente - ausente \n(1) Trigo, centeno, cebada, avena, espelta, kamut o sus variedades híbridas. \n \n(2) Almendras (Amygdalus communis), avellanas (Corylus avell",
+        "modo_empleo": "Modo de Preparación: consumir directamente o tras calentar al horno, microondas o a la plancha. Una vez abierto conservar en \nrefrigeración y consumir antes de 48 h. \n\n \n \n \n \nPOLLO RELLENO AL HORNO 2,2 KG \nFOGON DEL REY"
+      },
+      "descartados": {},
+      "en_catalogo": false,
+      "descripcion_catalogo": null
+    },
+    {
+      "product_code": "5811",
+      "archivo": "5811.pdf",
+      "sha256": "7db114b0e79d67211b577bc3042904d3da7d30d1362412e22991f51f79265d63",
+      "bytes": 160108,
+      "paginas": 3,
+      "sin_capa_texto": false,
+      "campos": {
+        "denominacion": "Salchichón de pavo al vacío. \nCÓDIGO ARTÍCULO \n21448",
+        "ingredientes": "Carne y grasa de pavo, sal, lactosa, proteínas lácteas, dextrina, dextrosa, especias, emulgentes (E-451i, E-\n450i, E-410), antioxidantes (E-316, E-331iii, E-392), aromas, conservadores (E-252, E-250), colorante (E-120). \nInformación para alérgicos: Contiene productos lácteos. Sin gluten. \nTIPO DE TRATAMIENTO \nProducto sometido a un proceso de secado-maduración. \nPRESENTACIONES \nPiezas de 1,3Kg aproximadamente, embutidas en tripas artificial no comestible y envasadas al vacío. \nUnidad de venta: Cajas que contienen cuatro piezas. \nCONDICIONES DE TRANSPORTE Y ALMACENAMIENTO \nMantener entre 0 y 5º C.",
+        "conservacion": "Consumir preferentemente en los 210 días posteriores a su elaboración en las condiciones de \nalmacenamiento y uso prescritas. \n \nUSO Y CONSUMO PREVISTO \n• \nProducto apto para ser consumido por cualquier tipo de grupo de población, incluyendo grupos \nvulnerables (ancianos, niños, alérgicos) salvo prescripción médica \n• \nPara venta previo fraccionamiento. \n• \nNo necesita preparación culinaria. Producto listo para el consumo. \n \n \n \n \n \n \nL. monocytogenes \nSalmonella spp \n<100 ufc/g \nAusencia en 25 g \n \n \n \n \n\n \n \n \nDECLARACIÓN DE ALÉRGENOS Y OGM DE \nPRODUCTO SECADO-MADURADO \n \n \nRevisión 15 \n(08/08/2022) \n \nPágina 3 de 3 \nRG067.02"
+      },
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "SALCHICHON EXTRA DE PAVO DEL MIO"
+    },
+    {
+      "product_code": "5812",
+      "archivo": "5812.pdf",
+      "sha256": "892c1b3bab91e935fc8ec4f2d2be69686e0e3b776823e55cec8c0f9daf182f25",
+      "bytes": 146739,
+      "paginas": 3,
+      "sin_capa_texto": false,
+      "campos": {
+        "denominacion": "Chorizo de pavo al vacío. \nCÓDIGO ARTÍCULO \n21447",
+        "ingredientes": "Carne de pavo, sal, proteínas lácteas, lactosa, especias, ajo (sulfitos), dextrina, dextrosa, fibra vegetal, \naromas, emulgentes (E-451i, E-450i), colorante (E-120), antioxidante (E-316), conservadores (E-250, E-252). \nInformación para alérgicos: Contiene productos lácteos y sulfitos. Sin gluten. \nTIPO DE TRATAMIENTO \nProducto sometido a un proceso de secado-maduración. \nPRESENTACIONES \nPiezas de 1,4 Kg. aproximadamente, embutidas en tripa artificial no comestible y envasadas al vacío. \nUnidad de venta: Cajas que contienen cuatro piezas. \nCONDICIONES DE TRANSPORTE Y ALMACENAMIENTO \nMantener entre 0 y 5 ºC.",
+        "conservacion": "Consumir preferentemente en los 210 días posteriores a su elaboración en las condiciones de \nalmacenamiento y uso prescritas. \nUSO Y CONSUMO PREVISTO \n• \nProducto apto para ser consumido por cualquier tipo de grupo de población, incluyendo grupos \nvulnerables (ancianos, niños, alérgicos) salvo prescripción médica \n• \nPara venta previo fraccionamiento. \n• \nNo necesita preparación culinaria. Producto listo para el consumo. \n \n \n \n \n \n \n\n \n \n \n \nDECLARACIÓN DE ALÉRGENOS Y OGM DE \nPRODUCTO CÁRNICO SECADO-MADURADO \n \n \nRevisión 15 \n(17/08/2023) \n \nPágina 3 de 3 \nRG067.02"
+      },
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "CHORIZO EXTRA DE PAVO DEL MIO"
+    },
+    {
+      "product_code": "5814",
+      "archivo": "5814.pdf",
+      "sha256": "aba65eafa059f70d45e091389124d29ff638f7d1667e4069ad8fbbf358a20db3",
+      "bytes": 154056,
+      "paginas": 3,
+      "sin_capa_texto": false,
+      "campos": {
+        "denominacion": "Salchichón extra. \nCÓDIGO ARTÍCULO \n21417",
+        "ingredientes": "Carne y grasa de cerdo, proteínas lácteas, sal, lactosa, dextrina, especias, dextrosa, emulgentes (E-451i, E- \n450i), aromas, conservadores (E-250, E-252), antioxidante (E-316), colorante (E-120). \nInformación para alérgicos: Contiene productos lácteos. No contiene gluten. \nTIPO DE TRATAMIENTO \nProducto sometido a un proceso de secado-maduración. \nPRESENTACIONES \nPiezas de 1.4 kg., aproximadamente, embutidas en tripa artificial no comestible y envasadas al vacío. \nUnidad de venta: Cajas que contienen cuatro piezas. \nCONDICIONES DE TRANSPORTE Y ALMACENAMIENTO \nMantener entre 0 y 5º C.",
+        "conservacion": "Consumir preferentemente en los 210 días posteriores a su elaboración en las condiciones de \nalmacenamiento y uso prescritas. \nUSO Y CONSUMO PREVISTO \n• \nProducto apto para ser consumido por cualquier tipo de grupo de población, incluyendo grupos \nvulnerables (ancianos, niños, alérgicos) salvo prescripción médica \n• \nPara venta previo fraccionamiento. \n• \nNo necesita preparación culinaria. Producto listo para el consumo. \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n\n \n \n \nDECLARACIÓN DE ALÉRGENOS Y OGM DE \nPRODUCTO SECADO-MADURADO \n \n \nRevisión 17 \n(06/03/2023) \n \nPágina 3 de 3 \nRG067.02"
+      },
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "SALCHICHON VELA EXTRA AL VACIO DEL MÍO"
+    },
+    {
+      "product_code": "5825",
+      "archivo": "0005825.pdf",
+      "sha256": "107949a8ff888ffa10c4ea38679466b9f18a83b06534a64d7c5d2a90042b5526",
+      "bytes": 673540,
+      "paginas": 6,
+      "sin_capa_texto": false,
+      "campos": {
+        "ingredientes": "JAMÓN COCIDO EXTRA.\nIngredientes: Jamón de cerdo (85%), agua, sal, azúcar, dextrosa de maíz,\naromas, estabilizantes (E-451 y E-407), antioxidantes (E-316 y E-331),\nconservador (E-250). Puede contener trazas de PROTEÍNA DE LECHE Y SOJA.\n2\nINFORMACION NUTRICIONAL POR 100 G (VALORES MEDIOS)\nVALOR ENERGÉTICO........: 387 kJ / 92 kcal.\nGRASAS (g)..............: 1,5 g\nDe las cuales Saturadas.: 0,5 g\nHIDRATOS CARBONO (g)....: 1,5 g\nDe los cuales Azúcares : 1,3 g\nPROTEINAS (g)...........: 18,0 g\nSAL ....................: 1,9 g\n3\nANALISIS FISICO-QUIMICO\n VALOR NORMAL TOLERANCIA\n ------ ------\nHUMEDAD (%).............................: 74,0 ≤ 80,0\nGRASA (%)...............................: 1,5 ≤ 3,0\nHIDRATOS DE CARBONO TOTALES (% GLUCOSA).: 1,5 ≤ 3,5\nAZÚCARES",
+        "conservacion": "Conservar refrigerado entre 0º y 5ºC.\nLa información contenida en esta ficha técnica no puede ser tomada como base de garantía ni objeto de responsabilidad\nInscrita en el Registro Mercantil de Murcia al Tomo MU-320, Folio 139, Hoja MU-6236. C.I.F.: A-30014377\n\n38782\nFecha entrada en vigor: 15/07/2025\n- A\nRevisión:\nPag. 4 de 6\nFICHA TÉCNICA ELPOZO"
+      },
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "JAMON COCIDO EN SU JUGO EL POZO"
+    },
+    {
+      "product_code": "6302",
+      "archivo": "6302.pdf",
+      "sha256": "797393104a5c275e04e41eae3311a95412ddc06b8ebd8a3403155ff01bc2b800",
+      "bytes": 203608,
+      "paginas": 2,
+      "sin_capa_texto": false,
+      "campos": {
+        "ingredientes": "Cabecero de lomo de cerdo ibérico, sal, ajo, pimentón, orégano, azúcares, proteína de soja, \ndextrina, caseinato, emulgentes E-450i, E-451ii, antioxidantes E-301, E-325, conservadores E-\n250, E-252."
+      },
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "LOMITO IBERICO BELLOTA *MARCIAL*"
+    },
+    {
+      "product_code": "6303",
+      "archivo": "6303.pdf",
+      "sha256": "10b1ae1c28b201c9d06515a450bd73be3bb27a4eacd60b4bf66788dd707746f0",
+      "bytes": 184722,
+      "paginas": 3,
+      "sin_capa_texto": false,
+      "campos": {
+        "ingredientes": "Lomo de cerdo ibérico, sal, ajo, pimentón, orégano, azúcares, leche en polvo desnatado, \ndextrosa, antioxidantes E-301, E-300, conservadores E-250, E-252."
+      },
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "LOMO PLATA CEBO CAMPO 50% *MARCIAL*"
+    },
+    {
+      "product_code": "6304",
+      "archivo": "6304.pdf",
+      "sha256": "015e00efe8b769238d975c9473152d05d722da2414af667b136f712d5a17522c",
+      "bytes": 173780,
+      "paginas": 2,
+      "sin_capa_texto": false,
+      "campos": {
+        "ingredientes": "Carne y grasa de cerdo ibérico, sal, ajo, especias, azúcares, leche en polvo desnatada, dextrina, \ndextrosa, emulgentes E-450i, E-451i, E-452i, antioxidantes E-331i, conservador E-250, E-252, \ncolorante E-120."
+      },
+      "descartados": {
+        "presentacion": "parece una tabla, no un texto"
+      },
+      "en_catalogo": true,
+      "descripcion_catalogo": "SALCHICHON CULAR PLATA IB. *MARCIAL*"
+    },
+    {
+      "product_code": "6305",
+      "archivo": "6305.pdf",
+      "sha256": "5666fd58990fe9ebbad5539c4916ab45809d869cd46df560f447e5d8e252b14b",
+      "bytes": 190827,
+      "paginas": 3,
+      "sin_capa_texto": false,
+      "campos": {
+        "ingredientes": "Carne y grasa de cerdo ibérico, sal, ajo, pimentón, orégano, azúcares, leche en \npolvo desnatada, dextrina, emulgentes E-450i, E-452i, antioxidantes E-301, E-\n325, conservador E-252."
+      },
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "CHORIZO CULAR PLATA IB. *MARCIAL*"
+    },
+    {
+      "product_code": "641",
+      "archivo": "0000641.pdf",
+      "sha256": "3112e8a5375a603c2f622654227ced8703c73382e52d02a5f0f49366cce27252",
+      "bytes": 629609,
+      "paginas": 6,
+      "sin_capa_texto": false,
+      "campos": {
+        "ingredientes": "FIAMBRE PALETA COCIDA.\nIngredientes: paleta de cerdo (55%), agua, almidón, sal,\nazúcar, aromas, estabilizantes (E-407, E-420 y E-451),\nantioxidante (E-316), conservador (E-250) y colorante (E-120).\nPuede contener trazas de PROTEÍNA DE LECHE y SOJA.\n2\nINFORMACION NUTRICIONAL POR 100 G (VALORES MEDIOS)\nVALOR ENERGÉTICO...............: 382 kJ / 90 kcal\nGRASAS (g).....................: 1,5 g\nDe las cuales saturadas........: 0,5 g\nHIDRATOS CARBONO (g)...........: 7,2 g\nDe las cuales azúcares.........: 1,3 g\nPROTEÍNAS (g)..................:12,0 g\nSAL (g)........................: 2,0 g\n3\nANALISIS FISICO-QUIMICO\n VALOR NORMAL TOLERANCIA\n ------ ------\nHUMEDAD (%).............................: 80,0 ≤ 85,0\nGRASA (%)...............................: 1,5 ≤ 3,0\nHIDRATOS DE CARBONO TOTALE",
+        "conservacion": "Conservar refrigerado entre 0º y 5ºC.\n6\nCONSUMIR PREFERENTEMENTE ANTES DE / FECHA CADUCIDAD (DIAS)\n180\nLa información contenida en esta ficha técnica no puede ser tomada como base de garantía ni objeto de responsabilidad\nInscrita en el Registro Mercantil de Murcia al Tomo MU-320, Folio 139, Hoja MU-6236. C.I.F.: A-30014377\n\n38248\nFecha entrada en vigor: 29/05/2025\n- A\nRevisión:\nPag. 4 de 6\nFICHA TÉCNICA ELPOZO"
+      },
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "FIAMBRE SANDW 4KG SIN LACTOSA EL POZO"
+    },
+    {
+      "product_code": "72",
+      "archivo": "0072.pdf",
+      "sha256": "b465171ff2da4e94a8df2ff23ba7cf589469fa6eb1b05387997b77aedc2f2dcf",
+      "bytes": 171310,
+      "paginas": 3,
+      "sin_capa_texto": false,
+      "campos": {
+        "denominacion": "Lomo embuchado (mitades) \nCÓDIGO ARTÍCULO \n21444",
+        "ingredientes": "Lomo de cerdo, sal, pimentón, azúcar, especias, potenciador del sabor (E- 621), proteína de cerdo, \nantioxidante (E-301), conservantes (E-250, E-252). Tripa artificial no comestible. \nInformación para alérgicos: No contiene gluten. \nTIPO DE TRATAMIENTO \nProducto sometido a un proceso de secado-maduración. \nPRESENTACIONES \nPiezas de cinta de lomo, embutidas en tripa artificial no comestible y envasada al vacío. \nUnidad de venta: Cajas que contienen siete piezas. \nCONDICIONES DE TRANSPORTE Y ALMACENAMIENTO \nMantener entre 0 y 5º C.",
+        "conservacion": "Consumir preferentemente en los 7 meses posteriores a su elaboración en las condiciones de \nalmacenamiento y uso prescritas. \n \n \nValor energético \n(kJ/Kcal) \nGrasa (g) \n \nAc. grasos \nsaturados \n(g) \nHidratos \nde carbono \n(g) \nAzúcare\ns totales \n(g) \nProteínas (g) \nSal (g) \n854/202 \n3,7 \n1,31 \n<1 \n<0,5 \n42,2 \n3,37 \nL. monocytogenes \nSalmonella spp \n<100 ufc/g \nAusencia en 25 g \n\n \n \n \nDECLARACION ALERGENOS PRODUCTO \nCÁRNICO SECADO MADURADO \n \n \nRevisión 02 \n(14/05/2025) \n \nRG067.02 \nUSO Y CONSUMO PREVISTO Y NO PREVISTO \n• \nProducto apto para ser consumido por cualquier tipo de grupo de población, incluyendo grupos vulnerables \nsalvo prescripción médica o por incompatibilidad con alérgenos. \n• \nPara venta previo fraccionamiento. \n• \nNo necesita preparación culinaria. Producto listo para el consumo. \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n\n \n \n \nDECLARACION A"
+      },
+      "descartados": {},
+      "en_catalogo": true,
+      "descripcion_catalogo": "1/2 CAÑA DE LOMO REDONDA DEL MIO"
+    },
+    {
+      "product_code": "906",
+      "archivo": "0906.pdf",
+      "sha256": "fa64fc37c04b568a262ab92cb1128fc8f3f2bd5376602f42f04a04c2ce739fe2",
+      "bytes": 373221,
+      "paginas": 6,
+      "sin_capa_texto": false,
+      "campos": {
+        "denominacion": "Manteca de cerdo ibérico empaquetada en cajas de 5, 10 y 20kg o a granel \n \n \n2. DESCRIPCIÓN \n \nManteca de cerdo ibérico, procedente de la fundición de manteca y tocino de cerdo ibérico.",
+        "ingredientes": "Grasa de cerdo ibérico y antioxidante, E-320 (BHA), con aceite vegetal como excipiente. \nOrigen de los ingredientes: España \nComposición cualitativa 99,99% grasa de cerdo ibérico y 0,008% de antioxidante \n \n4. CARACTERÍSTICAS \n \nComposición de la fracción de Ácidos Grasos: \n \nÁcido. Mirístico (14:0) \n1-1.8% \nÁcido. Margárico (17:0) \n0-0.5% \nÁcido. Pentadecilico (15:0) \n0-0.7% \nÁcido. Margaroleico (17:1) \n0-0.5% \nÁcido. Palmítico (16:0) \n22.5-25.5% \nÁcido. Esteárico (18:0) \n10-14.5% \n\n \n \nSISTEMA DE CALIDAD \nESPECIFICACION TECNICA \n \nRev:07 \nPágina 2 de 6 \nET-1401 \nPG 14 \nET-1401 \nMANTECA DE CERDO IBERICO ENVASADA Y A GRANEL \nCON BHA COMO ANTIOXIDANTE \n \n \n \nÁcido. Palmitole ico (C: 16:0) \ncon isómeros \n2-3.5% \nÁcido. Oleico (18:1) con \nisómeros \n45-52% \nÁcido. Linoleico (18:2) con \nisómeros \n5-10% \nÁcido. Linolenico (18:3) \ncon isómeros \n0.3-0.9% \nÁc",
+        "alergenos": "PRESENCIA \nCEREALES CON GLUTEN Y PRODUCTOS DERIVADOS \nTrigo, centeno, cebada, avena, esperma, Kamut, y variedades \nhíbridas \nNO \nCRUSTACEOS Y PRODUCTOS CON O BASADOS EN CRUSTACEOS \nNO \nPESCADO Y PRODUCTOS CON O BASADOS EN PESCADO \nNO \nHUEVO Y PRODUCTOS CON O BASADOS EN OVOPRODUCTOS \nNO \nCACAHUETES Y PRODUCTOS CON O BASADOS EN CACAHUETES \nNO \nSOJA Y PRODUCTOS CON O BASADOS EN SOJA \nNO \nLECHE DE VACA Y PRODUCTOS LACTEOS \nNO \nFRUTOS DE CASCARA Y PRODUCTOS CON O BASADOS EN \nFRUTOS DE CASCARA. Almendras, avellanas, nueces, anacarados, \npacanas, castañas de Pará, pistachos, nueces de Macadamia, y \nnueces de Australia \nNO \nAPIO Y DERIVADOS \nNO \nMOSTAZA Y DERIVADOS \nNO \nGRANOS DE SESAMO Y PRODUCTOS CON O BASADOS EN \nGRANOS DE SESAMO \nNO \nANHIDRIDO SULFUROSO Y SULFITOS EN CONCENTRACION \n > 10 mg/litro o > 10 mg/kilo, expresado en SO2 \nNO \nALTRAMUCES Y PRODUCTOS A BASE DE ALTRAMUCES \nNO",
+        "conservacion": "2 años desde la fecha de producción si lleva antioxidante. \n6 meses desde la fecha de producción si no lleva antioxidante. \n \n \n \n \n13. MODO DE EMPLEO- UTILIZACION \n\n \n \nSISTEMA DE CALIDAD \nESPECIFICACION TECNICA \n \nRev:07 \nPágina 5 de 6 \nET-1401 \nPG 14 \nET-1401 \nMANTECA DE CERDO IBERICO ENVASADA Y A GRANEL \nCON BHA COMO ANTIOXIDANTE \n \n \n \n \nCocinado o en crudo \n \n14. POBLACION DIANA \nConsumidores en general \nSe recomienda su consumo moderado a las personas con hipertensión arterial, diabéticas, \nhipercolesterolemia y obesidad. \n \n15. DOCUMENTACION QUE SE ADJUNTA A LA EXPEDICION DEL PRODUCTO \n \nAlbaran de salida donde figura el lote, los kilos, la fecha, el depósito de almacenamiento y la matricula \ndel vehículo. \n \n16. LISTA DE ALERGENOS \n \nContiene según Reglamento UE 1169/2011:"
+      },
+      "descartados": {},
+      "en_catalogo": false,
+      "descripcion_catalogo": null
+    }
+  ],
+  "approved_at": "2026-09-05T13:41:28.610791+00:00"
+}

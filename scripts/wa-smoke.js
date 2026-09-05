@@ -194,7 +194,16 @@ function toolCall(name, args) {
 function texto(t) { return { role: 'assistant', content: t }; }
 
 /* ======================================================================== */
+/** Node capaz de cargar `middleware.js`, que es ESM con extensión `.js`. */
+const NODE_MAYOR = Number(process.versions.node.split('.')[0]);
+
 async function main() {
+  if (NODE_MAYOR < 22) {
+    console.log(`\n⚠️  Node ${process.versions.node}: las 3 comprobaciones de `
+      + 'middleware.js van a fallar por el intérprete, no por el código '
+      + '(ESM con extensión .js solo se detecta en Node 22+). Ejecuta la suite '
+      + 'con Node 22 para un resultado válido.\n');
+  }
   const fails = [];
   const ok = (label) => console.log('  ✅', label);
   const check = async (label, fn) => {
@@ -741,6 +750,13 @@ async function main() {
       assert(mod, 'no exporta nada');
     });
   }
+  /* `middleware.js` es ESM porque lo exige el edge de Vercel, pero se llama
+     `.js` y el proyecto no declara `type: module`: Node decide el tipo por la
+     extensión, no por cómo lo cargues, así que solo puede cargarse en Node
+     22+, que detecta el módulo por su sintaxis. En Node 18 estas tres
+     comprobaciones fallan por el intérprete y no por el código, y un rojo que
+     depende del PATH no sirve para decidir nada. Se dice en voz alta en vez
+     de fingir que pasan. */
   await check('middleware sigue enrutando subdominios de cliente', async () => {
     const mw = require(path.join(ROOT, 'middleware.js'));
     assert.strictEqual(mw.resolveClientPath('sanmi.thehagentic.com', '/'), '/clientes/sanmi/');
