@@ -14,6 +14,7 @@ const agente = require('../../lib/chacon/agente');
 const fabrica = require('../../lib/chacon/fabrica');
 const voz = require('../../lib/chacon/voz');
 const formato = require('../../lib/chacon/wa-formato');
+const intenciones = require('../../lib/chacon/intenciones');
 const navegacion = require('../../lib/chacon/navegacion');
 const carritoNativo = require('../../lib/chacon/carrito-nativo');
 const router = require('../../lib/chacon/router');
@@ -317,6 +318,23 @@ async function atender(value, m) {
       claveIdempotencia: m.id,
     });
     await setHistorial(telefono, r.historial);
+
+    /* Si el modelo estaba contestando una PREGUNTA y ha enseñado una lista
+       para saber de qué producto hablamos, se anota el tema. Así, al tocar
+       uno, el código contesta la pregunta y no la tarjeta de precios: era lo
+       que fallaba cuando el cliente preguntaba y acababa viendo el precio. */
+    if (intenciones.esPregunta(texto)
+        && (r.tools || []).some((t) => ['ver_productos', 'ver_mas_productos',
+                                        'ver_categorias'].includes(t.nombre))) {
+      const pedida = intenciones.fichaPedida(texto);
+      const est2 = require('../../lib/chacon/estados');
+      const { maquina: mq } = await est2.leer(telefono);
+      await est2.mover(telefono, mq.estado,
+        { ...mq.datos, ficha_pedida: { campo: pedida ? pedida.campo : null } },
+        { motivo: 'pregunta abierta, falta saber de qué producto',
+          conservarPrevio: true });
+    }
+
     if (r.consultas_alergeno_sin_dato.length) {
       console.warn('[chacon] consulta de alérgenos sin dato:', JSON.stringify(r.consultas_alergeno_sin_dato));
     }

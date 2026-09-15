@@ -3281,7 +3281,31 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     }
   });
 
-  await check('P-3· al desambiguar, la pregunta sobrevive y se contesta', async () => {
+  await check('P-3· una pregunta se cede al modelo; una compra NO', async () => {
+    const TEL = '34600000104'; await conPrivacidad(TEL);
+    const cli = await repo.crearCliente({ nombre: 'Tienda Cede', telefono: TEL });
+    await est.mover(TEL, 'HOME', {}, { motivo: 'test' });
+
+    /* El modelo tiene la conversación entera; esta capa solo ve el mensaje.
+       Por eso las preguntas se le ceden: es lo único que entiende "y el
+       queso?" detrás de "el lomo lleva azúcar?". */
+    for (const q of ['hola el lomo lleva azucar?', 'y el queso?', '¿qué lleva el chopped?']) {
+      assert.strictEqual(await rt.porTexto(TEL, cli, q), null,
+        `"${q}" tiene que contestarla el modelo`);
+    }
+
+    /* Lo que NUNCA se cede: mover el carrito, confirmar o cancelar. Ahí el
+       código decide, porque una confirmación es irreversible. */
+    for (const q of ['terminar pedido', 'confirmar pedido', 'ver mi pedido', 'pedido nuevo']) {
+      assert.notStrictEqual(await rt.porTexto(TEL, cli, q), null,
+        `"${q}" no puede depender del modelo`);
+    }
+  });
+
+  await check('P-3b· con el respaldo determinista, la pregunta sobrevive al elegir', async () => {
+    const antes = process.env.CHACON_LLM_PREGUNTAS;
+    process.env.CHACON_LLM_PREGUNTAS = '0';
+    try {
     const TEL = '34600000094'; await conPrivacidad(TEL);
     const cli = await repo.crearCliente({ nombre: 'Tienda Ficha', telefono: TEL });
     await est.mover(TEL, 'HOME', {}, { motivo: 'test' });
@@ -3301,14 +3325,21 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     assert(!/€\/kg|Tarifa/i.test(t2), 'no puede responder con la tarjeta de precios: ' + t2.slice(0, 160));
     assert(/ficha técnica|no tengo ese dato/i.test(t2), t2.slice(0, 200));
 
-    // Y la pregunta se borra: el siguiente mensaje no la repite.
+    /* El tema NO se borra: "y el queso?" detrás sigue siendo la misma
+       pregunta, y borrarlo hacía que la segunda vez saliera el precio. */
     const { maquina: m2 } = await est.leer(TEL);
-    assert(!m2.datos.ficha_pedida, 'la pregunta contestada tiene que borrarse');
+    assert(m2.datos.ficha_pedida, 'el tema tiene que seguir abierto para la siguiente');
+    } finally {
+      if (antes === undefined) delete process.env.CHACON_LLM_PREGUNTAS;
+      else process.env.CHACON_LLM_PREGUNTAS = antes;
+    }
   });
 
   await check('P-4· el PDF va adjunto de verdad, no prometido', async () => {
     const antes = process.env.CHACON_IMAGENES_BASE_URL;
+    const antesLlm = process.env.CHACON_LLM_PREGUNTAS;
     process.env.CHACON_IMAGENES_BASE_URL = 'https://ejemplo.test';
+    process.env.CHACON_LLM_PREGUNTAS = '0';           // se prueba el respaldo
     try {
       const TEL = '34600000095'; await conPrivacidad(TEL);
       const cli = await repo.crearCliente({ nombre: 'Tienda PDF', telefono: TEL });
@@ -3320,6 +3351,8 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     } finally {
       if (antes === undefined) delete process.env.CHACON_IMAGENES_BASE_URL;
       else process.env.CHACON_IMAGENES_BASE_URL = antes;
+      if (antesLlm === undefined) delete process.env.CHACON_LLM_PREGUNTAS;
+      else process.env.CHACON_LLM_PREGUNTAS = antesLlm;
     }
   });
 
@@ -3376,10 +3409,15 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
   });
 
   await check('P-8· saludar + preguntar no acaba en el menú de inicio', async () => {
+    const antesLlm = process.env.CHACON_LLM_PREGUNTAS;
+    process.env.CHACON_LLM_PREGUNTAS = '0';           // se prueba el respaldo
     const TEL = '34600000097'; await conPrivacidad(TEL);
     const cli = await repo.crearCliente({ nombre: 'Tienda Saludo', telefono: TEL });
     await est.mover(TEL, 'HOME', {}, { motivo: 'test' });
     const r = await rt.porTexto(TEL, cli, 'hola, la caña de lomo lleva azucar?');
+    if (antesLlm === undefined) delete process.env.CHACON_LLM_PREGUNTAS;
+    else process.env.CHACON_LLM_PREGUNTAS = antesLlm;
+    assert(r, 'el respaldo determinista tiene que contestar');
     const t = r.map((x) => formato.aTexto(x)).join('\n');
     assert(!/¿Qué necesitas hoy\?/.test(t),
       'contestó con el menú de inicio en vez de con la pregunta: ' + t.slice(0, 160));
