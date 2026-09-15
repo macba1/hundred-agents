@@ -3240,6 +3240,99 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
     assert(pantallas[1].document.filename.endsWith('.pdf'));
   });
 
+  console.log('\n=== 29) Preguntar por un producto no es buscarlo para comprar ===');
+
+  const intenc = require(path.join(ROOT, 'lib/chacon/intenciones'));
+  const descub = require(path.join(ROOT, 'lib/chacon/descubrimiento'));
+  const rt = require(path.join(ROOT, 'lib/chacon/router'));
+  const est = require(path.join(ROOT, 'lib/chacon/estados'));
+
+  await check('P-1· "descripción técnica de X" NO cae en el buscador de productos', async () => {
+    /* Bug real: "Dame la descripción técnica de la caña de lomo" contestaba
+       "tengo varias opciones, ¿cuál buscas?" y al elegir salía la tarjeta de
+       compra. La pregunta se perdía. */
+    const q = 'Dame la descripción técnica de la caña de lomo';
+    const p = intenc.fichaPedida(q);
+    assert(p, 'no se reconoce como pregunta');
+    assert.strictEqual(p.campo, null, 'pide la ficha entera');
+    assert(!/tecnica|descripcion|dame/.test(p.producto),
+      'las palabras de la pregunta no pueden ir al buscador: ' + p.producto);
+    // Y el término recortado sí encuentra el producto.
+    assert(descub.buscar(p.producto).tipo !== 'nada', p.producto);
+  });
+
+  await check('P-2· el campo preguntado se reconoce, y comprar no se confunde', () => {
+    const casos = [
+      ['¿el salchichón de pavo lleva soja?', 'alergenos', 'salchichon pavo'],
+      ['¿qué lleva el chopped?', 'ingredientes', 'chopped'],
+      ['¿cómo se conserva el chorizo picante?', 'conservacion', null],
+      ['ficha tecnica del lomo', null, 'lomo'],
+    ];
+    for (const [q, campo, producto] of casos) {
+      const r = intenc.fichaPedida(q);
+      assert(r, `"${q}" no se reconoce`);
+      assert.strictEqual(r.campo, campo, `"${q}" -> ${r.campo}`);
+      if (producto) assert.strictEqual(r.producto, producto, `"${q}" -> "${r.producto}"`);
+    }
+    // Comprar sigue siendo comprar: esto NO puede volverse una pregunta.
+    for (const q of ['quiero dos cajas de chorizo', 'ponme lomo', 'hola',
+                     'terminar pedido', 'pedido nuevo']) {
+      assert.strictEqual(intenc.fichaPedida(q), null, `"${q}" no es una pregunta`);
+    }
+  });
+
+  await check('P-3· al desambiguar, la pregunta sobrevive y se contesta', async () => {
+    const TEL = '34600000094'; await conPrivacidad(TEL);
+    const cli = await repo.crearCliente({ nombre: 'Tienda Ficha', telefono: TEL });
+    await est.mover(TEL, 'HOME', {}, { motivo: 'test' });
+
+    const r1 = await rt.porTexto(TEL, cli, 'Dame la descripción técnica de la caña de lomo');
+    const t1 = r1.map((x) => formato.aTexto(x)).join('\n');
+    assert(/cuál|información/i.test(t1), 'debería pedir de cuál: ' + t1.slice(0, 120));
+
+    // La pregunta queda anotada, que es lo que faltaba.
+    const { maquina } = await est.leer(TEL);
+    assert(maquina.datos.ficha_pedida, 'no se anotó la pregunta pendiente');
+    assert.strictEqual(maquina.datos.ficha_pedida.campo, null);
+
+    // Al elegir, contesta la PREGUNTA y no enseña la tarjeta de compra.
+    const r2 = await rt.porClic(TEL, cli, 'prod:0072');
+    const t2 = r2.map((x) => formato.aTexto(x)).join('\n');
+    assert(!/€\/kg|Tarifa/i.test(t2), 'no puede responder con la tarjeta de precios: ' + t2.slice(0, 160));
+    assert(/ficha técnica|no tengo ese dato/i.test(t2), t2.slice(0, 200));
+
+    // Y la pregunta se borra: el siguiente mensaje no la repite.
+    const { maquina: m2 } = await est.leer(TEL);
+    assert(!m2.datos.ficha_pedida, 'la pregunta contestada tiene que borrarse');
+  });
+
+  await check('P-4· el PDF va adjunto de verdad, no prometido', async () => {
+    const antes = process.env.CHACON_IMAGENES_BASE_URL;
+    process.env.CHACON_IMAGENES_BASE_URL = 'https://ejemplo.test';
+    try {
+      const TEL = '34600000095'; await conPrivacidad(TEL);
+      const cli = await repo.crearCliente({ nombre: 'Tienda PDF', telefono: TEL });
+      await est.mover(TEL, 'HOME', {}, { motivo: 'test' });
+      const r = await rt.porTexto(TEL, cli, 'ficha tecnica del chorizo picante del mio');
+      const doc = r.find((x) => x.type === 'document');
+      assert(doc, 'tiene que adjuntar el PDF: ' + JSON.stringify(r.map((x) => x.type)));
+      assert(doc.document.link.includes('/api/chacon/ficha?p='), doc.document.link);
+    } finally {
+      if (antes === undefined) delete process.env.CHACON_IMAGENES_BASE_URL;
+      else process.env.CHACON_IMAGENES_BASE_URL = antes;
+    }
+  });
+
+  await check('P-5· preguntar no mete nada en el carrito', async () => {
+    const TEL = '34600000096'; await conPrivacidad(TEL);
+    const cli = await repo.crearCliente({ nombre: 'Tienda Nada', telefono: TEL });
+    await est.mover(TEL, 'HOME', {}, { motivo: 'test' });
+    await rt.porTexto(TEL, cli, '¿qué lleva el chorizo picante del mio?');
+    const carrito = await repo.getCarrito(cli.id);
+    assert.strictEqual((carrito.lineas || []).length, 0,
+      'una pregunta no puede añadir nada al pedido');
+  });
+
   console.log('\n=== 26) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
   await check('Chacón y Sanmi no comparten claves de Redis', async () => {
     const claves = [...mem.kv.keys(), ...mem.lists.keys(), ...mem.sets.keys(), ...mem.hashes.keys()];
