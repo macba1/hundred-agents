@@ -3333,6 +3333,75 @@ process.env.CHACON_TARIFAS_V2 = process.env.CHACON_TARIFAS_V2 || '1';
       'una pregunta no puede añadir nada al pedido');
   });
 
+  await check('P-6· saludar y preguntar en el mismo mensaje', async () => {
+    /* Bug real: "hola, la caña de lomo lleva azucar?" se contestaba con el
+       menú de inicio. El "hola" delante hacía que la frase entera dejara de
+       parecer una pregunta. */
+    const q = 'hola, la caña de lomo lleva azucar?';
+    const r = intenc.fichaPedida(q);
+    assert(r, 'el saludo delante no puede tapar la pregunta');
+    assert.strictEqual(r.campo, 'ingredientes',
+      'el azúcar es un ingrediente, no un alérgeno declarado');
+    assert.strictEqual(r.producto, 'cana lomo');
+
+    // Y el saludo a secas sigue siendo un saludo.
+    assert.strictEqual(intenc.sinSaludo('hola'), '');
+    assert.strictEqual(intenc.sinSaludo('buenas tardes'), '');
+    assert.strictEqual(intenc.sinSaludo('hola, quiero hacer un pedido'), 'quiero hacer un pedido');
+    assert.strictEqual(intenc.sinSaludo('chorizo picante'), 'chorizo picante');
+  });
+
+  await check('P-7· se reconoce por la FORMA, no por una lista de palabras', () => {
+    /* La lista siempre se queda corta: el azúcar no es alérgeno declarado.
+       Se modela "<producto> lleva <algo>", que es como se pregunta. */
+    for (const [q, campo, prod] of [
+      ['la caña de lomo lleva azucar', 'ingredientes', 'cana lomo'],
+      ['el chorizo lleva pimenton', 'ingredientes', 'chorizo'],
+      ['el salchichon de pavo lleva soja', 'alergenos', 'salchichon pavo'],
+      ['el queso lleva conservantes', 'ingredientes', 'queso'],
+      ['¿qué lleva el chopped?', 'ingredientes', 'chopped'],
+    ]) {
+      const r = intenc.fichaPedida(q);
+      assert(r, `"${q}" no se reconoce`);
+      assert.strictEqual(r.campo, campo, `"${q}" -> ${r.campo}`);
+      assert.strictEqual(r.producto, prod, `"${q}" -> "${r.producto}"`);
+    }
+
+    /* "¿tienes chorizo?" pregunta por existencias: el sujeto es Chacón, no el
+       producto. Eso va al catálogo y NO es una pregunta de composición. */
+    for (const q of ['¿tienes chorizo?', 'teneis queso', 'hay lomo',
+                     'quiero dos cajas de chorizo', 'ponme lomo', 'dame chorizo']) {
+      assert.strictEqual(intenc.fichaPedida(q), null, `"${q}" no es pregunta de ficha`);
+    }
+  });
+
+  await check('P-8· saludar + preguntar no acaba en el menú de inicio', async () => {
+    const TEL = '34600000097'; await conPrivacidad(TEL);
+    const cli = await repo.crearCliente({ nombre: 'Tienda Saludo', telefono: TEL });
+    await est.mover(TEL, 'HOME', {}, { motivo: 'test' });
+    const r = await rt.porTexto(TEL, cli, 'hola, la caña de lomo lleva azucar?');
+    const t = r.map((x) => formato.aTexto(x)).join('\n');
+    assert(!/¿Qué necesitas hoy\?/.test(t),
+      'contestó con el menú de inicio en vez de con la pregunta: ' + t.slice(0, 160));
+    assert(/cuál|información|ficha|no tengo ese dato/i.test(t), t.slice(0, 200));
+  });
+
+  await check('P-9· ingredientes y alérgenos se respaldan entre sí', async () => {
+    /* El fabricante a veces declara los alérgenos dentro de la lista de
+       ingredientes y no en un apartado aparte. Los dos son texto literal del
+       mismo documento. */
+    const f = fichasLib.todas().find((x) => x.campos && x.campos.ingredientes
+      && !x.campos.alergenos);
+    assert(f, 'debería haber fichas con ingredientes y sin apartado de alérgenos');
+    await repo.guardarRevisionCampo(f.product_code, 'ingredientes',
+      { estado: fichasLib.ESTADOS.VALIDADO, por: 'Fernando' });
+    const r = await fichasLib.consultar(f.product_code, 'alergenos');
+    assert.strictEqual(r.hay, true, 'debería responder con los ingredientes');
+    assert.strictEqual(r.campo, 'ingredientes');
+    assert.strictEqual(r.por_respaldo, 'alergenos');
+    assert.strictEqual(r.texto, f.campos.ingredientes, 'y seguir siendo literal');
+  });
+
   console.log('\n=== 26) Aislamiento entre tenants (sin regresiones en Sanmi) ===');
   await check('Chacón y Sanmi no comparten claves de Redis', async () => {
     const claves = [...mem.kv.keys(), ...mem.lists.keys(), ...mem.sets.keys(), ...mem.hashes.keys()];
