@@ -10,8 +10,8 @@
 --------------------------------------------------------------- */
 const STRINGS = {
   en: {
-    nav: { why: 'Why', what: 'What we do', cases: 'Use cases', how: 'How it works', contact: 'Contact' },
-    kick: { why: 'The problem', what: 'The method', dyn: 'The principle', cases: 'The applications', how: 'The engagement', faq: 'Questions' },
+    nav: { why: 'Why', what: 'What we do', cases: 'Use cases', music: 'Music', how: 'How it works', contact: 'Contact' },
+    kick: { why: 'The problem', what: 'The method', dyn: 'The principle', cases: 'The applications', music: 'Music', how: 'The engagement', faq: 'Questions' },
     legend: { agents: 'Agents', gate: 'Human gate', exec: 'Execution' },
     fig1: 'THE_AGENTIC_WORKFLOW', fig1note: 'Live', fig2: 'CONTROLLED_AUTOMATION', fig2note: 'Constraints → outcome',
     hero: {
@@ -65,6 +65,11 @@ const STRINGS = {
         { num: '4', title: 'Deploy and measure', body: 'We ship it, track results and expand from proof, not hype.' },
       ],
     },
+    music: {
+      heading: 'ReleaseLoop is the music division of Hundred Agents.',
+      body: 'We run digital strategy and release campaigns for recording artists, from emerging acts to established bands. Based in Austin, Texas.',
+      cta: 'Visit ReleaseLoop',
+    },
     faq: {
       heading: 'Straight answers.',
       items: [
@@ -93,12 +98,12 @@ const STRINGS = {
         errEmail: 'Enter a valid email address.',
       },
     },
-    footer: { text: '© 2026 Hundred Agents AI LLC · Austin, Texas · info@thehagentic.com' },
+    footer: { text: '© 2026 Hundred Agents AI LLC · Austin, Texas · info@thehagentic.com', division: 'Music division:' },
   },
 
   es: {
-    nav: { why: 'Por qué', what: 'Qué hacemos', cases: 'Casos de uso', how: 'Cómo funciona', contact: 'Contacto' },
-    kick: { why: 'El problema', what: 'El método', dyn: 'El principio', cases: 'Las aplicaciones', how: 'El proceso', faq: 'Preguntas' },
+    nav: { why: 'Por qué', what: 'Qué hacemos', cases: 'Casos de uso', music: 'Música', how: 'Cómo funciona', contact: 'Contacto' },
+    kick: { why: 'El problema', what: 'El método', dyn: 'El principio', cases: 'Las aplicaciones', music: 'Música', how: 'El proceso', faq: 'Preguntas' },
     legend: { agents: 'Agentes', gate: 'Gate humano', exec: 'Ejecución' },
     fig1: 'EL_WORKFLOW_AGENTIC', fig1note: 'En vivo', fig2: 'AUTOMATIZACION_CONTROLADA', fig2note: 'Restricciones → resultado',
     hero: {
@@ -152,6 +157,11 @@ const STRINGS = {
         { num: '4', title: 'Despliega y mide', body: 'Lo lanzamos, medimos resultados y crecemos desde la prueba, no el hype.' },
       ],
     },
+    music: {
+      heading: 'ReleaseLoop es la división musical de Hundred Agents.',
+      body: 'Llevamos la estrategia digital y las campañas de lanzamiento de artistas, desde talentos emergentes hasta bandas consolidadas. Con sede en Austin, Texas.',
+      cta: 'Visita ReleaseLoop',
+    },
     faq: {
       heading: 'Respuestas claras.',
       items: [
@@ -180,7 +190,7 @@ const STRINGS = {
         errEmail: 'Ingresa un correo válido.',
       },
     },
-    footer: { text: '© 2026 Hundred Agents AI LLC · Austin, Texas · info@thehagentic.com' },
+    footer: { text: '© 2026 Hundred Agents AI LLC · Austin, Texas · info@thehagentic.com', division: 'División musical:' },
   },
 };
 
@@ -279,7 +289,7 @@ function renderFaq(t) {
     return `
       <div class="faq-item${open ? ' open' : ''}" data-faq="${i}">
         <button class="faq-q" type="button" aria-expanded="${open}">
-          <span class="q-left"><span class="q-idx">06.${i + 1}</span><span class="q-text">${esc(it.q)}</span></span>
+          <span class="q-left"><span class="q-idx">07.${i + 1}</span><span class="q-text">${esc(it.q)}</span></span>
           <span class="q-icon">${open ? '–' : '+'}</span>
         </button>
         <div class="faq-answer"><p>${esc(it.a)}</p></div>
